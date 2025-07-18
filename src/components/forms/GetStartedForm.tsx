@@ -44,7 +44,7 @@ const ProjectTypeStep = ({ onNext }: { onNext: (formData: any) => void }) => {
         </div>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6 pb-32 md:pb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6 pb-128 md:pb-6">
         {projectTypes.map((type, index) => (
           <div 
             key={type.id}
