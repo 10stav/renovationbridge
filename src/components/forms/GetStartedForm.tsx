@@ -410,7 +410,7 @@ const SuccessStep = ({ onBack, onNext }: { onBack: () => void, onNext: () => voi
       <div className="w-full md:w-1/2 bg-gradient-to-br from-lavender/30 to-lavender/10 rounded-xl p-5 md:p-6">
         <div className="text-center mb-6">
           <div className="bg-white p-4 rounded-xl shadow-md inline-block transform transition-all duration-500 hover:scale-105">
-            <div className="text-3xl md:text-4xl font-bold text-primary mb-1">500+</div>
+            <div className="text-3xl md:text-4xl font-bold text-primary mb-1">Your bids are waiting for you</div>
             <div className="text-sm text-secondary font-medium">Vetted Professionals</div>
           </div>
         </div>
@@ -460,7 +460,7 @@ const SuccessStep = ({ onBack, onNext }: { onBack: () => void, onNext: () => voi
               <div className="text-xs text-gray-700">Vetted Professionals</div>
             </div>
             <div className="bg-white p-3 rounded-xl shadow-sm text-center transform transition-all duration-300 hover:scale-105">
-              <div className="text-2xl font-bold text-primary">200+</div>
+              <div className="text-2xl font-bold text-primary">2000+</div>
               <div className="text-xs text-gray-700">Homeowners Helped</div>
             </div>
             <div className="bg-white p-3 rounded-xl shadow-sm text-center transform transition-all duration-300 hover:scale-105">
