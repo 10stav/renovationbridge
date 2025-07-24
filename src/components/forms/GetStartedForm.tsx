@@ -411,7 +411,7 @@ const SuccessStep = ({ onBack, onNext }: { onBack: () => void, onNext: () => voi
         <div className="text-center mb-6">
           <div className="bg-white p-4 rounded-xl shadow-md inline-block transform transition-all duration-500 hover:scale-105">
             <div className="text-3xl md:text-4xl font-bold text-primary mb-1">Your bids are waiting for you</div>
-            <div className="text-sm text-secondary font-medium">Vetted Professionals</div>
+            <div className="text-sm text-secondary font-medium"></div>
           </div>
         </div>
         
