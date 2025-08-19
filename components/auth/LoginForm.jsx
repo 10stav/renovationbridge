@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router'; // ← Next.js routing
 import { useAuth } from './AuthContext';
 import RegisterForm from './RegisterForm';
 
 function LoginForm() {
   const { login, isLoading } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter(); // ← Next.js router
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
@@ -20,9 +20,9 @@ function LoginForm() {
     } else {
       setTimeout(() => {
         const role = result.user?.role;
-        if (role === 'admin') navigate('/admin');
-        else if (role === 'contractor') navigate('/contractor');
-        else window.location.href = '/contractor';
+        if (role === 'admin') router.push('/admin'); // ← Next.js navigation
+        else if (role === 'contractor') router.push('/contractorPortal'); // ← Stay on same page
+        else router.push('/contractorPortal');
       }, 100);
     }
   };
@@ -133,9 +133,3 @@ function LoginForm() {
 }
 
 export default LoginForm;
-
-{/* to adjust:
-
-Increase the header to h-[60vh] so you see even more of the image.
-
-Push the card down further with -mt-24. */}
