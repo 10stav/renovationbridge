@@ -1,5 +1,6 @@
 import { useAuth } from '../components/auth/AuthContext';
 import ContractorPortal from '../components/contractor/ContractorPortal';
+import AuthPages from '../components/auth/AuthPages'; // ← Add this import
 
 export default function ContractorPortalPage() {
   const { user, isLoading } = useAuth();
@@ -9,14 +10,8 @@ export default function ContractorPortalPage() {
   }
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl mb-4">Contractor Portal</h1>
-          <p>Please log in to access the contractor portal.</p>
-        </div>
-      </div>
-    );
+    // ← Replace the basic message with your actual login form
+    return <AuthPages />;
   }
 
   if (user.role !== 'contractor') {
