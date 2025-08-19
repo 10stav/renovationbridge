@@ -20,26 +20,24 @@
  * Usage:
  * <RegisterForm />
  */
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router'; // ← Changed from react-router-dom
 import React, { useState } from 'react';
 import { useAuth } from './AuthContext';
 
 function RegisterForm() {
   const { register, isLoading } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter(); // ← Changed from useNavigate
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     phone: '',
     companyName: '',
-    //specialties: []
-    kitchenRemodeling: false, //set kitchenremodeling (tag option) to false by default
-    testTag2: false, // ✅ new tag
+    kitchenRemodeling: false,
+    testTag2: false,
   });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-
 
   /**
    * HANDLE FORM SUBMISSION
@@ -54,7 +52,6 @@ function RegisterForm() {
     setMessage('');
 
     console.log('📝 RegisterForm: Attempting registration for:', formData.email);
-    console.log('📝 RegisterForm: Selected specialties:', formData.specialties);
 
     const result = await register(formData);
 
@@ -69,23 +66,21 @@ function RegisterForm() {
         password: '',
         phone: '',
         companyName: '',
-        //specialties: []
-        kitchenRemodeling: false, //set kitchenremodeling (tag option) to false by default
-        testTag2: false, // ✅ new tag
+        kitchenRemodeling: false,
+        testTag2: false,
       });
     } else {
       console.log('❌ RegisterForm: Registration failed:', result.error);
 
-      // 🔁 Robust check for team member error
+      // Check for team member error
       const errorText = result.error?.toLowerCase() || '';
       if (errorText.includes('team member') || errorText.includes('not a team member')) {
-        navigate('/not-team-member');
+        router.push('/not-team-member'); // ← Changed from navigate
       } else {
         setError(result.error || 'Registration failed');
       }
     }
   };
-
 
   /**
    * HANDLE INPUT CHANGES
@@ -100,29 +95,6 @@ function RegisterForm() {
     });
 
     // Clear messages when user starts typing
-    if (error || message) {
-      setError('');
-      setMessage('');
-    }
-  };
-
-  /**
-   * HANDLE SPECIALTY TOGGLE
-   * 
-   * Manages the selection/deselection of contractor specialties.
-   * Allows multiple specialties to be selected via checkboxes.
-   * 
-   * @param {string} specialty - The specialty to toggle
-   */
-  const handleSpecialtyToggle = (specialty) => {
-    setFormData({
-      ...formData,
-      specialties: formData.specialties.includes(specialty)
-        ? formData.specialties.filter(s => s !== specialty)  // Remove if already selected
-        : [...formData.specialties, specialty]               // Add if not selected
-    });
-
-    // Clear messages when user makes changes
     if (error || message) {
       setError('');
       setMessage('');
@@ -256,9 +228,6 @@ function RegisterForm() {
         />
         Test Tag 2
       </label>
-
-
-
 
       {/* Success Message Display */}
       {message && (
