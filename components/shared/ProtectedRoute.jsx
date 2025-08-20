@@ -3,37 +3,15 @@
  * 
  * Wraps routes that require authentication and specific user roles.
  * Provides security layer for admin and contractor functionality.
- * 
- * Features:
- * - Authentication verification
- * - Role-based access control
- * - Automatic redirects for unauthorized access
- * - Loading states during authentication checks
- * - Contractor approval status verification
- * 
- * Security Checks:
- * - User must be logged in (valid JWT token)
- * - User must have required role (admin/contractor)
- * - Contractors must be approved by admin
- * - Handles expired tokens gracefully
- * 
- * Usage:
- * <ProtectedRoute requiredRole="admin">
- *   <AdminDashboard />
- * </ProtectedRoute>
- * 
- * <ProtectedRoute requiredRole="contractor">
- *   <ContractorPortal />
- * </ProtectedRoute>
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 
 function ProtectedRoute({ children, requiredRole }) {
   const { user, isInitializing, logout } = useAuth();
+  const router = useRouter(); // ← Single router instance
 
   // Show loading spinner during initial authentication check
   if (isInitializing) {
@@ -49,19 +27,39 @@ function ProtectedRoute({ children, requiredRole }) {
     );
   }
 
-  // Check for token and user - fixed authentication check
-  const token = localStorage.getItem('token');
+  // Handle redirects in useEffect
+  useEffect(() => {
+    // Check for token and user - SSR safe
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
-  if (!token || !user) {
-    console.log('🔒 ProtectedRoute: User not authenticated, redirecting to login');
-    console.log('Token exists:', !!token);
-    console.log('User exists:', !!user);
-    const router = useRouter();
-
-    useEffect(() => {
+    if (!token || !user) {
+      console.log('🔒 ProtectedRoute: User not authenticated, redirecting to login');
+      console.log('Token exists:', !!token);
+      console.log('User exists:', !!user);
       router.push('/login');
-    }, []);
+      return;
+    }
 
+    // Check if user has required role
+    if (requiredRole && user?.role !== requiredRole) {
+      console.log(`🚫 ProtectedRoute: User role "${user?.role}" does not match required role "${requiredRole}"`);
+      
+      // Redirect to appropriate dashboard based on actual role
+      if (user?.role === 'admin') {
+        router.push('/admin');
+      } else if (user?.role === 'contractor') {
+        router.push('/contractorPortal'); // ← Fixed route
+      } else {
+        router.push('/login');
+      }
+      return;
+    }
+  }, [user, requiredRole, router]);
+
+  // Check again for rendering (SSR safe)
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  
+  if (!token || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
@@ -69,32 +67,16 @@ function ProtectedRoute({ children, requiredRole }) {
     );
   }
 
-  // Check if user has required role
+  // Check role for rendering
   if (requiredRole && user?.role !== requiredRole) {
-    console.log(`🚫 ProtectedRoute: User role "${user?.role}" does not match required role "${requiredRole}"`);
-
-    // Redirect to appropriate dashboard based on actual role
-    if (user?.role === 'admin') {
-      return <Navigate to="/admin" replace />;
-    } else if (user?.role === 'contractor') {
-      return <Navigate to="/contractor" replace />;
-    } else {
-      // Unknown role, redirect to login
-      const router = useRouter();
-
-      useEffect(() => {
-        router.push('/login');
-      }, []);
-
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-        </div>
-      );
-    }
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
-  // Special check for contractors - must be approved
+  // Special check for contractors - must be approved (KEEPING YOUR EXACT FUNCTIONALITY)
   if (requiredRole === 'contractor' && !user?.isApproved) {
     console.log('⏳ ProtectedRoute: Contractor not yet approved by admin');
 
