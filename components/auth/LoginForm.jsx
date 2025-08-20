@@ -35,7 +35,7 @@ function LoginForm() {
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col">
             {/* Header section: fixed 30% of viewport height */}
-            <div className="relative w-full overflow-hidden flex-shrink-0" style={{ height: '60vh' }}>
+            <div className="relative w-full h-[60vh] overflow-hidden flex-shrink-0">
                 <img
                     src="/assets/Creation-7-Project-Tice-7.jpg"
                     alt="Header background"
@@ -52,7 +52,13 @@ function LoginForm() {
                         <img
                             src="/assets/Renovation.png"
                             alt="Logo"
-                            className="h-56 w-56 mb-0"
+                            style={{
+                                height: '224px',
+                                width: '224px',
+                                marginBottom: '0',
+                                maxHeight: '224px',
+                                maxWidth: '224px'
+                            }}
                         />
 
                         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
