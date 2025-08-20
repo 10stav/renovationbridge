@@ -1,20 +1,53 @@
 /**
  * PROTECTED ROUTE - Authentication and authorization guard component
- * 
- * Wraps routes that require authentication and specific user roles.
- * Provides security layer for admin and contractor functionality.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../auth/AuthContext';
 
 function ProtectedRoute({ children, requiredRole }) {
   const { user, isInitializing, logout } = useAuth();
-  const router = useRouter(); // ← Single router instance
+  const router = useRouter();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  // Handle all redirects in a single useEffect (following React Hook rules)
+  useEffect(() => {
+    // Don't run during initialization
+    if (isInitializing) return;
+
+    // Check for token and user - SSR safe
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
+    if (!token || !user) {
+      console.log('🔒 ProtectedRoute: User not authenticated, redirecting to login');
+      setIsRedirecting(true);
+      router.push('/login');
+      return;
+    }
+
+    // Check if user has required role
+    if (requiredRole && user?.role !== requiredRole) {
+      console.log(`🚫 ProtectedRoute: User role "${user?.role}" does not match required role "${requiredRole}"`);
+      setIsRedirecting(true);
+      
+      // Redirect to appropriate dashboard based on actual role
+      if (user?.role === 'admin') {
+        router.push('/admin');
+      } else if (user?.role === 'contractor') {
+        router.push('/contractorPortal');
+      } else {
+        router.push('/login');
+      }
+      return;
+    }
+
+    // If we get here, user is properly authenticated
+    setIsRedirecting(false);
+  }, [isInitializing, user, requiredRole, router]);
 
   // Show loading spinner during initial authentication check
-  if (isInitializing) {
+  if (isInitializing || isRedirecting) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="bg-white rounded-lg p-8 shadow-xl">
@@ -27,36 +60,7 @@ function ProtectedRoute({ children, requiredRole }) {
     );
   }
 
-  // Handle redirects in useEffect
-  useEffect(() => {
-    // Check for token and user - SSR safe
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-
-    if (!token || !user) {
-      console.log('🔒 ProtectedRoute: User not authenticated, redirecting to login');
-      console.log('Token exists:', !!token);
-      console.log('User exists:', !!user);
-      router.push('/login');
-      return;
-    }
-
-    // Check if user has required role
-    if (requiredRole && user?.role !== requiredRole) {
-      console.log(`🚫 ProtectedRoute: User role "${user?.role}" does not match required role "${requiredRole}"`);
-      
-      // Redirect to appropriate dashboard based on actual role
-      if (user?.role === 'admin') {
-        router.push('/admin');
-      } else if (user?.role === 'contractor') {
-        router.push('/contractorPortal'); // ← Fixed route
-      } else {
-        router.push('/login');
-      }
-      return;
-    }
-  }, [user, requiredRole, router]);
-
-  // Check again for rendering (SSR safe)
+  // Final checks for rendering (SSR safe)
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   
   if (!token || !user) {
@@ -76,7 +80,7 @@ function ProtectedRoute({ children, requiredRole }) {
     );
   }
 
-  // Special check for contractors - must be approved (KEEPING YOUR EXACT FUNCTIONALITY)
+  // Special check for contractors - must be approved
   if (requiredRole === 'contractor' && !user?.isApproved) {
     console.log('⏳ ProtectedRoute: Contractor not yet approved by admin');
 
