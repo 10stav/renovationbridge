@@ -35,7 +35,7 @@ function LoginForm() {
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col">
             {/* Header section: fixed 30% of viewport height */}
-            <div className="relative w-full h-[60vh] overflow-hidden flex-shrink-0">
+            <div className="relative w-full overflow-hidden flex-shrink-0" style={{ height: '60vh' }}>
                 <img
                     src="/assets/Creation-7-Project-Tice-7.jpg"
                     alt="Header background"
