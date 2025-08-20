@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset and improve fonts */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Sarabun', system-ui, -apple-system, sans-serif;
+}
+
+/* Force Sarabun Bold for headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Sarabun', sans-serif !important;
+  font-weight: 700 !important;
+}
+
+input {
+  font-family: 'Sarabun', sans-serif !important;
+  font-weight: 400 !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: #f9fafb !important;
+}
+
+input::placeholder {
+  font-family: 'Sarabun', sans-serif !important;
+  font-weight: 400 !important;
+  color: #9ca3af !important;
+}
+
+/* Make button use correct blue and Sarabun font */
+button {
+  font-family: 'Sarabun', sans-serif !important;
+  font-weight: 600 !important;
+  border: none !important;
+}
+
+/* Override the blue gradient with your brand color */
+.bg-gradient-to-r {
+  background: #313bc0 !important;
+}
+
+/* Make link text use Sarabun */
+.text-gray-600 {
+  font-family: 'Sarabun', sans-serif !important;
+  font-weight: 400 !important;
+}
+
+.text-gray-500 {
+  font-family: 'Sarabun', sans-serif !important;
+  font-weight: 400 !important;
+}
+
+.text-blue-600 {
+  font-family: 'Sarabun', sans-serif !important;
+  font-weight: 600 !important;
+  color: #313bc0 !important;
+}

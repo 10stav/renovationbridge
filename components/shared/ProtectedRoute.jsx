@@ -28,7 +28,8 @@
  */
 
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 
 function ProtectedRoute({ children, requiredRole }) {
@@ -50,18 +51,28 @@ function ProtectedRoute({ children, requiredRole }) {
 
   // Check for token and user - fixed authentication check
   const token = localStorage.getItem('token');
-  
+
   if (!token || !user) {
     console.log('🔒 ProtectedRoute: User not authenticated, redirecting to login');
     console.log('Token exists:', !!token);
     console.log('User exists:', !!user);
-    return <Navigate to="/login" replace />;
+    const router = useRouter();
+
+    useEffect(() => {
+      router.push('/login');
+    }, []);
+
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
   // Check if user has required role
   if (requiredRole && user?.role !== requiredRole) {
     console.log(`🚫 ProtectedRoute: User role "${user?.role}" does not match required role "${requiredRole}"`);
-    
+
     // Redirect to appropriate dashboard based on actual role
     if (user?.role === 'admin') {
       return <Navigate to="/admin" replace />;
@@ -69,14 +80,24 @@ function ProtectedRoute({ children, requiredRole }) {
       return <Navigate to="/contractor" replace />;
     } else {
       // Unknown role, redirect to login
-      return <Navigate to="/login" replace />;
+      const router = useRouter();
+
+      useEffect(() => {
+        router.push('/login');
+      }, []);
+
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+        </div>
+      );
     }
   }
 
   // Special check for contractors - must be approved
   if (requiredRole === 'contractor' && !user?.isApproved) {
     console.log('⏳ ProtectedRoute: Contractor not yet approved by admin');
-    
+
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 text-center">
@@ -85,16 +106,16 @@ function ProtectedRoute({ children, requiredRole }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          
+
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
             Account Pending Approval
           </h2>
-          
+
           <p className="text-gray-600 mb-6 leading-relaxed">
-            Thanks for registering, <strong>{user?.name}</strong>! 
+            Thanks for registering, <strong>{user?.name}</strong>!
             Your contractor account is currently being reviewed by our admin team.
           </p>
-          
+
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <h3 className="font-semibold text-blue-800 mb-2">What's Next?</h3>
             <ul className="text-blue-700 text-sm space-y-1 text-left">
@@ -103,7 +124,7 @@ function ProtectedRoute({ children, requiredRole }) {
               <li>• Then you can access job opportunities</li>
             </ul>
           </div>
-          
+
           <div className="space-y-3">
             <button
               onClick={() => window.location.reload()}
@@ -111,7 +132,7 @@ function ProtectedRoute({ children, requiredRole }) {
             >
               🔄 Check Approval Status
             </button>
-            
+
             <button
               onClick={logout}
               className="w-full bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium"
@@ -119,7 +140,7 @@ function ProtectedRoute({ children, requiredRole }) {
               👋 Logout
             </button>
           </div>
-          
+
           <p className="text-xs text-gray-500 mt-6">
             Questions? Contact admin for assistance.
           </p>
