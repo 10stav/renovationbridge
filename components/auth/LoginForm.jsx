@@ -52,7 +52,7 @@ function LoginForm() {
                         <img
                             src="/assets/Renovation.png"
                             alt="Logo"
-                            style={{ height: '224px', width: '224px', marginBottom: '0' }}
+                            className="h-56 w-56 mb-0"
                         />
 
                         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
