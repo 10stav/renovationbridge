@@ -45,7 +45,7 @@ function LoginForm() {
             </div>
 
             {/* Card overlapping header with slight negative margin */}
-            <div className="relative z-20 w-full -mt-48 flex-grow flex items-start justify-center">
+            <div className="relative z-20 w-full flex-grow flex items-start justify-center" style={{ marginTop: '-12rem' }}>
                 <div className="bg-white shadow-lg p-8 w-full" style={{
                     borderTopLeftRadius: '1.5rem',
                     borderTopRightRadius: '1.5rem',
