@@ -35,7 +35,7 @@ function LoginForm() {
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col">
             {/* Header section: fixed 30% of viewport height */}
-            <div className="relative w-full h-[60vh] overflow-hidden flex-shrink-0">
+            <div className="relative w-full overflow-hidden flex-shrink-0" style={{ height: '60vh' }}>
                 <img
                     src="/assets/Creation-7-Project-Tice-7.jpg"
                     alt="Header background"
@@ -46,8 +46,13 @@ function LoginForm() {
 
             {/* Card overlapping header with slight negative margin */}
             <div className="relative z-20 w-full -mt-48 flex-grow flex items-start justify-center">
-                <div className="bg-white shadow-lg rounded-t-2xl rounded-b-lg p-8 w-full min-h-[70vh]">
-                    <div className="w-full px-4 flex flex-col items-center">
+                <div className="bg-white shadow-lg p-8 w-full" style={{
+                    borderTopLeftRadius: '1.5rem',
+                    borderTopRightRadius: '1.5rem',
+                    borderBottomLeftRadius: '0.5rem',
+                    borderBottomRightRadius: '0.5rem',
+                    minHeight: '70vh'
+                }}>                    <div className="w-full px-4 flex flex-col items-center">
                         {/* Logo above title */}
                         <img
                             src="/assets/Renovation.png"
