@@ -21,6 +21,9 @@ export default async function handler(req, res) {
     }
 
     console.log('✅ Environment variables present');
+    console.log('🔗 MONGODB_URI:', process.env.MONGODB_URI);
+    console.log('🔗 URI starts with mongodb+srv?', process.env.MONGODB_URI?.startsWith('mongodb+srv://'));
+    console.log('🔗 URI starts with mongodb?', process.env.MONGODB_URI?.startsWith('mongodb://'));
 
     // Test imports
     let connectToDatabase, User, jwt;
@@ -54,12 +57,21 @@ export default async function handler(req, res) {
 
     // Test database connection
     try {
-      console.log('🔌 Connecting to database...');
+      console.log('🔌 About to connect to database...');
+      console.log('🔗 Using URI:', process.env.MONGODB_URI);
       await connectToDatabase();
       console.log('✅ Database connected successfully');
     } catch (error) {
       console.error('❌ Database connection failed:', error);
-      return res.status(500).json({ error: 'Database connection failed', details: error.message });
+      console.error('❌ Error name:', error.name);
+      console.error('❌ Error message:', error.message);
+      console.error('❌ Error stack:', error.stack);
+      return res.status(500).json({ 
+        error: 'Database connection failed', 
+        details: error.message,
+        errorName: error.name,
+        uriFormat: process.env.MONGODB_URI?.startsWith('mongodb+srv://') ? 'srv' : 'standard'
+      });
     }
 
     // If we get here, everything is working
@@ -68,6 +80,7 @@ export default async function handler(req, res) {
       message: 'All systems working! Environment variables and imports successful.',
       hasJWT: !!process.env.JWT_SECRET,
       hasMongoDB: !!process.env.MONGODB_URI,
+      uriFormat: process.env.MONGODB_URI?.startsWith('mongodb+srv://') ? 'srv' : 'standard',
       body: req.body
     });
 
@@ -78,5 +91,5 @@ export default async function handler(req, res) {
       details: error.message,
       stack: error.stack 
     });
-  }//test
+  }
 }
