@@ -1,95 +1,89 @@
 export default async function handler(req, res) {
-  console.log('🔍 Login API called:', req.method);
-  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    console.log('✅ POST request received');
-    console.log('📝 Request body:', req.body);
+    const { email, password } = req.body;
 
-    // Test environment variables first
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Check environment variables
     if (!process.env.JWT_SECRET) {
-      console.error('❌ Missing JWT_SECRET');
-      return res.status(500).json({ error: 'Missing JWT_SECRET environment variable' });
+      return res.status(500).json({ error: 'JWT_SECRET not configured' });
     }
 
-    if (!process.env.MONGODB_URI) {
-      console.error('❌ Missing MONGODB_URI');
-      return res.status(500).json({ error: 'Missing MONGODB_URI environment variable' });
-    }
+    // Import dependencies
+    const { connectToDatabase } = await import('../../../../lib/contractorPortal/utils/mongodb');
+    const User = (await import('../../../../lib/contractorPortal/models/User')).default;
+    const jwt = await import('jsonwebtoken');
 
-    console.log('✅ Environment variables present');
-    console.log('🔗 MONGODB_URI:', process.env.MONGODB_URI);
-    console.log('🔗 URI starts with mongodb+srv?', process.env.MONGODB_URI?.startsWith('mongodb+srv://'));
-    console.log('🔗 URI starts with mongodb?', process.env.MONGODB_URI?.startsWith('mongodb://'));
+    // Connect to database
+    await connectToDatabase();
 
-    // Test imports
-    let connectToDatabase, User, jwt;
-    
-    try {
-      console.log('📦 Importing dependencies...');
-      const mongoModule = await import('../../../../lib/contractorPortal/utils/mongodb');
-      connectToDatabase = mongoModule.connectToDatabase;
-      console.log('✅ MongoDB module imported');
-    } catch (error) {
-      console.error('❌ Failed to import mongodb:', error);
-      return res.status(500).json({ error: 'Failed to import database connection', details: error.message });
-    }
+    // Find user by email
+    const user = await User.findOne({ email: email.toLowerCase() });
 
-    try {
-      const userModule = await import('../../../../lib/contractorPortal/models/User');
-      User = userModule.default;
-      console.log('✅ User model imported');
-    } catch (error) {
-      console.error('❌ Failed to import User model:', error);
-      return res.status(500).json({ error: 'Failed to import User model', details: error.message });
-    }
-
-    try {
-      jwt = await import('jsonwebtoken');
-      console.log('✅ JWT imported');
-    } catch (error) {
-      console.error('❌ Failed to import JWT:', error);
-      return res.status(500).json({ error: 'Failed to import JWT', details: error.message });
-    }
-
-    // Test database connection
-    try {
-      console.log('🔌 About to connect to database...');
-      console.log('🔗 Using URI:', process.env.MONGODB_URI);
-      await connectToDatabase();
-      console.log('✅ Database connected successfully');
-    } catch (error) {
-      console.error('❌ Database connection failed:', error);
-      console.error('❌ Error name:', error.name);
-      console.error('❌ Error message:', error.message);
-      console.error('❌ Error stack:', error.stack);
-      return res.status(500).json({ 
-        error: 'Database connection failed', 
-        details: error.message,
-        errorName: error.name,
-        uriFormat: process.env.MONGODB_URI?.startsWith('mongodb+srv://') ? 'srv' : 'standard'
+    if (!user) {
+      return res.status(400).json({ 
+        error: 'No account found with this email address'
       });
     }
 
-    // If we get here, everything is working
+    // Check if user is approved (for contractors)
+    if (user.role === 'contractor' && !user.isApproved) {
+      return res.status(400).json({ 
+        error: 'Your contractor account is pending approval'
+      });
+    }
+
+    // Verify password
+    const isValidPassword = await user.comparePassword(password);
+
+    if (!isValidPassword) {
+      return res.status(400).json({ 
+        error: 'Invalid password'
+      });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        userId: user._id,
+        email: user.email,
+        role: user.role 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // Update last login
+    user.lastLoginAt = new Date();
+    await user.save();
+
+    // Return success with token
     return res.json({
       success: true,
-      message: 'All systems working! Environment variables and imports successful.',
-      hasJWT: !!process.env.JWT_SECRET,
-      hasMongoDB: !!process.env.MONGODB_URI,
-      uriFormat: process.env.MONGODB_URI?.startsWith('mongodb+srv://') ? 'srv' : 'standard',
-      body: req.body
+      message: 'Login successful',
+      token: token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        companyName: user.companyName,
+        contractorTags: user.contractorTags,
+        isApproved: user.isApproved
+      }
     });
 
   } catch (error) {
-    console.error('❌ Unexpected error:', error);
+    console.error('Login error:', error);
     return res.status(500).json({ 
-      error: 'Unexpected error in login route', 
-      details: error.message,
-      stack: error.stack 
+      error: 'Internal server error',
+      details: error.message 
     });
   }
 }
