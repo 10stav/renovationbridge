@@ -90,7 +90,7 @@ export default function ContractorPortal() {
 
     <div className="grid grid-cols-2 gap-6">
       <Card
-        title="Your Available Jobs"
+        title="Your Available Jobs test"
         subtitle={
           <>
             Ready to book 
