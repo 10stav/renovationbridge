@@ -1,10 +1,9 @@
 import { useAuth } from '../components/auth/AuthContext';
 import ContractorPortal from '../components/contractor/ContractorPortal';
 import AuthPages from '../components/auth/AuthPages';
-import { CogIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline'; // Add this
 
 export default function ContractorPortalPage() {
-  const { user, isLoading, logout } = useAuth(); // Add logout here
+  const { user, isLoading, logout } = useAuth();
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -25,10 +24,9 @@ export default function ContractorPortalPage() {
     );
   }
 
-  // Replace this simple return with your enhanced design:
   return (
     <div className="min-h-screen bg-white">
-      {/* Your beautiful blue header */}
+      {/* Beautiful blue header */}
       <div className="w-full">
         <div
           className="rounded-b-xl px-6 pt-8 pb-20 text-white"
@@ -45,16 +43,20 @@ export default function ContractorPortalPage() {
               </p>
             </div>
             <div className="flex items-center space-x-4">
-              <CogIcon
-                className="h-6 w-6 cursor-pointer"
+              <button
+                className="text-2xl cursor-pointer hover:opacity-75"
                 onClick={() => { /* to settings */ }}
-              />
+                title="Settings"
+              >
+                ⚙️
+              </button>
               <button
                 onClick={logout}
                 aria-label="Log out"
-                className="p-2 rounded-lg hover:bg-red-600 hover:text-white transition-colors"
+                className="p-2 rounded-lg hover:bg-red-600 hover:text-white transition-colors text-xl"
+                title="Logout"
               >
-                <ArrowRightOnRectangleIcon className="h-6 w-6" />
+                🚪
               </button>
             </div>
           </div>
