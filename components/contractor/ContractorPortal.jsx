@@ -121,7 +121,7 @@ export default function ContractorPortal() {
       <Card
         title="Your Appointments"
         subtitle={
-          <>Scheduled & confirmed</>
+          <>Confirmed Appointments</>
           //<>Scheduled & confirmed — <span className="text-red-600">{bookedJobs.length}</span> booked</> //temp removal since sync button is inside of this page and doesnt update before click
         }
 
