@@ -106,12 +106,14 @@ function ContractorJobsList({ jobs, loading, onBook, onBack }) {
         {/* Header with Back Button */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Available Jobs</h2>
-          <button
-            onClick={onBack}
-            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-200 font-medium"
-          >
-            ← Back to Dashboard
-          </button>
+          <div className="bg-red-500 p-2">
+            <button
+              onClick={onBack}
+              className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-200 font-medium"
+            >
+              ← Back to Dashboard
+            </button>
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -203,91 +205,91 @@ function ContractorJobsList({ jobs, loading, onBook, onBack }) {
                         onClick={() => unhideJob(job._id)}
                         className="text-blue-600 hover:text-blue-800 text-sm font-medium px-3 py-1 rounded hover:bg-blue-50"
                       >
-                         Show Job
+                        Show Job
                       </button>
                     </div>
                   ) : (
                     <>
-                    {/* Job Header */ }
-                    <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">{job.customerName}</h3>
-                    <div className="space-y-1 text-gray-600">
-                      <p className="flex items-center">
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        {job.customerEmail}
-                      </p>
-                      {job.customerPhone && (
-                        <p className="flex items-center">
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                          </svg>
-                          {job.customerPhone}
-                        </p>
+                      {/* Job Header */}
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold text-gray-800 mb-2">{job.customerName}</h3>
+                          <div className="space-y-1 text-gray-600">
+                            <p className="flex items-center">
+                              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                              </svg>
+                              {job.customerEmail}
+                            </p>
+                            {job.customerPhone && (
+                              <p className="flex items-center">
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                                {job.customerPhone}
+                              </p>
+                            )}
+                            {job.location?.fullAddress && (
+                              <p className="flex items-center">
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                {job.location.fullAddress}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* ADD HIDE BUTTON HERE */}
+                        <div className="flex items-center gap-2 ml-4">
+                          <button
+                            onClick={() => toggleJobDetails(job._id)}
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
+
+                          </button>
+                          <button
+                            onClick={() => hideJob(job._id)}
+                            className="text-gray-400 hover:text-gray-600 text-sm font-medium"
+                            title="Hide this job"
+                          >
+                            Hide Job
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Status and Slots (commented out) */}
+                      {/* <div className="text-right ml-6">…</div> */}
+
+                      {/* Project Budget */}
+                      {job.projectBudget && (
+                        <div className="mb-4">
+                          <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                            Budget: {job.projectBudget}
+                          </span>
+                        </div>
                       )}
-                      {job.location?.fullAddress && (
-                        <p className="flex items-center">
-                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          {job.location.fullAddress}
-                        </p>
+
+                      {/* Homeowner Tags */}
+                      {job.homeownerTags && job.homeownerTags.length > 0 && (
+                        <div className="mb-4">
+                          <p className="text-sm font-medium text-gray-700 mb-2">Project Requirements:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {job.homeownerTags.map(tag => (
+                              <span
+                                key={tag}
+                                className="bg-purple-100 text-purple-800 text-sm px-3 py-1 rounded-full font-medium"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       )}
-                    </div>
-                  </div>
 
-                  {/* ADD HIDE BUTTON HERE */}
-                  <div className="flex items-center gap-2 ml-4">
-                    <button
-                      onClick={() => toggleJobDetails(job._id)}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                    >
-                      
-                    </button>
-                    <button
-                      onClick={() => hideJob(job._id)}
-                      className="text-gray-400 hover:text-gray-600 text-sm font-medium"
-                      title="Hide this job"
-                    >
-                       Hide Job
-                    </button>
-                  </div>
-                </div>
 
-                    {/* Status and Slots (commented out) */ }
-              {/* <div className="text-right ml-6">…</div> */ }
-
-                  {/* Project Budget */}
-        {job.projectBudget && (
-          <div className="mb-4">
-            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-              Budget: {job.projectBudget}
-            </span>
-          </div>
-        )}
-
-        {/* Homeowner Tags */}
-        {job.homeownerTags && job.homeownerTags.length > 0 && (
-          <div className="mb-4">
-            <p className="text-sm font-medium text-gray-700 mb-2">Project Requirements:</p>
-            <div className="flex flex-wrap gap-2">
-              {job.homeownerTags.map(tag => (
-                <span
-                  key={tag}
-                  className="bg-purple-100 text-purple-800 text-sm px-3 py-1 rounded-full font-medium"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-        
-
-        {/* Description
+                      {/* Description
                   <div className="mb-4">
                     <p className="text-gray-600 text-sm leading-relaxed">
                       {job.projectDescription
@@ -298,83 +300,83 @@ function ContractorJobsList({ jobs, loading, onBook, onBack }) {
                     </p>
                   </div> */}
 
-        {/* Available Times Display */}
-        <div className="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg text-sm mb-4">
-          {(() => {
-            // Get the truly available times by filtering properly
-            let actuallyAvailableTimes = [];
+                      {/* Available Times Display */}
+                      <div className="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg text-sm mb-4">
+                        {(() => {
+                          // Get the truly available times by filtering properly
+                          let actuallyAvailableTimes = [];
 
-            if (job.availableTimes && Array.isArray(job.availableTimes)) {
-              // Filter out times that are in bookedTimes array
-              // bookedTimes contains objects with .time property, not simple strings
-              actuallyAvailableTimes = job.availableTimes.filter(time => {
-                // If no booked times, all are available
-                if (!job.bookedTimes || !Array.isArray(job.bookedTimes)) {
-                  return true;
-                }
+                          if (job.availableTimes && Array.isArray(job.availableTimes)) {
+                            // Filter out times that are in bookedTimes array
+                            // bookedTimes contains objects with .time property, not simple strings
+                            actuallyAvailableTimes = job.availableTimes.filter(time => {
+                              // If no booked times, all are available
+                              if (!job.bookedTimes || !Array.isArray(job.bookedTimes)) {
+                                return true;
+                              }
 
-                // Check if this time is NOT in the booked times (using .some() to check .time property)
-                return !job.bookedTimes.some(booked => booked.time === time);
-              });
-            }
+                              // Check if this time is NOT in the booked times (using .some() to check .time property)
+                              return !job.bookedTimes.some(booked => booked.time === time);
+                            });
+                          }
 
-            if (actuallyAvailableTimes.length > 0) {
-              return (
-                <div>
-                  <div className="font-medium mb-2">Available Times:</div>
-                  <div className="text-xs space-y-1">
-                    {actuallyAvailableTimes.map((time, index) => (
-                      <div key={index}>{time}</div>
-                    ))}
-                  </div>
-                </div>
-              );
-            } else {
-              return 'No times available';
-            }
-          })()}
-        </div>
+                          if (actuallyAvailableTimes.length > 0) {
+                            return (
+                              <div>
+                                <div className="font-medium mb-2">Available Times:</div>
+                                <div className="text-xs space-y-1">
+                                  {actuallyAvailableTimes.map((time, index) => (
+                                    <div key={index}>{time}</div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          } else {
+                            return 'No times available';
+                          }
+                        })()}
+                      </div>
 
-        {/* Action Buttons */} 
-        {/* <div className="flex flex-wrap gap-1 mb-4">
+                      {/* Action Buttons */}
+                      {/* <div className="flex flex-wrap gap-1 mb-4">
           <span className="bg-gray-50 text-gray-600 px-3 py-2 rounded-lg text-xs">
             Posted: {new Date(job.createdAt).toLocaleDateString()}
           </span>
         </div> */}
 
-        {/* Expanded Details */}
-        {isExpanded && (
-          <div className="bg-gray-50 rounded-lg p-4 mb-4 space-y-3">
-            {job.projectTimeline && (
-              <div>
-                <h4 className="font-medium text-gray-800">Timeline:</h4>
-                <p className="text-gray-600 text-sm">{job.projectTimeline}</p>
-              </div>
-            )}
-            <div>
-              <h4 className="font-medium text-gray-800">Job Details:</h4>
-              <div className="text-sm text-gray-600 space-y-1">
-                <p>Customer ID: {job.customerId}</p>
-                <p>Job ID: {job._id}</p>
-                <p>Created: {new Date(job.createdAt).toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-        )}
+                      {/* Expanded Details */}
+                      {isExpanded && (
+                        <div className="bg-gray-50 rounded-lg p-4 mb-4 space-y-3">
+                          {job.projectTimeline && (
+                            <div>
+                              <h4 className="font-medium text-gray-800">Timeline:</h4>
+                              <p className="text-gray-600 text-sm">{job.projectTimeline}</p>
+                            </div>
+                          )}
+                          <div>
+                            <h4 className="font-medium text-gray-800">Job Details:</h4>
+                            <div className="text-sm text-gray-600 space-y-1">
+                              <p>Customer ID: {job.customerId}</p>
+                              <p>Job ID: {job._id}</p>
+                              <p>Created: {new Date(job.createdAt).toLocaleString()}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
-        {/* AcceptJobButton */}
-        <div className="border-t pt-4">
-          <AcceptJobButton job={job} onJobAccepted={handleJobAccepted} />
-        </div>
-       </>
-        )}
- </div>
-  );
-})}
+                      {/* AcceptJobButton */}
+                      <div className="border-t pt-4">
+                        <AcceptJobButton job={job} onJobAccepted={handleJobAccepted} />
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </div>     // This closes the main jobs card
         )}
- </div>       
- </div>
+      </div>
+    </div>
   );
 }
 
