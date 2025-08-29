@@ -88,12 +88,12 @@ export default function ContractorPortal() {
 
 
 
-    <div className="grid grid-cols-2 gap-10">
+    <div className="grid grid-cols-2 gap-6">
       <Card
         title="Your Available Jobs test"
         subtitle={
           <>
-            Ready to book 
+            Ready to book
             {/* —{' '}
             <span className="text-green-600">
               {jobs.length}
@@ -162,10 +162,8 @@ function Card({ title, subtitle, buttonText, icon, onClick }) {
       </div>
       <button
         onClick={onClick}
-        className="w-full bg-[#313bc0] text-blue py-3 rounded-lg font-medium transition-all duration-200"
-        style={{
-          boxShadow: '0 4px 0 #1e2b7a, 0 6px 8px rgba(0,0,0,0.3)'
-        }}
+        className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold disabled:opacity-50 mt-6"
+        style={{ boxShadow: '0 4px 0 #1e40af, 0 6px 8px rgba(0,0,0,0.3)' }}
         onMouseEnter={(e) => {
           e.target.style.boxShadow = '0 8px 0 #1e2b7a, 0 10px 20px rgba(0,0,0,0.4)';
           e.target.style.transform = 'translateY(-4px)';
