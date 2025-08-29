@@ -146,7 +146,7 @@ export default function ContractorYourAppointments({ jobs, loading, onBack, onRe
 
                         <button
                             onClick={onBack}
-                            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-200 font-medium"
+                            className="bg-gray-500 text-black px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-200 font-medium"
                         >
                             ← Back to Dashboard
                         </button>
