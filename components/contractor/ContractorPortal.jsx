@@ -162,7 +162,7 @@ function Card({ title, subtitle, buttonText, icon, onClick }) {
       </div>
       <button
         onClick={onClick}
-        className="w-full bg-[#313bc0] text-blue py-3 rounded-lg font-medium transition-all duration-200"
+        className="w-full bg-#1e2b7a text-blue py-3 rounded-lg font-medium transition-all duration-200"
         style={{
           boxShadow: '0 4px 0 #1e2b7a, 0 6px 8px rgba(0,0,0,0.3)'
         }}
