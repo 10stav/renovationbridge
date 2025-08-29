@@ -88,7 +88,7 @@ export default function ContractorPortal() {
 
 
 
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-2 gap-10">
       <Card
         title="Your Available Jobs test"
         subtitle={
@@ -154,7 +154,7 @@ export default function ContractorPortal() {
 // Reusable Card component
 function Card({ title, subtitle, buttonText, icon, onClick }) {
   return (
-    <div className="bg-blue rounded-lg p-6 hover:shadow-x0 transition-shadow duration-200">
+    <div className="bg-white rounded-lg p-6 hover:shadow-x0 transition-shadow duration-200">
       <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
       <p className="text-sm text-gray-500 mb-8">{subtitle}</p>
       <div className="flex items-center justify-center mb-[5rem] mt-12">
