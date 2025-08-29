@@ -106,14 +106,12 @@ function ContractorJobsList({ jobs, loading, onBook, onBack }) {
         {/* Header with Back Button */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Available Jobs</h2>
-          <div className="bg-red-500 p-2">
-            <button
-              onClick={onBack}
-              className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-200 font-medium"
-            >
-              ← Back to Dashboard
-            </button>
-          </div>
+          <button
+            onClick={onBack}
+            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-200 font-medium"
+          >
+            ← Back to Dashboard
+          </button>
         </div>
 
         {/* Search Bar */}
