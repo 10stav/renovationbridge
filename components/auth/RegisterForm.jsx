@@ -188,46 +188,7 @@ function RegisterForm() {
         />
       </div>
 
-      {/* Kitchen Remodeling Tag */}
-      <div className="mt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Tags (select all that apply)
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            name="kitchenRemodeling"
-            checked={formData.kitchenRemodeling}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                kitchenRemodeling: e.target.checked,
-              })
-            }
-            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            disabled={isLoading}
-          />
-          Kitchen Remodeling
-        </label>
-      </div>
-
-      {/* Test Tag 2 Tag */}      
-      <label className="flex items-center gap-2 text-sm mt-2">
-        <input
-          type="checkbox"
-          name="testTag2"
-          checked={formData.testTag2}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              testTag2: e.target.checked,
-            })
-          }
-          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          disabled={isLoading}
-        />
-        Test Tag 2
-      </label>
+      
 
       {/* Success Message Display */}
       {message && (

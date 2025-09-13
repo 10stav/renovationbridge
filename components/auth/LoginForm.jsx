@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router'; // ← Next.js routing
 import { useAuth } from './AuthContext';
-import RegisterForm from './RegisterForm';
+import RegisterForm2 from './RegisterForm2';
 
 function LoginForm() {
     const { login, isLoading } = useAuth();
@@ -131,7 +131,7 @@ function LoginForm() {
                                     className="text-blue-600 font-semibold hover:text-blue-800"
                                 >
                                     {isLogin
-                                        ? 'Create Account (only for current GHL team members)'
+                                        ? 'Request Account'
                                         : 'Login'}
                                 </button>
                             </p>
