@@ -113,7 +113,7 @@ function AcceptJobButton({ job, onJobAccepted }) {
       console.log('📥 Response status:', response.status);
 
       const result = await response.json();
-      console.log('📥 Response data:', result);
+      console.log('📥 Full response data:', result);
 
       if (result.success) {
         console.log('🎉 SUCCESS!');
@@ -122,12 +122,18 @@ function AcceptJobButton({ job, onJobAccepted }) {
           onJobAccepted(job._id, result.data);
         }
       } else {
-        console.log('❌ Backend returned error:', result.error);
-        alert(`❌ Error: ${result.error}`);
+        // FIX: Better error handling - this will show the actual error message
+        console.log('❌ Backend returned error:');
+        console.log('  - Message:', result.message);
+        console.log('  - Error:', result.error);
+        console.log('  - Full result:', result);
+
+        const errorMessage = result.message || 'Unknown error occurred';
+        alert(`❌ Error: ${errorMessage}`);  // ← FIXED: Use result.message instead of result.error
       }
     } catch (error) {
       console.error('❌ Frontend error:', error);
-      alert('❌ Error connecting to server');
+      alert(`❌ Error connecting to server: ${error.message}`);
     } finally {
       setBooking(false);
     }
