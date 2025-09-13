@@ -133,7 +133,7 @@ function AcceptJobButton({ job, onJobAccepted }) {
       }
     } catch (error) {
       console.error('❌ Frontend error:', error);
-      alert(`❌ Error connecting to server: ${error.message}`);
+      alert(`❌ Error connecting to server: ${error.message}`); //
     } finally {
       setBooking(false);
     }
