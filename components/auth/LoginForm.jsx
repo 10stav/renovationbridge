@@ -66,9 +66,12 @@ function LoginForm() {
                             }}
                         />
 
-                        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-                            Welcome Back!
-                        </h2>
+                        {/* Conditional welcome text - only show for login */}
+                        {isLogin && (
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                                Welcome Back!
+                            </h2>
+                        )}
 
                         {isLogin ? (
                             <form onSubmit={handleSubmit} className="space-y-4 w-full">
