@@ -26,17 +26,8 @@ function RegisterForm() {
         </p>
       </div>
 
-      {/* Login Redirect */}
-      <div className="text-center">
-        <p className="text-gray-600 mb-3">Already have an account?</p>
-        <button
-          onClick={handleLoginRedirect}
-          className="bg-gradient-to-r from-green-600 to-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-700 hover:to-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all"
-        >
-          Go to Login
-        </button>
+    
       </div>
-    </div>
   );
 }
 

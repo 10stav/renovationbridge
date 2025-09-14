@@ -131,7 +131,7 @@ function LoginForm() {
                                     className="text-blue-600 font-semibold hover:text-blue-800"
                                 >
                                     {isLogin
-                                        ? 'Request Account'
+                                        ? 'Create Account'
                                         : 'Login'}
                                 </button>
                             </p>
