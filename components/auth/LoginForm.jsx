@@ -120,7 +120,7 @@ function LoginForm() {
                                 </button>
                             </form>
                         ) : (
-                            <RegisterForm />
+                            <RegisterForm2 />
                         )}
 
                         <div className="mt-6 text-center w-full">
