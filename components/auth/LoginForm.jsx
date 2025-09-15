@@ -19,7 +19,10 @@ function LoginForm() {
             setError(result.error);
         } else {
             setTimeout(() => {
-                router.push('/contractor'); // Back to original - everyone goes to contractor
+                const role = result.user?.role;
+                if (role === 'admin') router.push('/adminPortal'); // ← Next.js navigation
+                else if (role === 'contractor') router.push('/contractorPortal'); // ← Stay on same page
+                else router.push('/contractorPortal');
             }, 100);
         }
     };
