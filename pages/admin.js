@@ -31,14 +31,31 @@
 import React from 'react';
 import { useAuth } from '../components/auth/AuthContext';
 import AdminDashboard from '../components/admin/AdminDashboard';
+import AuthPages from '../components/auth/AuthPages'; // Add this line
 
 function AdminPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
 
-  const handleLogout = () => {
-    logout(); // Clear auth state
-    window.location.href = '/'; // Simple redirect without router
-  };
+  // Add these checks like the contractor page
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <AuthPages />; // Show login when no user
+  }
+
+  if (user.role !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl mb-4">Access Denied</h1>
+          <p>Only admins can access this portal.</p>
+          <button onClick={logout}>Back to Login</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
