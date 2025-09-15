@@ -218,81 +218,70 @@ function AdminDashboard() {
    * Each card navigates to a specific management interface.
    */
   return (
-    <div>
-      {/* Add this header section */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      
+
+      {/* Pending Contractors Card */}
+      <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Pending Contractors
+        </h3>
+        <p className="text-gray-600 mb-4">
+          Approve new contractor registrations and manage approval workflow
+        </p>
         <button
-          onClick={logout}
-          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors font-medium"
+          onClick={() => {
+            setCurrentView('pending');
+            fetchContractors();
+          }}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 font-medium"
         >
-          Logout
+          View Pending
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-
-
-        {/* Pending Contractors Card */}
-        <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-200">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Pending Contractors
-          </h3>
-          <p className="text-gray-600 mb-4">
-            Approve new contractor registrations and manage approval workflow
-          </p>
-          <button
-            onClick={() => {
-              setCurrentView('pending');
-              fetchContractors();
-            }}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 font-medium"
-          >
-            View Pending
-          </button>
-        </div>
-
-        {/* Manage Contractors Card */}
-        <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-200">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Manage Contractors
-          </h3>
-          <p className="text-gray-600 mb-4">
-            Edit specialties, assign filtering tags, and manage contractor accounts
-          </p>
-          <button
-            onClick={() => {
-              setCurrentView('manage');
-              fetchContractors();
-            }}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 font-medium"
-          >
-            Manage All
-          </button>
-        </div>
-
-        {/* Available Jobs Card */}
-        <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-200">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Available Jobs
-          </h3>
-          <p className="text-gray-600 mb-4">
-            View all current opportunities from GHL "Need to Book" pipeline
-          </p>
-          <button
-            onClick={() => {
-              setCurrentView('jobs');
-              fetchJobs();
-            }}
-            className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors duration-200 font-medium"
-          >
-            View Jobs
-          </button>
-        </div>
+      {/* Manage Contractors Card */}
+      <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Manage Contractors
+        </h3>
+        <p className="text-gray-600 mb-4">
+          Edit specialties, assign filtering tags, and manage contractor accounts
+        </p>
+        <button
+          onClick={() => {
+            setCurrentView('manage');
+            fetchContractors();
+          }}
+          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 font-medium"
+        >
+          Manage All
+        </button>
       </div>
+
+      {/* Available Jobs Card */}
+      <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Available Jobs
+        </h3>
+        <p className="text-gray-600 mb-4">
+          View all current opportunities from GHL "Need to Book" pipeline
+        </p>
+        <button
+          onClick={() => {
+            setCurrentView('jobs');
+            fetchJobs();
+          }}
+          className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors duration-200 font-medium"
+        >
+          View Jobs
+        </button>
       </div>
-      );
+    </div>
+  );
 }
 
-      export default AdminDashboard;
+export default AdminDashboard;
