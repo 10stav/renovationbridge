@@ -23,7 +23,7 @@ function LoginForm() {
                 if (role === 'admin') router.push('/admin');
                 else if (role === 'contractor') router.push('/contractor');
                 else router.push('/contractor');
-            }, 100);
+            }, 500);
         }
     };
 
