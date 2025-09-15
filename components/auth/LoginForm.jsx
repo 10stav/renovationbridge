@@ -29,6 +29,8 @@ function LoginForm() {
         } else {
             // Wait for user data to load, then redirect based on role
             setTimeout(() => {
+                console.log('User object:', user);
+                console.log('User role:', user?.role);
                 if (user?.role === 'admin') {
                     router.push('/adminPortal');
                 } else {
