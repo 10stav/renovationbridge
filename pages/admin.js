@@ -34,11 +34,10 @@ import AdminDashboard from '../components/admin/AdminDashboard';
 
 function AdminPage() {
   const { user, logout } = useAuth();
-  const router = useRouter();
 
   const handleLogout = () => {
     logout(); // Clear auth state
-    router.push('/'); // Redirect to login page
+    window.location.href = '/'; // Simple redirect without router
   };
 
   return (
