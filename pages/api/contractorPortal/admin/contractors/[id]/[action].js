@@ -9,7 +9,7 @@ const authenticateAdmin = async (req) => {
     throw new Error('No token provided');
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET2);
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
   const user = await User.findById(decoded.userId);
 
   if (!user || user.role !== 'admin') {

@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     }
 
     // Check environment variables
-    if (!process.env.JWT_SECRET2) {
+    if (!process.env.JWT_SECRET) {
       return res.status(500).json({ error: 'JWT_SECRET not configured' });
     }
 
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
         email: user.email,
         role: user.role 
       },
-      process.env.JWT_SECRET2,
+      process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
