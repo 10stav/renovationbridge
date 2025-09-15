@@ -19,11 +19,8 @@ function LoginForm() {
             setError(result.error);
         } else {
             setTimeout(() => {
-                const role = user?.role; // ← Use user from the hook above
-                if (role === 'admin') router.push('/admin');
-                else if (role === 'contractor') router.push('/contractor');
-                else router.push('/contractor');
-            }, 500);
+                router.push('/contractor'); // Back to original - everyone goes to contractor
+            }, 100);
         }
     };
 

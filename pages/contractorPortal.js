@@ -18,7 +18,7 @@ export default function ContractorPortalPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl mb-4">Access Denied</h1>
-          <p className="mb-6">Only contractors can access this portal.</p>
+          <p className="mb-6">Only contractors can access this portal. Try using the admin login button instead.</p>
           <button
             onClick={logout}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
