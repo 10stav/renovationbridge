@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { checkTeamMemberExists } from '../../../../lib/contractorPortal/services/gohighlevel';
 
 const generateToken = (userId, role) => {
-  return jwt.sign({ userId, role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign({ userId, role }, process.env.JWT_SECRET2, { expiresIn: '7d' });
 };
 
 export default async function handler(req, res) {

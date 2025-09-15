@@ -17,7 +17,7 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Access token required' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET2);
     const user = await User.findById(decoded.userId).select('-password');
     
     if (!user) {
