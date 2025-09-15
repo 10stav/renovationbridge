@@ -31,7 +31,7 @@ function LoginForm() {
             setTimeout(() => {
                 console.log('User object:', user);
                 console.log('User role:', user?.role);
-                if (user?.role === 'admin') {
+                if (result.user?.role === 'admin') {
                     router.push('/adminPortal');
                 } else {
                     router.push('/contractorPortal');

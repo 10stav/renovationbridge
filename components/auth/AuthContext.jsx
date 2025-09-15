@@ -120,12 +120,13 @@ export function AuthProvider({ children }) {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Login failed');
 
-      // ← add this so we immediately pull in contractorTags
       localStorage.setItem('token', data.token);
       await fetchUserProfile();
 
       console.log('✅ Login successful');
-      return { success: true };
+
+      // Return the user data from the API response so LoginForm can use it immediately
+      return { success: true, user: data.user };
     } catch (error) {
       console.error('❌ Login error:', error);
       return { success: false, error: error.message };
