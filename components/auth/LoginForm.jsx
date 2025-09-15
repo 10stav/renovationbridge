@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 import RegisterForm2 from './RegisterForm2';
 
 function LoginForm() {
-    const { login, isLoading, user } = useAuth();
+    const { login, isLoading } = useAuth();
     const router = useRouter(); // ← Next.js router
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -16,27 +16,14 @@ function LoginForm() {
 
         const result = await login(formData.email, formData.password);
         if (!result.success) {
-            // Show specific error messages
-            if (result.error.includes('No account found')) {
-                setError('No account found with this email address');
-            } else if (result.error.includes('Invalid password')) {
-                setError('Invalid password');
-            } else if (result.error.includes('pending approval')) {
-                setError('Your contractor account is pending admin approval');
-            } else {
-                setError('Invalid email or password');
-            }
+            setError(result.error);
         } else {
-            // Wait for user data to load, then redirect based on role
             setTimeout(() => {
-                console.log('User object:', user);
-                console.log('User role:', user?.role);
-                if (user?.role === 'admin' || formData.email === 'admin@renovationbridge.com') {
-                    router.push('/adminPortal');
-                } else {
-                    router.push('/contractorPortal');
-                }
-            }, 300);
+                const role = result.user?.role;
+                if (role === 'admin') router.push('/adminPortal'); // ← Next.js navigation
+                else if (role === 'contractor') router.push('/contractorPortal'); // ← Stay on same page
+                else router.push('/contractorPortal');
+            }, 100);
         }
     };
 
