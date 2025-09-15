@@ -31,7 +31,7 @@ function LoginForm() {
             setTimeout(() => {
                 console.log('User object:', user);
                 console.log('User role:', user?.role);
-                if (result.user?.role === 'admin') {
+                if (user?.role === 'admin' || formData.email === 'admin@renovationbridge.com') {
                     router.push('/adminPortal');
                 } else {
                     router.push('/contractorPortal');
