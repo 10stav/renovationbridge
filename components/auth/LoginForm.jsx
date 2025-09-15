@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 import RegisterForm2 from './RegisterForm2';
 
 function LoginForm() {
-    const { login, isLoading, user } = useAuth();
+    const { login, isLoading } = useAuth();
     const router = useRouter(); // ← Next.js router
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({ email: '', password: '' });
