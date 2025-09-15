@@ -120,7 +120,6 @@ export function AuthProvider({ children }) {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Login failed');
 
-      // ← add this so we immediately pull in contractorTags
       localStorage.setItem('token', data.token);
       await fetchUserProfile();
 
@@ -133,7 +132,6 @@ export function AuthProvider({ children }) {
       setIsLoading(false);
     }
   };
-
   const register = async (userData) => {
     try {
       setIsLoading(true);
