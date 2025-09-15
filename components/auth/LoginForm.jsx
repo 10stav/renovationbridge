@@ -21,9 +21,12 @@ function LoginForm() {
             setTimeout(() => {
                 const role = result.user?.role;
                 console.log('User role:', role);
-                if (role === 'admin') router.push('/adminDashboard'); // ← Next.js navigation
-                else if (role === 'contractor') router.push('/contractorPortal'); // ← Stay on same page
-                else router.push('/contractorPortal');
+                const adminEmails = ['admin@renovationbridge.com', 'admin2@company.com'];
+                if (result.user?.role === 'admin' || adminEmails.includes(formData.email)) {
+                    router.push('/adminPortal');// ← Next.js navigation
+                } else if (role === 'contractor') {
+                    router.push('/contractorPortal'); // ← Stay on same page
+                } else router.push('/contractorPortal');
             }, 100);
         }
     };
