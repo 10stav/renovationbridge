@@ -20,7 +20,7 @@ function LoginForm() {
         } else {
             setTimeout(() => {
                 const role = result.user?.role;
-                if (role === 'admin') router.push('/adminPortal'); // ← Next.js navigation
+                if (role === 'admin') router.push('/adminViewForApp'); // ← Next.js navigation
                 else if (role === 'contractor') router.push('/contractorPortal'); // ← Stay on same page
                 else router.push('/contractorPortal');
             }, 100);
