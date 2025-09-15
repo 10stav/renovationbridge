@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 import RegisterForm2 from './RegisterForm2';
 
 function LoginForm() {
-    const { login, isLoading } = useAuth();
+    const { login, isLoading, user } = useAuth();
     const router = useRouter(); // ← Next.js router
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -19,10 +19,10 @@ function LoginForm() {
             setError(result.error);
         } else {
             setTimeout(() => {
-                const role = result.user?.role;
-                if (role === 'admin') router.push('/admin'); // ← Next.js navigation
-                else if (role === 'contractor') router.push('/contractorPortal'); // ← Stay on same page
-                else router.push('/contractorPortal');
+                const role = user?.role; // ← Use user from the hook above
+                if (role === 'admin') router.push('/admin');
+                else if (role === 'contractor') router.push('/contractor');
+                else router.push('/contractor');
             }, 100);
         }
     };
