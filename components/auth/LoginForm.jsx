@@ -23,7 +23,7 @@ function LoginForm() {
                 console.log('User role:', role);
                 const adminEmails = ['admin@renovationbridge.com', 'admin2@company.com'];
                 if (result.user?.role === 'admin' || adminEmails.includes(formData.email)) {
-                    router.push('/adminPortal');// ← Next.js navigation
+                    router.push('/adminDashboard');// ← Next.js navigation
                 } else if (role === 'contractor') {
                     router.push('/contractorPortal'); // ← Stay on same page
                 } else router.push('/contractorPortal');
