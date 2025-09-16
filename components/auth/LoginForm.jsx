@@ -18,7 +18,6 @@ function LoginForm() {
         if (!result.success) {
             setError(result.error);
         } else {
-            setTimeout(() => {
                 const role = result.user?.role;
                 console.log('User role:', role);
                 const adminEmails = ['admin@renovationbridge.com', 'admin2@company.com'];
@@ -27,7 +26,6 @@ function LoginForm() {
                 } else if (role === 'contractor') {
                     router.replace('/contractorPortal'); // ← Stay on same page (9/16 - replacing router.push with router.replace for no delay and avoiding wrong page redirect for split second before right one)
                 } else router.replace('/contractorPortal');
-            }, 100);
         }
     };
 

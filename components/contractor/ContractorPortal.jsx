@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router'; // added this for back button behavior fix below
 import { useAuth } from '../auth/AuthContext';
 import ContractorJobsList from './ContractorJobList.jsx';
 import ContractorYourAppointments from './ContractorYourAppointments.jsx';
@@ -58,6 +59,48 @@ export default function ContractorPortal() {
     fetchAvailableJobs()
     fetchBookedJobs()
   }, [])
+
+  //added useEffects HERE to prevent weird back button behavior(redirects/auto logout issue) from happening:
+  const router = useRouter();
+
+  // Fix browser history for contractor navigation
+  useEffect(() => {
+    // Replace current history entry to point back to contractor overview instead of admin
+    window.history.replaceState(
+      { view: 'contractor-overview' },
+      'Contractor Dashboard',
+      '/contractorPortal'
+    );
+  }, []);
+
+  // Handle internal navigation within contractor dashboard
+  useEffect(() => {
+    // When navigating within contractor (overview -> jobs -> appointments), update history
+    if (currentView !== 'overview') {
+      window.history.pushState(
+        { view: `contractor-${currentView}` },
+        `Contractor ${currentView}`,
+        '/contractorPortal'
+      );
+    }
+  }, [currentView]);
+
+  // Handle browser back button within contractor
+  useEffect(() => {
+    const handlePopState = (e) => {
+      if (e.state?.view?.startsWith('contractor-')) {
+        // Back button within contractor - go to overview
+        setCurrentView('overview');
+      } else {
+        // Back button trying to leave contractor - stay on overview
+        setCurrentView('overview');
+        window.history.pushState({ view: 'contractor-overview' }, 'Contractor Dashboard', '/contractorPortal');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // If we're in the "jobs" view, show the list
   if (currentView === 'jobs') {
