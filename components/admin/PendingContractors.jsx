@@ -88,14 +88,14 @@ function PendingContractors({ contractors, loading, onApprove, onDenyRefresh, on
       const data = await response.json();
 
       if (data.success) {
-        console.log(`🚫 Contractor denied: ${contractorName}`);
+        console.log(` Contractor denied: ${contractorName}`);
         alert(`Contractor ${contractorName} has been denied.`);
-        onDenyRefresh(); // ✅ Let the parent refresh the list
+        onDenyRefresh(); //  Let the parent refresh the list
       } else {
         alert(`Failed to deny contractor: ${data.message}`);
       }
     } catch (error) {
-      console.error('❌ Error denying contractor:', error);
+      console.error(' Error denying contractor:', error);
       alert('An error occurred while denying the contractor.');
     }
   };
@@ -165,19 +165,19 @@ function PendingContractors({ contractors, loading, onApprove, onDenyRefresh, on
                     onClick={() => handleApprove(contractor)}
                     className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 font-medium shadow-sm"
                   >
-                    ✅ Approve
+                     Approve
                   </button>
                   <button
                     onClick={() => onApprove(contractor._id, '', true)}
                     className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors duration-200 font-medium shadow-sm"
                   >
-                    ✅ Approve w/o GHL
+                     Approve w/o GHL
                   </button>
                   <button
                     className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded"
                     onClick={() => handleDeny(contractor._id, contractor.name)}
                   >
-                    ❌ Deny
+                     Deny
                   </button>
 
                 </div>

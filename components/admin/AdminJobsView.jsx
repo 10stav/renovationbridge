@@ -300,7 +300,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
                                 ? 'bg-red-100 text-red-800' 
                                 : 'bg-green-100 text-green-800'
                             }`}>
-                              {isBooked ? '🔴' : '🟢'} {time}
+                              {isBooked ? 'Not Booked' : 'Booked'} {time}
                             </span>
                             {isBooked && (
                               <span className="text-xs text-gray-500">(Booked)</span>

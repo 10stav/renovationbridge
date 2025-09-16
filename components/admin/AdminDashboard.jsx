@@ -51,19 +51,19 @@ function AdminDashboard() {
   const fetchContractors = async () => {
     setLoading(true);
     try {
-      console.log('📊 AdminDashboard: Fetching contractors...');
+      console.log(' AdminDashboard: Fetching contractors...');
 
       const response = await authenticatedRequest('/admin/contractors');
 
       if (response.ok) {
         const data = await response.json();
         setContractors(data.contractors || []);
-        console.log('✅ AdminDashboard: Loaded', data.contractors?.length || 0, 'contractors');
+        console.log(' AdminDashboard: Loaded', data.contractors?.length || 0, 'contractors');
       } else {
-        console.error('❌ AdminDashboard: Failed to fetch contractors');
+        console.error(' AdminDashboard: Failed to fetch contractors');
       }
     } catch (error) {
-      console.error('❌ AdminDashboard: Error fetching contractors:', error);
+      console.error(' AdminDashboard: Error fetching contractors:', error);
     } finally {
       setLoading(false);
     }
@@ -78,19 +78,19 @@ function AdminDashboard() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      console.log('📊 AdminDashboard: Fetching jobs...');
+      console.log(' AdminDashboard: Fetching jobs...');
 
       const response = await authenticatedRequest('/admin/jobs');
 
       if (response.ok) {
         const data = await response.json();
         setJobs(data.jobs || []);
-        console.log('✅ AdminDashboard: Loaded', data.jobs?.length || 0, 'jobs');
+        console.log(' AdminDashboard: Loaded', data.jobs?.length || 0, 'jobs');
       } else {
-        console.error('❌ AdminDashboard: Failed to fetch jobs');
+        console.error(' AdminDashboard: Failed to fetch jobs');
       }
     } catch (error) {
-      console.error('❌ AdminDashboard: Error fetching jobs:', error);
+      console.error(' AdminDashboard: Error fetching jobs:', error);
     } finally {
       setLoading(false);
     }
@@ -103,7 +103,7 @@ function AdminDashboard() {
    */
   const approveContractor = async (contractorId, contractorGhlId, skipGhl = false) => {
     try {
-      console.log('✅ AdminDashboard: Approving contractor:', contractorId, { contractorGhlId, skipGhl });
+      console.log(' AdminDashboard: Approving contractor:', contractorId, { contractorGhlId, skipGhl });
 
       // If skipGhl === true, we never call the HighLevel API
       let teamMemberId = skipGhl ? null : contractorGhlId;
@@ -125,10 +125,10 @@ function AdminDashboard() {
       }
 
       await contractor.save();
-      console.log('🎉 Contractor approved:', contractor.name);
+      console.log('Contractor approved:', contractor.name);
       fetchContractors();
     } catch (err) {
-      console.error('❌ AdminDashboard: Error approving contractor:', err);
+      console.error('AdminDashboard: Error approving contractor:', err);
     }
   };
 
@@ -159,12 +159,12 @@ function AdminDashboard() {
           prev.map(c => (c._id === contractorId ? { ...c, ...updated } : c))
         );
 
-        console.log('✅ AdminDashboard: Tags updated successfully');
+        console.log('AdminDashboard: Tags updated successfully');
       } else {
-        console.error('❌ AdminDashboard: Failed to update contractor tags');
+        console.error('AdminDashboard: Failed to update contractor tags');
       }
     } catch (err) {
-      console.error('❌ AdminDashboard: Error updating tags:', err);
+      console.error('AdminDashboard: Error updating tags:', err);
     }
   };
 
@@ -192,12 +192,27 @@ function AdminDashboard() {
 
   if (currentView === 'manage') {
     return (
-      <ManageContractors
-        contractors={contractors}
-        loading={loading}
-        onUpdateTags={updateContractorTags}
-        onBack={() => setCurrentView('overview')}
-      />
+      <div>
+        {/* Go Back Button */}
+        <div className="mb-6">
+          <button
+            onClick={() => setCurrentView('overview')}
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Dashboard
+          </button>
+        </div>
+
+        <ManageContractors
+          contractors={contractors}
+          loading={loading}
+          onUpdateTags={updateContractorTags}
+          onBack={() => setCurrentView('overview')}
+        />
+      </div>
     );
   }
 

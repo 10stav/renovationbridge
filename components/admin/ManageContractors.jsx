@@ -91,7 +91,7 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
   const startEditing = (contractor) => {
     setEditingContractor(contractor._id);
     setNewTags(contractor.contractorTags || []);
-    console.log('✏️ ManageContractors: Starting tag edit for:', contractor.name);
+    console.log(' ManageContractors: Starting tag edit for:', contractor.name);
   };
 
   /**
@@ -113,7 +113,7 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
    * @param {string} contractorId - ID of contractor to update
    */
   const handleSaveTags = (contractorId) => {
-    console.log('💾 ManageContractors: Saving tags for contractor:', contractorId, newTags);
+    console.log(' ManageContractors: Saving tags for contractor:', contractorId, newTags);
     onUpdateTags(contractorId, newTags);
     setEditingContractor(null);
     setNewTags([]);
@@ -150,7 +150,7 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
     );
 
     if (confirmed) {
-      console.log('🚫 ManageContractors: Deactivating contractor:', contractor.name);
+      console.log(' ManageContractors: Deactivating contractor:', contractor.name);
       // TODO: Implement deactivation functionality
       alert('Deactivation functionality not yet implemented.');
     }
@@ -231,13 +231,13 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
                     disabled={editingContractor === contractor._id}
                     className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-blue-300 transition-colors duration-200 font-medium shadow-sm"
                   >
-                    ✏️ Edit Tags
+                    Edit Tags
                   </button>
                   <button
                     onClick={() => handleDeactivate(contractor)}
                     className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 font-medium shadow-sm"
                   >
-                    🚫 Deactivate
+                    Deactivate
                   </button>
                 </div>
               </div>
@@ -328,13 +328,13 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
                       onClick={() => handleSaveTags(contractor._id)}
                       className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 font-medium"
                     >
-                      💾 Save Tags
+                       Save Tags
                     </button>
                     <button
                       onClick={cancelEditing}
                       className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-200 font-medium"
                     >
-                      ❌ Cancel
+                       Cancel
                     </button>
                   </div>
                 </div>
