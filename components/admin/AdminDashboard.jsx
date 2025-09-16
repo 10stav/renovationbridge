@@ -203,11 +203,26 @@ function AdminDashboard() {
 
   if (currentView === 'jobs') {
     return (
-      <AdminJobsView
-        jobs={jobs}
-        loading={loading}
-        onBack={() => setCurrentView('overview')}
-      />
+      <div>
+        {/* Go Back Button */}
+        <div className="mb-6">
+          <button
+            onClick={() => setCurrentView('overview')}
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Dashboard
+          </button>
+        </div>
+
+        <AdminJobsView
+          jobs={jobs}
+          loading={loading}
+          onBack={() => setCurrentView('overview')}
+        />
+      </div>
     );
   }
 
@@ -219,10 +234,10 @@ function AdminDashboard() {
    */
   return (
 
-    
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-      
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+
 
       {/* Pending Contractors Card
       <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-200">
@@ -275,7 +290,13 @@ function AdminDashboard() {
             setCurrentView('jobs');
             fetchJobs();
           }}
-          className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors duration-200 font-medium"
+          className="inline-block bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors duration-200 font-medium border-0 cursor-pointer"
+          style={{
+            backgroundColor: '#8b5cf6',
+            color: 'white',
+            border: 'none',
+            outline: 'none'
+          }}
         >
           View Jobs
         </button>
