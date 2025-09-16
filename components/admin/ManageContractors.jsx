@@ -172,7 +172,7 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
 
       {/* Tag System Explanation */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <h3 className="font-semibold text-blue-800 mb-2">🏷️ Tag-Based Job Filtering System</h3>
+        <h3 className="font-semibold text-blue-800 mb-2"> Tag-Based Job Filtering System</h3>
         <p className="text-blue-700 text-sm">
           Assign tags to contractors to control which jobs they can see. Jobs with matching homeowner tags
           (set in GHL) will only be visible to contractors with those same tags. Jobs with no tags are visible to all contractors.
@@ -343,7 +343,7 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
               {/* Job Filtering Explanation */}
               <div className="bg-gray-50 rounded-lg p-3 mt-4">
                 <p className="text-xs text-gray-500">
-                  💡 <strong>Job Filtering:</strong> This contractor will only see jobs where homeowner GHL tags match their assigned tags.
+                 <strong>Job Filtering:</strong> This contractor will only see jobs where homeowner GHL tags match their assigned tags.
                   Jobs with no homeowner tags are visible to all contractors.
                 </p>
               </div>

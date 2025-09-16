@@ -180,7 +180,9 @@ export function AuthProvider({ children }) {
 
 
   const logout = () => {
-    console.log('👋 Logging out user:', user?.name);
+    console.log(' LOGOUT TRIGGERED - Stack trace:');
+    console.trace();
+    console.log(' Logging out user:', user?.name);
     localStorage.removeItem('token');
     setUser(null);
   };

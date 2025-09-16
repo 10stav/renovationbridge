@@ -29,7 +29,7 @@
  * <AdminDashboard />
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import PendingContractors from './PendingContractors';
 import ManageContractors from './ManageContractors';
@@ -41,6 +41,18 @@ function AdminDashboard() {
   const [contractors, setContractors] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => { //debug to fix back button causing logout issue
+    const handlePopState = (e) => {
+      console.log('🔍 Back button clicked in AdminDashboard!');
+      console.log('Current URL:', window.location.href);
+      console.log('Previous URL:', document.referrer);
+      console.log('History state:', e.state);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   /**
    * FETCH CONTRACTORS - Get all contractors from backend
