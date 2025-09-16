@@ -4,17 +4,19 @@ import '../styles/index.css';
 
 export default function App({ Component, pageProps }) {
   // Global back button investigation
-  useEffect(() => {
-    const handlePopState = (e) => {
-      console.log('🔍 Back button clicked anywhere in app!');
-      console.log('Current URL:', window.location.href);
-      console.log('Previous URL:', document.referrer);
-      console.log('History state:', e.state);
-    };
+  // prevent cross-portal navigation - especially when clicking browser back button
+useEffect(() => {
+  const handlePopState = (e) => {
+    const currentPath = window.location.pathname;
+    if (currentPath === '/admin' && document.referrer.includes('/contractorPortal')) {
+      e.preventDefault();
+      window.history.pushState(null, null, '/admin');
+    }
+  };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  window.addEventListener('popstate', handlePopState);
+  return () => window.removeEventListener('popstate', handlePopState);
+}, []);
 
   return (
     <AuthProvider>
