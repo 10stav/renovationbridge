@@ -30,10 +30,12 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router'; // ADD THIS
 import { useAuth } from '../auth/AuthContext';
 import PendingContractors from './PendingContractors';
 import ManageContractors from './ManageContractors';
 import AdminJobsView from './AdminJobsView';
+
 
 function AdminDashboard() {
   const { authenticatedRequest, logout } = useAuth();
@@ -41,13 +43,40 @@ function AdminDashboard() {
   const [contractors, setContractors] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const router = useRouter(); // ADD THIS after your other hooks
 
-  useEffect(() => { //debug to fix back button causing logout issue
+  useEffect(() => {
+    // Replace current history entry to point back to admin overview instead of contractorPortal
+    window.history.replaceState(
+      { view: 'admin-overview' },
+      'Admin Dashboard',
+      '/admin'
+    );
+  }, []);
+
+  // Handle internal navigation within admin dashboard
+  useEffect(() => {
+    // When navigating within admin (overview -> manage -> jobs), update history
+    if (currentView !== 'overview') {
+      window.history.pushState(
+        { view: `admin-${currentView}` },
+        `Admin ${currentView}`,
+        '/admin'
+      );
+    }
+  }, [currentView]);
+
+  // Handle browser back button within admin
+  useEffect(() => {
     const handlePopState = (e) => {
-      console.log('🔍 Back button clicked in AdminDashboard!');
-      console.log('Current URL:', window.location.href);
-      console.log('Previous URL:', document.referrer);
-      console.log('History state:', e.state);
+      if (e.state?.view?.startsWith('admin-')) {
+        // Back button within admin - go to overview
+        setCurrentView('overview');
+      } else {
+        // Back button trying to leave admin - stay on overview
+        setCurrentView('overview');
+        window.history.pushState({ view: 'admin-overview' }, 'Admin Dashboard', '/admin');
+      }
     };
 
     window.addEventListener('popstate', handlePopState);

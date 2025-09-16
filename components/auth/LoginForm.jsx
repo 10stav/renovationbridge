@@ -23,10 +23,10 @@ function LoginForm() {
                 console.log('User role:', role);
                 const adminEmails = ['admin@renovationbridge.com', 'admin2@company.com'];
                 if (result.user?.role === 'admin' || adminEmails.includes(formData.email)) {
-                    router.push('/admin');// ← Next.js navigation
+                    router.replace('/admin');// ← Next.js navigation
                 } else if (role === 'contractor') {
-                    router.push('/contractorPortal'); // ← Stay on same page
-                } else router.push('/contractorPortal');
+                    router.replace('/contractorPortal'); // ← Stay on same page (9/16 - replacing router.push with router.replace for no delay and avoiding wrong page redirect for split second before right one)
+                } else router.replace('/contractorPortal');
             }, 100);
         }
     };
