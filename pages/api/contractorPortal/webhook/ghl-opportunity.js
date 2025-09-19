@@ -1,4 +1,19 @@
 // pages/api/contractorPortal/webhook/ghl-opportunity.js
+
+//gohighlevel.js (service file): 
+
+//Makes outgoing API calls TO GHL
+//Creates appointments in GHL calendar when contractors book
+//Used by your book-appointment.js API
+
+//ghl-opportunity.js (webhook file): (this file)
+
+//Receives incoming webhooks FROM GHL
+//Processes opportunity data when homeowners are moved to "Need to Book"
+//Creates/updates jobs in your database
+
+
+
 import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
 import AvailableJob from '../../../../lib/contractorPortal/models/Availablejob';
 import User from '../../../../lib/contractorPortal/models/User';
@@ -267,7 +282,22 @@ export default async function handler(req, res) {
     console.log('📋 Opportunity ID:', opportunityId);
     console.log('📋 Contact ID:', contactId);
 
-    // Pipeline stage check
+    // Check if opportunity was deleted (same removal behavior as moving out of pipeline)
+    if (webhookData.type === 'OpportunityDelete' || webhookData.event_type === 'opportunity.delete' || webhookData.deleted === true) {
+      console.log('❌ REMOVING job - opportunity deleted');
+
+      await AvailableJob.findOneAndUpdate(
+        { customerId: webhookData.contact_id },
+        { status: 'removed' },
+        { new: true }
+      );
+
+      return res.status(200).json({ success: true, message: 'Job removed due to deletion' });
+    }
+
+
+
+    // Original Pipeline stage check
     if (webhookData.pipleline_stage !== 'Need to Book') {
       console.log('❌ REMOVING job - contact moved to:', webhookData.pipleline_stage);
 
