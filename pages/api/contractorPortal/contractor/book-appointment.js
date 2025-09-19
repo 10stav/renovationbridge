@@ -273,3 +273,68 @@ export default async function handler(req, res) {
     });
   }
 }
+// Add these functions at the bottom of book-appointment.js
+function expandTimeRanges(timeArray) {
+  const expandedTimes = [];
+  for (let timeEntry of timeArray) {
+    if (!timeEntry || typeof timeEntry !== 'string') continue;
+    timeEntry = normalizeTimeFormat(timeEntry);
+    if (isTimeRange(timeEntry)) {
+      const expanded = expandSingleTimeRange(timeEntry);
+      expandedTimes.push(...expanded);
+    } else {
+      expandedTimes.push(timeEntry);
+    }
+  }
+  return [...new Set(expandedTimes)];
+}
+
+function normalizeTimeFormat(timeStr) {
+  return timeStr
+    .replace(/(\d+:\d+)\s*([ap])m\b/gi, '$1 $2M')
+    .replace(/\b([AP])M\b/g, '$1M');
+}
+
+function isTimeRange(timeStr) {
+  return /\d+:\d+\s*[AP]M\s*(-|to)\s*\d+:\d+\s*[AP]M/i.test(timeStr);
+}
+
+function expandSingleTimeRange(timeStr) {
+  try {
+    const parts = timeStr.split(',');
+    const datePart = parts.length > 1 ? parts[0].trim() + ', ' : '';
+    const timeRangePart = parts.length > 1 ? parts[1].trim() : timeStr.trim();
+    const rangeMatch = timeRangePart.match(/(\d+:\d+\s*[AP]M)\s*(-|to)\s*(\d+:\d+\s*[AP]M)/i);
+    if (!rangeMatch) return [timeStr];
+    const startTimeStr = rangeMatch[1].trim();
+    const endTimeStr = rangeMatch[3].trim();
+    const startTime24 = convertTo24Hour(startTimeStr);
+    const endTime24 = convertTo24Hour(endTimeStr);
+    const startHour = parseInt(startTime24.split(':')[0]);
+    const endHour = parseInt(endTime24.split(':')[0]);
+    const expandedSlots = [];
+    for (let hour = startHour; hour <= endHour; hour++) {
+      const time12h = convertTo12Hour(hour);
+      expandedSlots.push(datePart + time12h);
+    }
+    return expandedSlots;
+  } catch (error) {
+    console.error('Error expanding time range:', timeStr, error);
+    return [timeStr];
+  }
+}
+
+function convertTo24Hour(time12h) {
+  const [time, modifier] = time12h.split(' ');
+  let [hours, minutes] = time.split(':');
+  if (hours === '12') hours = '00';
+  if (modifier.toUpperCase() === 'PM') hours = parseInt(hours, 10) + 12;
+  hours = hours.toString().padStart(2, '0');
+  return `${hours}:${minutes || '00'}`;
+}
+
+function convertTo12Hour(hour24) {
+  const hour = hour24 % 12 || 12;
+  const modifier = hour24 < 12 ? 'AM' : 'PM';
+  return `${hour}:00 ${modifier}`;
+}

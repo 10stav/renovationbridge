@@ -11,10 +11,40 @@ function AcceptJobButton({ job, onJobAccepted }) {
   const [availableTimes, setAvailableTimes] = useState([]);
   const [selectedTimeOption, setSelectedTimeOption] = useState('');
   const [loadingTimes, setLoadingTimes] = useState(false);
-  const [alreadyBooked, setAlreadyBooked] = useState(false); /// adding for blur implementation
-  const [checkingBookingStatus, setCheckingBookingStatus] = useState(false); /// adding for blur implementation
+  const [alreadyBooked, setAlreadyBooked] = useState(false);
+  const [checkingBookingStatus, setCheckingBookingStatus] = useState(false);
 
-  // Safety check
+  // Move checkExistingBooking here (before any early returns)
+  const checkExistingBooking = useCallback(async () => {
+    if (!job || !user) return; // Add safety check inside the function
+
+    setCheckingBookingStatus(true);
+    try {
+      const response = await authenticatedRequest('/contractor/check-existing-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          homeownerEmail: job._originalEmail || job.customerEmail,
+          contractorId: user._id
+        })
+      });
+
+      const data = await response.json();
+      if (data.hasExistingBooking) {
+        setAlreadyBooked(true);
+      }
+    } catch (error) {
+      console.error('Error checking existing booking:', error);
+    } finally {
+      setCheckingBookingStatus(false);
+    }
+  }, [job?.customerEmail, job?._originalEmail, user?._id, authenticatedRequest]);
+
+  React.useEffect(() => {
+    checkExistingBooking();
+  }, [checkExistingBooking]);
+
+  // Safety check AFTER all hooks
   if (!job) {
     return null;
   }
@@ -142,29 +172,6 @@ function AcceptJobButton({ job, onJobAccepted }) {
       setBooking(false);
     }
   };
-
-  const checkExistingBooking = useCallback(async () => {
-    setCheckingBookingStatus(true);
-    try {
-      const response = await authenticatedRequest('/contractor/check-existing-booking', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          homeownerEmail: job._originalEmail || job.customerEmail,
-          contractorId: user._id
-        })
-      });
-
-      const data = await response.json();
-      if (data.hasExistingBooking) {
-        setAlreadyBooked(true);
-      }
-    } catch (error) {
-      console.error('Error checking existing booking:', error);
-    } finally {
-      setCheckingBookingStatus(false);
-    }
-  }, [job?.customerEmail, job?._originalEmail, user?._id, authenticatedRequest]);
 
 
 
