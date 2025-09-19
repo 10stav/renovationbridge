@@ -406,12 +406,10 @@ function expandTimeRanges(timeArray) {
 /**
  * Normalize time formats (4:20pm -> 4:20 PM)
  */
-
-// NEW:
 function normalizeTimeFormat(timeStr) {
-  if (!timeStr || typeof timeStr !== 'string') return timeStr;
-  
-  return timeStr.replace(/([ap])m\b/gi, '$1M');
+  return timeStr
+    .replace(/(\d+:\d+)\s*([ap])m\b/gi, '$1 $2M') // 4:20pm -> 4:20 PM
+    .replace(/\b([AP])M\b/gi, '$1M'); // Ensure AM/PM is uppercase
 }
 
 /**
