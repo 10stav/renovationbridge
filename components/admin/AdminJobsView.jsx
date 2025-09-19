@@ -49,13 +49,13 @@ function AdminJobsView({ jobs, loading, onBack }) {
    * Helps manage large lists of jobs efficiently.
    */
   const filteredJobs = jobs.filter(job => {
-    const matchesSearch = searchTerm === '' || 
+    const matchesSearch = searchTerm === '' ||
       job.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       job.customerEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       job.location?.fullAddress?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesStatus = statusFilter === 'all' || job.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -106,7 +106,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
     const totalTimes = job.availableTimes?.length || 0;
     const bookedTimes = job.bookedTimes?.length || 0;
     const appointments = job.appointments?.length || 0;
-    
+
     return {
       total: totalTimes,
       booked: bookedTimes,
@@ -115,14 +115,45 @@ function AdminJobsView({ jobs, loading, onBack }) {
     };
   };
 
+  /**
+ * REMOVE CONTRACTOR BOOKING - Remove a specific contractor's booking
+ */
+  const removeContractorBooking = async (jobId, contractorId, timeSlot, contractorName) => {
+    const confirmed = window.confirm(
+      `Remove booking for ${contractorName} at ${timeSlot}?\n\nThis will allow the contractor to book with this homeowner again.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch('/api/contractorPortal/admin/remove-contractor-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId, contractorId, timeSlot })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert('Contractor booking removed successfully');
+        window.location.reload();
+      } else {
+        alert(`Error: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error removing contractor booking:', error);
+      alert('Error removing contractor booking');
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
-      
+
       {/* Header with Back Button */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Available Jobs Overview</h2>
-        <button 
-          onClick={onBack} 
+        <button
+          onClick={onBack}
           className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-200 font-medium"
         >
           Back to Dashboard
@@ -133,7 +164,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
         <h3 className="font-semibold text-purple-800 mb-2">📊 GHL Integration Overview</h3>
         <p className="text-purple-700 text-sm">
-          These jobs were created when you dragged homeowners to "Need to Book" in GoHighLevel. 
+          These jobs were created when you dragged homeowners to "Need to Book" in GoHighLevel.
           Admin-set appointment times are captured from GHL custom fields and displayed to contractors for booking.
         </p>
       </div>
@@ -181,7 +212,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
           </div>
         </div>
 
-      /* Empty State - No Jobs */
+        /* Empty State - No Jobs */
       ) : jobs.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -194,7 +225,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
           <p className="text-sm text-gray-400 mt-2">Jobs are created automatically via webhook integration.</p>
         </div>
 
-      /* No Filtered Results */
+        /* No Filtered Results */
       ) : filteredJobs.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -206,16 +237,16 @@ function AdminJobsView({ jobs, loading, onBack }) {
           <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
         </div>
 
-      /* Jobs List */
+        /* Jobs List */
       ) : (
         <div className="space-y-6">
           {filteredJobs.map(job => {
             const created = formatDate(job.createdAt);
             const appointmentCounts = getAppointmentCounts(job);
-            
+
             return (
               <div key={job._id} className="border border-gray-200 rounded-lg p-5 hover:bg-gray-50 transition-colors duration-200">
-                
+
                 {/* Job Header */}
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
@@ -225,7 +256,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
                       <p className="text-gray-600">{job.customerPhone}</p>
                     )}
                   </div>
-                  
+
                   {/* Status and Stats */}
                   <div className="text-right ml-4">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(job.status)}`}>
@@ -251,14 +282,14 @@ function AdminJobsView({ jobs, loading, onBack }) {
                       <p className="text-blue-600 text-sm">Timeline: {job.projectTimeline}</p>
                     )}
                   </div>
-                  
+
                   {job.location && (
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-1">Location:</p>
                       <p className="text-gray-600">
-                        📍 {job.location.fullAddress || 
-                             `${job.location.address || ''} ${job.location.city || ''} ${job.location.state || ''}`.trim() ||
-                             'Location details pending'}
+                        📍 {job.location.fullAddress ||
+                          `${job.location.address || ''} ${job.location.city || ''} ${job.location.state || ''}`.trim() ||
+                          'Location details pending'}
                       </p>
                     </div>
                   )}
@@ -270,8 +301,8 @@ function AdminJobsView({ jobs, loading, onBack }) {
                     <p className="text-sm font-medium text-gray-700 mb-2">Homeowner Tags (GHL):</p>
                     <div className="flex flex-wrap gap-2">
                       {job.homeownerTags.map(tag => (
-                        <span 
-                          key={tag} 
+                        <span
+                          key={tag}
                           className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full font-medium"
                         >
                           🏷️ {tag}
@@ -284,33 +315,70 @@ function AdminJobsView({ jobs, loading, onBack }) {
                   </div>
                 )}
 
-                {/* Available Times */}
+                {/* Available Times and Bookings */}
                 <div className="mb-4">
                   <p className="text-sm font-medium text-gray-700 mb-2">
                     Appointment Times (Set by Admin in GHL):
                   </p>
+
+                  {/* Available Times */}
                   {job.availableTimes && job.availableTimes.length > 0 ? (
-                    <div className="space-y-1">
-                      {job.availableTimes.map((time, index) => {
-                        const isBooked = job.bookedTimes?.includes(time);
-                        return (
-                          <div key={index} className="flex items-center space-x-2">
-                            <span className={`text-sm px-3 py-1 rounded-full ${
-                              isBooked 
-                                ? 'bg-red-100 text-red-800' 
-                                : 'bg-green-100 text-green-800'
-                            }`}>
-                              {isBooked ? 'Not Booked' : 'Booked'} {time}
-                            </span>
-                            {isBooked && (
-                              <span className="text-xs text-gray-500">(Booked)</span>
-                            )}
-                          </div>
-                        );
-                      })}
+                    <div className="space-y-2 mb-4">
+                      <h4 className="text-sm font-medium text-green-700">Available Times:</h4>
+                      <div className="space-y-1">
+                        {job.availableTimes.map((time, index) => {
+                          const isBooked = job.bookedTimes?.some(booking => booking.time === time);
+                          return (
+                            <div key={index} className="flex items-center space-x-2">
+                              <span className={`text-sm px-3 py-1 rounded-full ${isBooked
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-green-100 text-green-800'
+                                }`}>
+                                {time}
+                              </span>
+                              {isBooked && (
+                                <span className="text-xs text-gray-500">(Booked)</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   ) : (
-                    <p className="text-gray-400 text-sm italic">No appointment times set by admin</p>
+                    <p className="text-gray-400 text-sm italic mb-4">No appointment times set by admin</p>
+                  )}
+
+                  {/* Contractor Bookings */}
+                  {job.bookedTimes && job.bookedTimes.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium text-red-700">Contractor Bookings:</h4>
+                      <div className="space-y-2">
+                        {job.bookedTimes.map((booking, index) => (
+                          <div key={index} className="flex items-center justify-between bg-red-50 p-3 rounded-lg">
+                            <div>
+                              <div className="font-medium text-red-800">{booking.time}</div>
+                              <div className="text-sm text-red-600">
+                                {booking.contractorName} ({booking.contractorEmail})
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                Booked: {new Date(booking.bookedAt).toLocaleString()}
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => removeContractorBooking(
+                                job._id,
+                                booking.contractorId,
+                                booking.time,
+                                booking.contractorName
+                              )}
+                              className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                            >
+                              Remove Booking
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
 
