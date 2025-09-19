@@ -146,6 +146,38 @@ function AdminJobsView({ jobs, loading, onBack }) {
     }
   };
 
+  /**
+ * DELETE ENTIRE JOB - Remove job completely from system
+ */
+  const deleteEntireJob = async (jobId, customerName) => {
+    const confirmed = window.confirm(
+      `Delete entire job for ${customerName}?\n\nThis will permanently remove the job and all associated bookings.\n\nNote: This job would normally be removed by dragging it out of "Need to Book" into "Not Interested" in GoHighLevel instead of deleting it here.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch('/api/contractorPortal/admin/delete-job', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert('Job deleted successfully');
+        window.location.reload();
+      } else {
+        alert(`Error: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      alert('Error deleting job');
+    }
+  };
+
+
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
 
@@ -372,6 +404,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
                                 booking.contractorName
                               )}
                               className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                              title="REMINDER: You must also cancel the appointment in GoHighLevel calendar"
                             >
                               Remove Booking
                             </button>
@@ -407,6 +440,19 @@ function AdminJobsView({ jobs, loading, onBack }) {
                 {/* Job ID for Reference */}
                 <div className="mt-3 text-xs text-gray-400">
                   Job ID: {job._id} | Customer ID: {job.customerId}
+                </div>
+
+                {/* Add this new section */}
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <button
+                    onClick={() => deleteEntireJob(job._id, job.customerName)}
+                    className="px-4 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                  >
+                    Delete Entire Job
+                  </button>
+                  <p className="text-xs text-gray-500 mt-1">
+                    This job would normally be removed by dragging it out of "Need to Book" into "Not Interested" in GoHighLevel.
+                  </p>
                 </div>
               </div>
             );
