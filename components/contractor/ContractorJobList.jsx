@@ -316,6 +316,9 @@ function ContractorJobsList({ jobs, loading, onBook, onBack }) {
                               // Check if this time is NOT in the booked times (using .some() to check .time property)
                               return !job.bookedTimes.some(booked => booked.time === time);
                             });
+
+                            // NORMALIZE ALL TIMES FOR CONSISTENT DISPLAY - THIS IS THE KEY FIX
+                            actuallyAvailableTimes = actuallyAvailableTimes.map(time => normalizeTimeFormat(time));
                           }
 
                           if (actuallyAvailableTimes.length > 0) {
