@@ -120,7 +120,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
  */
   const removeContractorBooking = async (jobId, contractorId, timeSlot, contractorName) => {
     const confirmed = window.confirm(
-      `Remove booking for ${contractorName} at ${timeSlot}?\n\nThis will allow the contractor to book with this homeowner again.`
+      `Remove booking for ${contractorName} at ${timeSlot}?\n\nThis will allow the contractor to book with this homeowner again.\n\n⚠️ REMINDER: You must also manually cancel/delete the corresponding appointment in the GoHighLevel calendar. This action only removes the booking from our database.`
     );
 
     if (!confirmed) return;
@@ -135,7 +135,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
       const result = await response.json();
 
       if (result.success) {
-        alert('Contractor booking removed successfully');
+        alert('✅ Contractor booking removed successfully from database.\n\n📅 REMINDER: Don\'t forget to cancel the appointment in GoHighLevel calendar as well.');
         window.location.reload();
       } else {
         alert(`Error: ${result.error}`);
@@ -331,8 +331,8 @@ function AdminJobsView({ jobs, loading, onBack }) {
                           return (
                             <div key={index} className="flex items-center space-x-2">
                               <span className={`text-sm px-3 py-1 rounded-full ${isBooked
-                                  ? 'bg-red-100 text-red-800'
-                                  : 'bg-green-100 text-green-800'
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-green-100 text-green-800'
                                 }`}>
                                 {time}
                               </span>
