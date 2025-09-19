@@ -9,6 +9,8 @@ function AcceptJobButton({ job, onJobAccepted }) {
   const [availableTimes, setAvailableTimes] = useState([]);
   const [selectedTimeOption, setSelectedTimeOption] = useState('');
   const [loadingTimes, setLoadingTimes] = useState(false);
+  const [alreadyBooked, setAlreadyBooked] = useState(false); /// adding for blur implementation
+  const [checkingBookingStatus, setCheckingBookingStatus] = useState(false); /// adding for blur implementation
 
   // Safety check
   if (!job) {
@@ -139,14 +141,51 @@ function AcceptJobButton({ job, onJobAccepted }) {
     }
   };
 
+  const checkExistingBooking = async () => {
+    setCheckingBookingStatus(true);
+    try {
+      const response = await authenticatedRequest('/contractor/check-existing-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          homeownerEmail: job._originalEmail || job.customerEmail,
+          contractorId: user._id
+        })
+      });
+
+      const data = await response.json();
+      if (data.hasExistingBooking) {
+        setAlreadyBooked(true);
+      }
+    } catch (error) {
+      console.error('Error checking existing booking:', error);
+    } finally {
+      setCheckingBookingStatus(false);
+    }
+  };
+
+
+
+
+
   const cancelTimeSelection = () => {
     setShowTimeSelection(false);
     setSelectedTimeOption('');
     setAvailableTimes([]);
   };
+
+
   const unbookedTimes = availableTimes.filter(time =>
     !job.bookedTimes?.some(booked => booked.time === time)
   );
+
+
+  React.useEffect(() => {
+    if (job && user) {
+      checkExistingBooking();
+    }
+  }, [job, user]);
+
 
   return (
     <div className="space-y-4">
@@ -289,34 +328,58 @@ function AcceptJobButton({ job, onJobAccepted }) {
       </div> 
       */}
 
-      {/* Accept Button */}
-      <button
-        onClick={handleAcceptJob}
-        disabled={booking || loadingTimes || (job?.status && job.status !== 'available')}
-        className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${(!job?.status || job.status === 'available') && !booking && !loadingTimes
-          ? 'bg-blue-600 text-white hover:bg-blue-700'
-          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
-        style={{
-          boxShadow: (!job?.status || job.status === 'available') && !booking && !loadingTimes
-            ? '0 4px 0 #1e40af, 0 6px 8px rgba(0,0,0,0.3)'
-            : 'none'
-        }}
-        onMouseEnter={(e) => {
-          if ((!job?.status || job.status === 'available') && !booking && !loadingTimes) {
-            e.target.style.boxShadow = '0 8px 0 #1e40af, 0 10px 20px rgba(0,0,0,0.4)';
-            e.target.style.transform = 'translateY(-4px)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if ((!job?.status || job.status === 'available') && !booking && !loadingTimes) {
-            e.target.style.boxShadow = '0 4px 0 #1e40af, 0 6px 8px rgba(0,0,0,0.3)';
-            e.target.style.transform = 'translateY(0px)';
-          }
-        }}
-      >
-        {loadingTimes ? '🔄 Loading Times...' : booking ? '🔄 Creating Appointment...' : ' Preview & Schedule'}
-      </button>
+      {/* Accept Button or Already Booked Message */}
+      {alreadyBooked ? (
+        <div className="relative">
+          {/* Blur overlay */}
+          <div className="absolute inset-0 bg-white bg-opacity-75 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center">
+            <div className="text-center p-4">
+              <div className="text-lg font-semibold text-gray-700 mb-2">
+                You've already booked an appointment with this homeowner.
+              </div>
+              <div className="text-sm text-gray-500">
+                Check your appointments to view details.
+              </div>
+            </div>
+          </div>
+
+          {/* Blurred content underneath */}
+          <button
+            disabled
+            className="w-full py-3 px-4 rounded-lg font-semibold bg-gray-300 text-gray-500 cursor-not-allowed filter blur-sm"
+          >
+            Preview & Schedule
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={handleAcceptJob}
+          disabled={booking || loadingTimes || checkingBookingStatus || (job?.status && job.status !== 'available')}
+          className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${(!job?.status || job.status === 'available') && !booking && !loadingTimes && !checkingBookingStatus
+            ? 'bg-blue-600 text-white hover:bg-blue-700'
+            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          style={{
+            boxShadow: (!job?.status || job.status === 'available') && !booking && !loadingTimes && !checkingBookingStatus
+              ? '0 4px 0 #1e40af, 0 6px 8px rgba(0,0,0,0.3)'
+              : 'none'
+          }}
+          onMouseEnter={(e) => {
+            if ((!job?.status || job.status === 'available') && !booking && !loadingTimes && !checkingBookingStatus) {
+              e.target.style.boxShadow = '0 8px 0 #1e40af, 0 10px 20px rgba(0,0,0,0.4)';
+              e.target.style.transform = 'translateY(-4px)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if ((!job?.status || job.status === 'available') && !booking && !loadingTimes && !checkingBookingStatus) {
+              e.target.style.boxShadow = '0 4px 0 #1e40af, 0 6px 8px rgba(0,0,0,0.3)';
+              e.target.style.transform = 'translateY(0px)';
+            }
+          }}
+        >
+          {checkingBookingStatus ? 'Checking...' : loadingTimes ? 'Loading Times...' : booking ? 'Creating Appointment...' : 'Preview & Schedule'}
+        </button>
+      )}
     </div>
   );
 }
