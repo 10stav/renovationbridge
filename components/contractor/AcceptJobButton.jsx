@@ -189,11 +189,6 @@ function AcceptJobButton({ job, onJobAccepted }) {
   );
 
 
-  React.useEffect(() => {
-    if (job && user) {
-      checkExistingBooking();
-    }
-  }, [job, user, checkExistingBooking]);
 
 
   return (
