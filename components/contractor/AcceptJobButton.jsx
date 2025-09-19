@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useAuth } from '../auth/AuthContext'; // adjust path if needed
+
+
 
 
 function AcceptJobButton({ job, onJobAccepted }) {
@@ -141,7 +143,7 @@ function AcceptJobButton({ job, onJobAccepted }) {
     }
   };
 
-  const checkExistingBooking = async () => {
+  const checkExistingBooking = useCallback(async () => {
     setCheckingBookingStatus(true);
     try {
       const response = await authenticatedRequest('/contractor/check-existing-booking', {
@@ -162,7 +164,7 @@ function AcceptJobButton({ job, onJobAccepted }) {
     } finally {
       setCheckingBookingStatus(false);
     }
-  };
+  }, [job?.customerEmail, job?._originalEmail, user?._id, authenticatedRequest]);
 
 
 
@@ -184,7 +186,7 @@ function AcceptJobButton({ job, onJobAccepted }) {
     if (job && user) {
       checkExistingBooking();
     }
-  }, [job, user]);
+  }, [job, user, checkExistingBooking]);
 
 
   return (
