@@ -103,15 +103,15 @@ function AdminJobsView({ jobs, loading, onBack }) {
    * @returns {Object} - Appointment counts
    */
   const getAppointmentCounts = (job) => {
-    const totalTimes = job.availableTimes?.length || 0;
-    const bookedTimes = job.bookedTimes?.length || 0;
-    const appointments = job.appointments?.length || 0;
+    const currentAvailable = job.availableTimes?.length || 0;
+    const bookedCount = job.bookedTimes?.length || 0;
+    const originalTotal = currentAvailable + bookedCount;
 
     return {
-      total: totalTimes,
-      booked: bookedTimes,
-      available: totalTimes - bookedTimes,
-      appointments: appointments
+      total: originalTotal,
+      booked: bookedCount,
+      available: currentAvailable,
+      appointments: job.appointments?.length || 0
     };
   };
 
@@ -149,33 +149,33 @@ function AdminJobsView({ jobs, loading, onBack }) {
   /**
 //  * DELETE ENTIRE JOB - Remove job completely from system
 //  */
-//   const deleteEntireJob = async (jobId, customerName) => {
-//     const confirmed = window.confirm(
-//       `Delete entire job for ${customerName}?\n\nThis will permanently remove the job and all associated bookings.\n\nNote: This job would normally be removed by dragging it out of "Need to Book" into "Not Interested" in GoHighLevel instead of deleting it here.`
-//     );
+  //   const deleteEntireJob = async (jobId, customerName) => {
+  //     const confirmed = window.confirm(
+  //       `Delete entire job for ${customerName}?\n\nThis will permanently remove the job and all associated bookings.\n\nNote: This job would normally be removed by dragging it out of "Need to Book" into "Not Interested" in GoHighLevel instead of deleting it here.`
+  //     );
 
-//     if (!confirmed) return;
+  //     if (!confirmed) return;
 
-//     try {
-//       const response = await fetch('/api/contractorPortal/admin/delete-job', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ jobId })
-//       });
+  //     try {
+  //       const response = await fetch('/api/contractorPortal/admin/delete-job', {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({ jobId })
+  //       });
 
-//       const result = await response.json();
+  //       const result = await response.json();
 
-//       if (result.success) {
-//         alert('Job deleted successfully');
-//         window.location.reload();
-//       } else {
-//         alert(`Error: ${result.error}`);
-//       }
-//     } catch (error) {
-//       console.error('Error deleting job:', error);
-//       alert('Error deleting job');
-//     }
-//   };
+  //       if (result.success) {
+  //         alert('Job deleted successfully');
+  //         window.location.reload();
+  //       } else {
+  //         alert(`Error: ${result.error}`);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error deleting job:', error);
+  //       alert('Error deleting job');
+  //     }
+  //   };
 
 
   return (
@@ -319,7 +319,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-1">Location:</p>
                       <p className="text-gray-600">
-                         {job.location.fullAddress ||
+                        {job.location.fullAddress ||
                           `${job.location.address || ''} ${job.location.city || ''} ${job.location.state || ''}`.trim() ||
                           'Location details pending'}
                       </p>
@@ -337,7 +337,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
                           key={tag}
                           className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full font-medium"
                         >
-                           {tag}
+                          {tag}
                         </span>
                       ))}
                     </div>
@@ -480,7 +480,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
 
 function normalizeTimeFormat(timeStr) {
   if (!timeStr || typeof timeStr !== 'string') return timeStr;
-  return timeStr.replace(/\b([ap])m\b/gi, function(match, letter) {
+  return timeStr.replace(/\b([ap])m\b/gi, function (match, letter) {
     return letter.toUpperCase() + 'M';
   });
 }
