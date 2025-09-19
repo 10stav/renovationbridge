@@ -164,6 +164,10 @@ function AcceptJobButton({ job, onJobAccepted }) {
       if (result.success) {
         console.log('🎉 SUCCESS!');
         alert(`✅ Job accepted successfully!\nAppointment scheduled for ${selectedTimeOption}`);
+
+        // Update local state to show restriction immediately
+        setAlreadyBooked(true);
+
         if (onJobAccepted) {
           onJobAccepted(job._id, result.data);
         }
