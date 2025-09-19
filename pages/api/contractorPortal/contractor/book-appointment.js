@@ -136,7 +136,9 @@ export default async function handler(req, res) {
       typeof entry === 'string' ? entry : entry.time
     );
 
-    if (!job.availableTimes || !job.availableTimes.includes(timeSlot)) {
+    // Expand ranges to match what frontend displays
+    const expandedAvailableTimes = expandTimeRanges(job.availableTimes || []);
+    if (!expandedAvailableTimes || !expandedAvailableTimes.includes(timeSlot)) {
       return res.status(400).json({
         success: false,
         message: 'Time slot not available'
@@ -204,7 +206,7 @@ export default async function handler(req, res) {
       };
 
       // Check if this will be the last available time slot
-      const remainingTimes = job.availableTimes.filter(t =>
+      const remainingTimes = expandedAvailableTimes.filter(t =>
         t !== timeSlot && !bookedTimeStrings.includes(t)
       );
       const isFullyBooked = remainingTimes.length === 0;
