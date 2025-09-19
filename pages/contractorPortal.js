@@ -48,21 +48,12 @@ export default function ContractorPortalPage() {
                 What do you need to do today?
               </p>
             </div>
-            <div className="flex items-center space-x-4">
-              <button
-                className="text-2xl cursor-pointer hover:opacity-75"
-                onClick={() => { /* to settings */ }}
-                title="Settings"
-              >
-                ⚙️
-              </button>
+            <div className="flex items-center">
               <button
                 onClick={logout}
-                aria-label="Log out"
-                className="p-2 rounded-lg hover:bg-red-600 hover:text-white transition-colors text-xl"
-                title="Logout"
+                className="px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition-colors font-medium"
               >
-                🚪
+                Logout
               </button>
             </div>
           </div>

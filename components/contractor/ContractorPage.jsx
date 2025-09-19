@@ -18,19 +18,24 @@ export default function ContractorPage() {
           <div className="flex justify-between items-start">
             <div>
               <h2 className="text-3xl font-bold">
-                Welcome back, {user.name}!
+                Welcome back, {user.name}! 
               </h2>
               <p className="mt-2 text-lg">
                 {user.companyName && `${user.companyName} | `}
                 What do you need to do today?
               </p>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center space-x-4">
+              <CogIcon
+                className="h-6 w-6 cursor-pointer"
+                onClick={() => { /* to settings */ }}
+              />
               <button
                 onClick={logout}
-                className="px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition-colors font-medium"
+                aria-label="Log out"
+                className="p-2 rounded-lg hover:bg-red-600 hover:text-white transition-colors"
               >
-                Logout
+                <ArrowRightOnRectangleIcon className="h-6 w-6" />
               </button>
             </div>
           </div>
