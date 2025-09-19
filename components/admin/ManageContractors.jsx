@@ -313,7 +313,7 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
                             key={tag}
                             className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full font-medium"
                           >
-                            🏷️ {tag}
+                             {tag}
                           </span>
                         ))}
                       </div>

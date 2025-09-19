@@ -187,9 +187,9 @@ function PendingContractors({ contractors, loading, onApprove, onDenyRefresh, on
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <p className="text-sm font-medium text-gray-700">Contact Information:</p>
-                  <p className="text-gray-600">📧 {contractor.email}</p>
+                  <p className="text-gray-600">EMAIL: {contractor.email}</p>
                   {contractor.phone && (
-                    <p className="text-gray-600">📞 {contractor.phone}</p>
+                    <p className="text-gray-600">PHONE NUMBER: {contractor.phone}</p>
                   )}
                 </div>
 
@@ -197,7 +197,7 @@ function PendingContractors({ contractors, loading, onApprove, onDenyRefresh, on
                   <div>
                     <p className="text-sm font-medium text-gray-700">Address:</p>
                     <p className="text-gray-600">
-                      📍 {contractor.address.street && `${contractor.address.street}, `}
+                       {contractor.address.street && `${contractor.address.street}, `}
                       {contractor.address.city && `${contractor.address.city}, `}
                       {contractor.address.state} {contractor.address.zipCode}
                     </p>
@@ -273,7 +273,7 @@ function PendingContractors({ contractors, loading, onApprove, onDenyRefresh, on
 
               <div className="bg-gray-50 rounded-lg p-3 mt-4">
                 <p className="text-xs text-gray-500">
-                  💡 <strong>Next Steps:</strong> After approval, this contractor will be able to login and view available jobs.
+                   <strong>Next Steps:</strong> After approval, this contractor will be able to login and view available jobs.
                   You can assign filtering tags in the "Manage Contractors" section to control which jobs they see.
                 </p>
               </div>

@@ -135,7 +135,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
       const result = await response.json();
 
       if (result.success) {
-        alert('✅ Contractor booking removed successfully from database.\n\n📅 REMINDER: Don\'t forget to cancel the appointment in GoHighLevel calendar as well.');
+        alert('OK. Contractor booking removed successfully from database.\n\n REMINDER: Don\'t forget to cancel the appointment in GoHighLevel calendar as well.');
         window.location.reload();
       } else {
         alert(`Error: ${result.error}`);
@@ -194,7 +194,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
 
       {/* System Overview */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
-        <h3 className="font-semibold text-purple-800 mb-2">📊 GHL Integration Overview</h3>
+        <h3 className="font-semibold text-purple-800 mb-2"> GHL Integration Overview</h3>
         <p className="text-purple-700 text-sm">
           These jobs were created when you dragged homeowners to "Need to Book" in GoHighLevel.
           Admin-set appointment times are captured from GHL custom fields and displayed to contractors for booking.
@@ -319,7 +319,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-1">Location:</p>
                       <p className="text-gray-600">
-                        📍 {job.location.fullAddress ||
+                         {job.location.fullAddress ||
                           `${job.location.address || ''} ${job.location.city || ''} ${job.location.state || ''}`.trim() ||
                           'Location details pending'}
                       </p>
@@ -337,7 +337,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
                           key={tag}
                           className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full font-medium"
                         >
-                          🏷️ {tag}
+                           {tag}
                         </span>
                       ))}
                     </div>
@@ -409,7 +409,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
                                 Remove Booking
                               </button>
                               <p className="text-xs text-red-600 text-right max-w-32">
-                                Also cancel in GHL calendar
+                                REMINDER: You must also cancel the appointment in GoHighLevel calendar
                               </p>
                             </div>
                           </div>
