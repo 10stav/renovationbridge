@@ -1,5 +1,5 @@
-import { connectToDatabase } from '../../../lib/contractorPortal/utils/mongodb';
-import AvailableJob from '../../../lib/contractorPortal/models/Availablejob';
+import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
+import AvailableJob from '../../../../lib/contractorPortal/models/Availablejob';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
