@@ -16,7 +16,16 @@ function AcceptJobButton({ job, onJobAccepted }) {
 
   // Move checkExistingBooking here (before any early returns)
   const checkExistingBooking = useCallback(async () => {
-    if (!job || !user) return; // Add safety check inside the function
+    console.log('🔍 checkExistingBooking called');
+    console.log('Job check:', !!job, 'User check:', !!user);
+
+    if (!job || !user) {
+      console.log('❌ Early return - missing job or user');
+      return;
+    }
+
+    console.log('📧 Checking for homeowner:', job.customerEmail);
+    console.log('👤 Contractor ID:', user._id);
 
     setCheckingBookingStatus(true);
     try {
@@ -41,6 +50,9 @@ function AcceptJobButton({ job, onJobAccepted }) {
   }, [job?.customerEmail, job?._originalEmail, user?._id, authenticatedRequest]);
 
   React.useEffect(() => {
+    console.log('🔍 AcceptJobButton useEffect triggered');
+    console.log('Job:', job?.customerName);
+    console.log('User:', user?.name);
     checkExistingBooking();
   }, [checkExistingBooking]);
 
