@@ -396,18 +396,22 @@ function AdminJobsView({ jobs, loading, onBack }) {
                                 Booked: {new Date(booking.bookedAt).toLocaleString()}
                               </div>
                             </div>
-                            <button
-                              onClick={() => removeContractorBooking(
-                                job._id,
-                                booking.contractorId,
-                                booking.time,
-                                booking.contractorName
-                              )}
-                              className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                              title="REMINDER: You must also cancel the appointment in GoHighLevel calendar"
-                            >
-                              Remove Booking
-                            </button>
+                            <div className="flex flex-col items-end space-y-1">
+                              <button
+                                onClick={() => removeContractorBooking(
+                                  job._id,
+                                  booking.contractorId,
+                                  booking.time,
+                                  booking.contractorName
+                                )}
+                                className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                              >
+                                Remove Booking
+                              </button>
+                              <p className="text-xs text-red-600 text-right max-w-32">
+                                Also cancel in GHL calendar
+                              </p>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -446,7 +450,18 @@ function AdminJobsView({ jobs, loading, onBack }) {
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <button
                     onClick={() => deleteEntireJob(job._id, job.customerName)}
-                    className="px-4 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                    style={{
+                      backgroundColor: '#4B5563',
+                      color: 'white',
+                      padding: '8px 16px',
+                      fontSize: '14px',
+                      borderRadius: '6px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'block'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#374151'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = '#4B5563'}
                   >
                     Delete Entire Job
                   </button>
