@@ -366,7 +366,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
                                 ? 'bg-red-100 text-red-800'
                                 : 'bg-green-100 text-green-800'
                                 }`}>
-                                {time}
+                                {normalizeTimeFormat(time)}
                               </span>
                               {isBooked && (
                                 <span className="text-xs text-gray-500">(Booked)</span>
@@ -477,5 +477,13 @@ function AdminJobsView({ jobs, loading, onBack }) {
     </div>
   );
 }
+
+function normalizeTimeFormat(timeStr) {
+  if (!timeStr || typeof timeStr !== 'string') return timeStr;
+  return timeStr.replace(/\b([ap])m\b/gi, function(match, letter) {
+    return letter.toUpperCase() + 'M';
+  });
+}
+
 
 export default AdminJobsView;
