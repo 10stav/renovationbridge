@@ -1,3 +1,5 @@
+///this file: Next.js API route handler that serves as a development/testing utility for creating demo accounts
+
 import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
 import User from '../../../../lib/contractorPortal/models/User';
 
@@ -19,7 +21,7 @@ export default async function handler(req, res) {
         phone: '555-ADMIN'
       });
       await admin.save();
-      console.log('✅ Demo admin created');
+      console.log('Demo admin created');
     }
 
     let contractor = await User.findOne({ email: 'contractor@test.com' });
@@ -36,7 +38,7 @@ export default async function handler(req, res) {
         isApproved: true
       });
       await contractor.save();
-      console.log('✅ Demo contractor created');
+      console.log('Demo contractor created');
     }
 
     res.json({

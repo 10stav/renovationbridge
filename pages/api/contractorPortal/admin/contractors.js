@@ -1,10 +1,16 @@
+/// This file: Allows authenticated admins to retrieve a list of all contractors in the system for management purposes
+/// is also a Next.js API route handler 
+
+///not to be confused with jobs.js which exists in the same location as this file but is slightly different:
+///contractors.js: "Who are my contractors and what's their status?"
+///jobs.js: "What jobs are in the system and who's working on them?"
 import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
 import User from '../../../../lib/contractorPortal/models/User';
 import AvailableJob from '../../../../lib/contractorPortal/models/Availablejob';
 import jwt from 'jsonwebtoken';
 
 // Middleware to authenticate admin
-const authenticateAdmin = async (req) => {
+const authenticateAdmin = async (req) => { ///same function as in action.js, already documented
   const token = req.headers.authorization?.replace('Bearer ', '');
   
   if (!token) {
@@ -21,7 +27,7 @@ const authenticateAdmin = async (req) => {
   return user;
 };
 
-export default async function handler(req, res) {
+export default async function handler(req, res) { ///same function as in action.js, already documented
   await connectToDatabase();
 
   try {
@@ -29,14 +35,14 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
       // Get all contractors
-      console.log('🔍 Admin fetching contractors…');
+      console.log('Admin fetching contractors…');
 
       const contractors = await User.find({
         role: 'contractor',
         denied: { $ne: true }
       }).sort({ createdAt: -1 });
 
-      console.log(`📋 Found ${contractors.length} contractors`);
+      console.log(`Found ${contractors.length} contractors`);
 
       return res.json({
         success: true,
@@ -60,7 +66,7 @@ export default async function handler(req, res) {
     }
 
   } catch (error) {
-    console.error('❌ Admin contractors error:', error);
+    console.error(' Admin contractors error:', error);
     if (error.message.includes('token') || error.message.includes('Admin')) {
       return res.status(401).json({ success: false, message: error.message });
     }

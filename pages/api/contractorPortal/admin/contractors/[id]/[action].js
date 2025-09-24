@@ -1,8 +1,12 @@
-import { connectToDatabase } from '../../../../../../lib/contractorPortal/utils/mongodb';
-import User from '../../../../../../lib/contractorPortal/models/User';
-import jwt from 'jsonwebtoken';
+///this file:
+/// File Type: Next.js API route handler
+/// Functionality: It's an admin-only endpoint that allows administrators to perform three key actions on
+/// contractor accounts: approve, deny, or update tags.
+import { connectToDatabase } from '../../../../../../lib/contractorPortal/utils/mongodb'; ///imports mongodb file from file path shown, which Establishes and manages MongoDB connections for the contractor portal application
+import User from '../../../../../../lib/contractorPortal/models/User'; ///imports user, which is a model(object) in my repo which was built using uses Mongoose (MongoDB ODM) to serve as the main user/contractor data structure for the renovation portal system.
+import jwt from 'jsonwebtoken'; /// Brings in the jsonwebtoken npm package functionality; Allows the file to create, verify, and decode JWT tokens
 
-const authenticateAdmin = async (req) => {
+const authenticateAdmin = async (req) => { ///this function authenticates an already logged in admin by validating their admin status for each api request. the actual admin login happens in auth/login.js
   const token = req.headers.authorization?.replace('Bearer ', '');
   
   if (!token) {
@@ -19,7 +23,7 @@ const authenticateAdmin = async (req) => {
   return user;
 };
 
-export default async function handler(req, res) {
+export default async function handler(req, res) { /// this function makes sure we accept POST requests and rejects all other HTTP methods (GET, PUT, DELETE, etc.)
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -61,7 +65,7 @@ export default async function handler(req, res) {
           data = await response.json();
         } else {
           const text = await response.text();
-          console.error('❌ GHL non-JSON response:', text);
+          console.error(' GHL non-JSON response:', text);
           return res.status(502).json({
             success: false,
             message: 'GHL API returned unexpected response',
@@ -76,9 +80,9 @@ export default async function handler(req, res) {
 
         if (matched) {
           teamMemberId = matched.id;
-          console.log(`✅ Auto-matched GHL team member: ${matched.name} (${teamMemberId})`);
+          console.log(` Auto-matched GHL team member: ${matched.name} (${teamMemberId})`);
         } else {
-          console.warn(`❌ No GHL team member found with email ${contractor.email}`);
+          console.warn(` No GHL team member found with email ${contractor.email}`);
           return res.status(400).json({
             success: false,
             message: `No GHL team member found with email ${contractor.email}. Please manually enter the teamMemberId to approve this contractor.`

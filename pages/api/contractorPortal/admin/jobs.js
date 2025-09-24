@@ -1,3 +1,12 @@
+/// This file: Allows authenticated admins to retrieve a comprehensive list of available jobs in the contractor portal system for management and oversight purposes
+/// is also a Next.js API route handler 
+
+///not to be confused with contractors.js which exists in the same location as this file but is slightly different:
+///contractors.js: "Who are my contractors and what's their status?"
+///jobs.js: "What jobs are in the system and who's working on them?"
+
+
+
 import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
 import AvailableJob from '../../../../lib/contractorPortal/models/Availablejob';
 import User from '../../../../lib/contractorPortal/models/User';
@@ -30,13 +39,13 @@ export default async function handler(req, res) {
   try {
     const admin = await authenticateAdmin(req);
 
-    console.log('📋 Admin fetching available jobs...');
+    console.log('Admin fetching available jobs...');
 
     const jobs = await AvailableJob.find({
       status: { $in: ['available', 'claimed'] }
     }).sort({ createdAt: -1 });
 
-    console.log(`🏗️ Found ${jobs.length} jobs`);
+    console.log(`Found ${jobs.length} jobs`);
 
     res.json({
       success: true,
@@ -60,7 +69,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Error fetching jobs:', error);
+    console.error('Error fetching jobs:', error);
     if (error.message.includes('token') || error.message.includes('Admin')) {
       return res.status(401).json({ success: false, message: error.message });
     }

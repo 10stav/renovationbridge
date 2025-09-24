@@ -1,3 +1,7 @@
+///not currenyly in use
+/// Allows new contractors to create accounts in the renovation portal system, with built-in validation against GoHighLevel CRM to ensure only legitimate team members can register.
+///also a next.js api route handler
+///basically a contractor registration endpoint, but again, not currenrtly in use, replaced with a contact admin message for the time being when user selects register on login page
 import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
 import User from '../../../../lib/contractorPortal/models/User';
 import jwt from 'jsonwebtoken';

@@ -1,3 +1,7 @@
+///This file: This is a universal login API that handles authentication for all user types (users, admins, contractors) 
+/// in our renovation portal system
+
+/// this file is also a Next.js API route handler
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });

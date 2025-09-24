@@ -1,10 +1,16 @@
+///this file: Allows authenticated contractors to view available jobs that match their service tags,
+/// with filtered visibility and masked customer information for privacy
+
+///aka contractor job listing endpoint
+///this file is also also a next.js api route handler
 import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
 import AvailableJob from '../../../../lib/contractorPortal/models/Availablejob';
 import User from '../../../../lib/contractorPortal/models/User';
 import jwt from 'jsonwebtoken';
 
 // Auth middleware
-async function authenticateContractor(req, res, next) {
+async function authenticateContractor(req, res, next) { ///this function authenticates an already logged in contractor by validating their contractor status for each api request. appears frequently. the actual login happens in auth/login.js
+  const token = req.headers.authorization?.replace('Bearer ', '');
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (!token) {
@@ -40,7 +46,7 @@ function maskSensitiveData(email, phone) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
+  if (req.method !== 'GET') {    /// req = request all data coming from client to our server. res = response that you send back to the ghl client
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -55,16 +61,16 @@ export default async function handler(req, res) {
       });
     });
 
-    console.log('📋 Contractor requesting available jobs...');
-    console.log('👤 Contractor:', req.user.name);
-    console.log('🏷️ Contractor tags:', req.user.contractorTags);
+    console.log('Contractor requesting available jobs...');
+    console.log('Contractor:', req.user.name);
+    console.log('Contractor tags:', req.user.contractorTags);
 
     // Get all available jobs
     const availableJobs = await AvailableJob.find({
       status: { $in: ['available', 'unavailable'] }
     }).sort({ createdAt: -1 });
 
-    console.log(`📋 Found ${availableJobs.length} total available jobs`);
+    console.log(`Found ${availableJobs.length} total available jobs`);
 
     // Filter by contractor tags
     const contractorTags = (req.user.contractorTags || []).map(t => t.toLowerCase().trim());
@@ -73,8 +79,8 @@ export default async function handler(req, res) {
       const homeownerTags = job.homeownerTags || [];
       const jobTags = homeownerTags.map(t => t.toLowerCase().trim());
 
-      console.log(`🔍 Checking job: ${job.customerName}`);
-      console.log(`🏷️ Homeowner tags:`, homeownerTags);
+      console.log(`Checking job: ${job.customerName}`);
+      console.log(`Homeowner tags:`, homeownerTags);
 
       // Special visibility flag
       if (jobTags.includes('visible-to-all')) {
@@ -90,7 +96,7 @@ export default async function handler(req, res) {
       return jobTags.some(tag => contractorTags.includes(tag));
     });
 
-    console.log(`✅ Filtered to ${filteredJobs.length} jobs for contractor`);
+    console.log(`Filtered to ${filteredJobs.length} jobs for contractor`);
 
     // Format jobs for frontend
     const formattedJobs = filteredJobs.map(job => {
@@ -129,7 +135,7 @@ export default async function handler(req, res) {
       };
     }).filter(job => job.availableTimes.length > 0);
 
-    console.log(`✅ Final jobs with available times: ${formattedJobs.length}`);
+    console.log(`Final jobs with available times: ${formattedJobs.length}`);
 
     res.json({
       success: true,
@@ -142,7 +148,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Error fetching available jobs:', error);
+    console.error('Error fetching available jobs:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching available jobs',

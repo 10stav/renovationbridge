@@ -1,3 +1,7 @@
+///this file: Provides aggregated statistics and key metrics for the admin dashboard, giving administrators a quick overview of the contractor portal's current state
+/// is also a Next.js API route handler 
+
+///basically an admin dashboard statistics endpoint
 import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
 import User from '../../../../lib/contractorPortal/models/User';
 import AvailableJob from '../../../../lib/contractorPortal/models/Availablejob';
@@ -30,7 +34,7 @@ export default async function handler(req, res) {
   try {
     const admin = await authenticateAdmin(req);
 
-    console.log('📊 Admin fetching dashboard stats...');
+    console.log('Admin fetching dashboard stats...');
 
     const [
       totalContractors,
@@ -59,7 +63,7 @@ export default async function handler(req, res) {
       }
     };
 
-    console.log('📈 Dashboard stats:', stats);
+    console.log('Dashboard stats:', stats);
 
     res.json({
       success: true,
@@ -67,7 +71,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Error fetching stats:', error);
+    console.error('Error fetching stats:', error);
     if (error.message.includes('token') || error.message.includes('Admin')) {
       return res.status(401).json({ success: false, message: error.message });
     }

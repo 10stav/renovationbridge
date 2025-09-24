@@ -1,3 +1,8 @@
+///this file: Prevents double-booking by checking if a contractor has already booked an 
+/// appointment with a specific homeowner before allowing new bookings.
+
+///aka booking conflict checker endpoint.
+///this file is also also a next.js api route handler
 import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
 import AvailableJob from '../../../../lib/contractorPortal/models/Availablejob';
 
@@ -15,7 +20,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Homeowner email and contractor ID required' });
     }
 
-    console.log('🔍 Checking existing booking for contractor:', contractorId, 'with homeowner:', homeownerEmail);
+    console.log('Checking existing booking for contractor:', contractorId, 'with homeowner:', homeownerEmail);
 
     // Find job for this homeowner
     const job = await AvailableJob.findOne({
@@ -32,7 +37,7 @@ export default async function handler(req, res) {
       booking.contractorId?.toString() === contractorId.toString()
     );
 
-    console.log('📋 Existing booking found:', hasExistingBooking);
+    console.log('Existing booking found:', hasExistingBooking);
 
     res.json({
       success: true,
@@ -41,7 +46,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Error checking existing booking:', error);
+    console.error('Error checking existing booking:', error);
     res.status(500).json({
       error: 'Failed to check existing booking',
       details: error.message

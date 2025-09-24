@@ -1,3 +1,5 @@
+///this file: Allows removal of contractor bookings from specific job time slots, essentially "unbooking" appointments
+/// is also a Next.js API route handler
 import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
 import AvailableJob from '../../../../lib/contractorPortal/models/Availablejob';
 
@@ -47,7 +49,7 @@ export default async function handler(req, res) {
 
     await job.save();
 
-    console.log('✅ Booking removed successfully');
+    console.log('Booking removed successfully');
 
     res.json({
       success: true,
@@ -60,7 +62,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Error removing contractor booking:', error);
+    console.error('Error removing contractor booking:', error);
     res.status(500).json({
       error: 'Failed to remove contractor booking',
       details: error.message

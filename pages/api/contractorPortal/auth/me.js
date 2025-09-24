@@ -1,3 +1,9 @@
+///this file: Allows authenticated users to retrieve their own profile information, serving as a "get current user" or "profile data" endpoint
+///this file is also a Next.js API route handler
+
+///basically a user profile endpoint
+
+
 import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
 import User from '../../../../lib/contractorPortal/models/User';
 import jwt from 'jsonwebtoken';
