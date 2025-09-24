@@ -102,10 +102,23 @@ export default async function handler(req, res) {
     const formattedJobs = filteredJobs.map(job => {
       const bookedTimeStrings = (job.bookedTimes || []).map(entry =>
         typeof entry === 'string' ? entry : entry.time
-      );
+      ); ///everything in the yellow bracket after  job => controls which jobs and which times (within those jobs) are shown to contractor in their available jobs page
+      ///cont. so, the 3 above lines are setting up for this.
+      ///they initialize bookedTimeStrings so we can know which times are already booked (in order to not show them)
+      ///the last one of the 3 makes sure that the time entry is a string, and if not, only extracts the string part so we can use it in the coming lines to as mentioned, control which jobs and times are shown to the contractors
 
+      // NEW: Check if 3 slots are already booked
+      const bookedAppointmentsCount = (job.appointments || []).length; ///this variable should now store the number of appointments booked, which we will use to hide the job if it is 3 or more, since even if a job has many times, it should be auto hidden once 3 are booked since that is the max we want to book per homeowner
+      console.log(`Job ${job.customerName}: ${bookedAppointmentsCount} appointments booked`);
+
+      // If 3 or more appointments are booked, don't show this job
+      if (bookedAppointmentsCount >= 3) { ///if 3 are booked, hide job/remove it from available jobs page for contractor
+        console.log(`Job ${job.customerName} hidden - already has ${bookedAppointmentsCount} appointments (limit: 3)`);
+        return null;
+      }
+      ///otherwise, if 2 or less hajve been booked...
       const availableTimes = (job.availableTimes || []).filter(time =>
-        !bookedTimeStrings.includes(time)
+        !bookedTimeStrings.includes(time)///add each time that IS NOT booked into availableTimes
       );
 
       const { email: maskedEmail, phone: maskedPhone } = maskSensitiveData(
@@ -131,11 +144,16 @@ export default async function handler(req, res) {
         appointments: job.appointments || [],
         createdAt: job.createdAt,
         status: job.status,
-        remainingSlots: availableTimes.length
+        remainingSlots: availableTimes.length,
+        bookedAppointments: bookedAppointmentsCount,
+        maxAppointments: 3,
+        slotsRemaining: 3 - bookedAppointmentsCount
       };
-    }).filter(job => job.availableTimes.length > 0);
+    })
+      .filter(job => job !== null) // Remove jobs that hit the 3-appointment limit
+      .filter(job => job.availableTimes.length > 0);
 
-    console.log(`Final jobs with available times: ${formattedJobs.length}`);
+    console.log(`Final jobs with available times and under 3-appointment limit: ${formattedJobs.length}`);
 
     res.json({
       success: true,

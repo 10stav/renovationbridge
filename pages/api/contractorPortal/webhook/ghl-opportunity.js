@@ -23,12 +23,12 @@ function combineDateAndTime(dateValue, timeValue) {
     return '';
   }
   if (!dateValue && timeValue) {
-    console.log(`⚠️ Time provided without date: "${timeValue}"`);
+    console.log(`Time provided without date: "${timeValue}"`);
     return `TBD, ${timeValue}`;
   }
   if (dateValue && !timeValue) {
     const formattedDate = formatDateFromISO(dateValue);
-    console.log(`⚠️ Date provided without time: "${formattedDate}"`);
+    console.log(`Date provided without time: "${formattedDate}"`);
     return `${formattedDate}, TBD`;
   }
   const formattedDate = formatDateFromISO(dateValue);
@@ -62,7 +62,7 @@ function processTimeInput(timeInput) {
 
 async function storeAvailableJob(contactData, originalWebhookData) {
   try {
-    console.log('💾 Storing available job in database...');
+    console.log('Storing available job in database...');
 
     const availableTimes = [
       contactData.availableTime1,
@@ -70,10 +70,10 @@ async function storeAvailableJob(contactData, originalWebhookData) {
       contactData.availableTime3
     ].filter(time => typeof time === 'string' && time.trim() !== '');
 
-    console.log('📅 Processed available times:', availableTimes);
-    console.log('📝 DEBUG: availableTimes before saving to DB:', availableTimes);
-    console.log('📝 DEBUG: availableTimes length:', availableTimes.length);
-    console.log('📝 DEBUG: availableTimes type:', typeof availableTimes);
+    console.log('Processed available times:', availableTimes);
+    console.log('DEBUG: availableTimes before saving to DB:', availableTimes);
+    console.log('DEBUG: availableTimes length:', availableTimes.length);
+    console.log('DEBUG: availableTimes type:', typeof availableTimes);
 
     const existingJob = await AvailableJob.findOne({
       customerId: contactData.contactId
@@ -82,7 +82,7 @@ async function storeAvailableJob(contactData, originalWebhookData) {
     if (existingJob) {
       if (existingJob.status === 'available') {
         console.log('ℹ Job already exists and is active for:', contactData.contactName);
-        console.log('🔄 Updating available times...');
+        console.log('Updating available times...');
 
         const updatedJob = await AvailableJob.findOneAndUpdate(
           { customerId: contactData.contactId },
@@ -99,20 +99,20 @@ async function storeAvailableJob(contactData, originalWebhookData) {
           { new: true }
         );
 
-        console.log('📝 DEBUG SCENARIO 1: Updated job from DB:', JSON.stringify(updatedJob, null, 2));
-        console.log('📝 DEBUG SCENARIO 1: availableTimes in updated job:', updatedJob.availableTimes);
-        console.log('✅ Job times updated successfully');
+        console.log('DEBUG SCENARIO 1: Updated job from DB:', JSON.stringify(updatedJob, null, 2));
+        console.log('DEBUG SCENARIO 1: availableTimes in updated job:', updatedJob.availableTimes);
+        console.log('Job times updated successfully');
         return updatedJob;
 
       } else if (existingJob.status === 'removed') {
-        console.log('🔄 Checking if removed job has existing bookings...');
+        console.log('Checking if removed job has existing bookings...');
 
         const allTimes = availableTimes;
         const bookedTimeStrings = (existingJob.bookedTimes || []).map(b => b.time);
         const isFullyBooked = allTimes.every(time => bookedTimeStrings.includes(time));
         const newStatus = isFullyBooked ? 'claimed' : 'available';
 
-        console.log(`🔄 Reactivating job with status: ${newStatus}`);
+        console.log(`Reactivating job with status: ${newStatus}`);
 
         const reactivatedJob = await AvailableJob.findOneAndUpdate(
           { customerId: contactData.contactId },
@@ -146,23 +146,23 @@ async function storeAvailableJob(contactData, originalWebhookData) {
           { new: true }
         );
 
-        console.log('✅ Job reactivated successfully:', reactivatedJob._id);
-        console.log('📋 Updated job with times:', {
+        console.log('Job reactivated successfully:', reactivatedJob._id);
+        console.log('Updated job with times:', {
           customer: reactivatedJob.customerName,
           budget: reactivatedJob.projectBudget,
           location: reactivatedJob.location.fullAddress,
           availableTimes: reactivatedJob.availableTimes
         });
 
-        console.log('📝 DEBUG SCENARIO 2: Reactivated job from DB:', JSON.stringify(reactivatedJob, null, 2));
-        console.log('📝 DEBUG SCENARIO 2: availableTimes in reactivated job:', reactivatedJob.availableTimes);
+        console.log('DEBUG SCENARIO 2: Reactivated job from DB:', JSON.stringify(reactivatedJob, null, 2));
+        console.log('DEBUG SCENARIO 2: availableTimes in reactivated job:', reactivatedJob.availableTimes);
 
         return reactivatedJob;
       }
     }
 
-    console.log('🆕 Creating new job for:', contactData.contactName);
-    console.log('📝 DEBUG SCENARIO 3: About to create new job with availableTimes:', availableTimes);
+    console.log('Creating new job for:', contactData.contactName);
+    console.log('DEBUG SCENARIO 3: About to create new job with availableTimes:', availableTimes);
 
     const availableJob = new AvailableJob({
       customerId: contactData.contactId,
@@ -194,10 +194,10 @@ async function storeAvailableJob(contactData, originalWebhookData) {
 
     const savedJob = await availableJob.save();
 
-    console.log('📝 DEBUG SCENARIO 3: Saved job from DB:', JSON.stringify(savedJob, null, 2));
-    console.log('📝 DEBUG SCENARIO 3: availableTimes in saved job:', savedJob.availableTimes);
-    console.log('✅ New available job created successfully:', savedJob._id);
-    console.log('📋 Job details:', {
+    console.log('DEBUG SCENARIO 3: Saved job from DB:', JSON.stringify(savedJob, null, 2));
+    console.log('DEBUG SCENARIO 3: availableTimes in saved job:', savedJob.availableTimes);
+    console.log('New available job created successfully:', savedJob._id);
+    console.log('Job details:', {
       customer: savedJob.customerName,
       budget: savedJob.projectBudget,
       location: savedJob.location.fullAddress,
@@ -208,22 +208,22 @@ async function storeAvailableJob(contactData, originalWebhookData) {
     return savedJob;
 
   } catch (error) {
-    console.error('❌ Error storing available job:', error);
+    console.error('Error storing available job:', error);
     throw error;
   }
 }
 
 async function notifyContractors(contactData) {
-  console.log('📢 CONTRACTOR NOTIFICATION TRIGGERED!');
-  console.log('🏗 Project Budget:', contactData.projectBudget);
-  console.log('👤 Customer:', contactData.contactName);
-  console.log('📧 Email:', contactData.contactEmail);
-  console.log('📱 Phone:', contactData.contactPhone);
+  console.log('CONTRACTOR NOTIFICATION TRIGGERED!');
+  console.log('Project Budget:', contactData.projectBudget);
+  console.log('Customer:', contactData.contactName);
+  console.log('Email:', contactData.contactEmail);
+  console.log('Phone:', contactData.contactPhone);
 
   try {
     const contractors = await User.find({ role: 'contractor' });
 
-    console.log('🧪 All Contractors:', contractors.map(c => ({
+    console.log('All Contractors:', contractors.map(c => ({
       name: c.name,
       email: c.email,
       tags: c.contractorTags,
@@ -235,17 +235,17 @@ async function notifyContractors(contactData) {
       c.contractorTags.map(tag => tag.toLowerCase()).includes('kitchen remodeling') &&
       c.isActive
     );
-    console.log(`📬 Sending emails to ${matchingContractors.length} matching contractors...`);
+    console.log(`Sending emails to ${matchingContractors.length} matching contractors...`);
 
     // Note: Email functionality would be implemented here
     // For now, just log what would happen
     matchingContractors.forEach(contractor => {
-      console.log(`📧 Would send email to: ${contractor.email}`);
+      console.log(`Would send email to: ${contractor.email}`);
     });
 
-    console.log(`✅ Email notifications sent: ${matchingContractors.length} contractors notified`);
+    console.log(`Email notifications sent: ${matchingContractors.length} contractors notified`);
   } catch (error) {
-    console.error('❌ Error notifying contractors:', error);
+    console.error('Error notifying contractors:', error);
   }
 }
 
@@ -254,10 +254,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  console.log('🚨 WEBHOOK HIT! ANY REQUEST RECEIVED!');
-  console.log('📋 Headers:', req.headers);
-  console.log('📋 Body:', JSON.stringify(req.body, null, 2));
-  console.log('🎯 GHL Webhook received!');
+  console.log('WEBHOOK HIT! ANY REQUEST RECEIVED!');
+  console.log('Headers:', req.headers);
+  console.log('Body:', JSON.stringify(req.body, null, 2));
+  console.log('GHL Webhook received!');
 
   try {
     await connectToDatabase();
@@ -278,13 +278,13 @@ export default async function handler(req, res) {
 
     const normalizedTags = ghlTagsArray.map(tag => tag.toLowerCase());
 
-    console.log('🏷️ Homeowner GHL Tags:', normalizedTags);
-    console.log('📋 Opportunity ID:', opportunityId);
-    console.log('📋 Contact ID:', contactId);
+    console.log('Homeowner GHL Tags:', normalizedTags);
+    console.log('Opportunity ID:', opportunityId);
+    console.log('Contact ID:', contactId);
 
     // Check if opportunity was deleted (same removal behavior as moving out of pipeline)
     if (webhookData.type === 'OpportunityDelete' || webhookData.event_type === 'opportunity.delete' || webhookData.deleted === true) {
-      console.log('❌ REMOVING job - opportunity deleted');
+      console.log('REMOVING job - opportunity deleted');
 
       await AvailableJob.findOneAndUpdate(
         { customerId: webhookData.contact_id },
@@ -299,7 +299,7 @@ export default async function handler(req, res) {
 
     // Original Pipeline stage check
     if (webhookData.pipleline_stage !== 'Need to Book') {
-      console.log('❌ REMOVING job - contact moved to:', webhookData.pipleline_stage);
+      console.log('REMOVING job - contact moved to:', webhookData.pipleline_stage);
 
       await AvailableJob.findOneAndUpdate(
         { customerId: webhookData.contact_id },
@@ -309,10 +309,10 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, message: 'Job removed' });
     }
 
-    console.log('✅ ADDING job - contact in Need to Book');
+    console.log('ADDING job - contact in Need to Book');
 
     // Read availability data from webhook payload
-    console.log('📋 Reading availability data from webhook payload...');
+    console.log('Reading availability data from webhook payload...');
 
     const availableTime1 = combineDateAndTime(
       webhookData['Homeowner/Contact Available Date 1'] || '',
@@ -329,7 +329,7 @@ export default async function handler(req, res) {
       webhookData['Homeowner/Contact Available Time 3'] || ''
     );
 
-    console.log('📅 Combined availability times:');
+    console.log('Combined availability times:');
     console.log('  Time 1:', availableTime1);
     console.log('  Time 2:', availableTime2);
     console.log('  Time 3:', availableTime3);
@@ -352,18 +352,18 @@ export default async function handler(req, res) {
 
     // Debug tags
     if (webhookData.tags && webhookData.tags.length > 0) {
-      console.log('🟢 GHL Tags Found for Job:', webhookData.tags);
+      console.log('GHL Tags Found for Job:', webhookData.tags);
     } else {
-      console.log('🔴 No tags found in GHL webhook payload.');
+      console.log('No tags found in GHL webhook payload.');
     }
 
-    console.log('🚨 CONTACT DATA RECEIVED!');
-    console.log('📞 Creating available job for contractors...');
-    console.log('👤 Customer:', contactData.contactName);
-    console.log('💰 Budget:', contactData.projectBudget);
-    console.log('📧 Email:', contactData.contactEmail);
-    console.log('📱 Phone:', contactData.contactPhone);
-    console.log('⏰ Available Times:', {
+    console.log('CONTACT DATA RECEIVED!');
+    console.log('Creating available job for contractors...');
+    console.log('Customer:', contactData.contactName);
+    console.log('Budget:', contactData.projectBudget);
+    console.log('Email:', contactData.contactEmail);
+    console.log('Phone:', contactData.contactPhone);
+    console.log('Available Times:', {
       time1: contactData.availableTime1,
       time2: contactData.availableTime2,
       time3: contactData.availableTime3
@@ -384,7 +384,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Webhook error:', error);
+    console.error('Webhook error:', error);
     res.status(500).json({ error: 'Webhook processing failed' });
   }
 }

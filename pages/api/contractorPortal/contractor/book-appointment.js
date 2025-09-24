@@ -136,6 +136,16 @@ export default async function handler(req, res) {
         message: 'Job is no longer available for booking'
       });
     }
+    // NEW: Check if job already has 3 appointments booked
+    const currentAppointmentCount = (job.appointments || []).length;
+    console.log(`Current appointments for job: ${currentAppointmentCount}`);
+
+    if (currentAppointmentCount >= 3) {
+      return res.status(400).json({
+        success: false,
+        message: 'This job has reached the maximum number of appointments (3). No more bookings are allowed.'
+      });
+    }
 
     // Check if time slot is available
     const bookedTimeStrings = (job.bookedTimes || []).map(entry =>
@@ -211,11 +221,17 @@ export default async function handler(req, res) {
         bookedAt: new Date()
       };
 
+      // Check if this will be the 3rd appointment (maximum reached)
+      const willReachMaxAppointments = currentAppointmentCount + 1 >= 3;
+
       // Check if this will be the last available time slot
       const remainingTimes = expandedAvailableTimes.filter(t =>
         t !== timeSlot && !bookedTimeStrings.includes(t)
       );
-      const isFullyBooked = remainingTimes.length === 0;
+      const isLastTimeSlot = remainingTimes.length === 0;
+
+      console.log(`Will reach max appointments (3): ${willReachMaxAppointments}`);
+      console.log(`Is last time slot: ${isLastTimeSlot}`);
 
       // Update job in database
       const updateData = {
@@ -228,7 +244,8 @@ export default async function handler(req, res) {
         }
       };
 
-      if (isFullyBooked) {
+      // Set status based on appointment limit OR available time slots
+      if (willReachMaxAppointments || isLastTimeSlot) { ///hides job if it hits 3 bookings, or if the last remaining slot is taken
         updateData.status = 'claimed';
         updateData.claimedBy = req.user.id;
         updateData.claimedAt = new Date();
@@ -244,11 +261,22 @@ export default async function handler(req, res) {
 
       console.log('Job updated successfully');
 
+      // Determine response message
+      let responseMessage;
+      if (willReachMaxAppointments && isLastTimeSlot) {
+        responseMessage = 'Final appointment scheduled! This job has reached both the maximum appointments (3) and all time slots are booked.';
+      } else if (willReachMaxAppointments) {
+        responseMessage = 'Appointment scheduled! This job has now reached the maximum number of appointments (3) and will no longer be available for booking.';
+      } else if (isLastTimeSlot) {
+        responseMessage = 'Final appointment scheduled! All time slots are now booked.';
+      } else {
+        const appointmentsRemaining = 3 - (currentAppointmentCount + 1);
+        responseMessage = `Appointment booked successfully! ${appointmentsRemaining} more appointment${appointmentsRemaining !== 1 ? 's' : ''} can still be booked for this job.`;
+      }
+
       res.json({
         success: true,
-        message: isFullyBooked
-          ? 'Final appointment scheduled! All time slots are now booked.'
-          : 'Appointment booked successfully! Other time slots remain available.',
+        message: responseMessage,
         appointment: appointmentEntry,
         ghlAppointmentId: ghlResult.appointmentId,
         calendarCreated: true,
@@ -256,8 +284,11 @@ export default async function handler(req, res) {
           id: updatedJob._id,
           customerName: updatedJob.customerName,
           remainingTimes: remainingTimes.length,
+          appointmentCount: currentAppointmentCount + 1,
+          maxAppointments: 3,
+          appointmentsRemaining: 3 - (currentAppointmentCount + 1),
           status: updatedJob.status,
-          fullyBooked: isFullyBooked
+          fullyBooked: willReachMaxAppointments || isLastTimeSlot
         }
       });
 
