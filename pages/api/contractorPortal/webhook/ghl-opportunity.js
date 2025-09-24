@@ -18,7 +18,7 @@ import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongod
 import AvailableJob from '../../../../lib/contractorPortal/models/Availablejob';
 import User from '../../../../lib/contractorPortal/models/User';
 
-function combineDateAndTime(dateValue, timeValue) {
+function combineDateAndTime(dateValue, timeValue) { ///this function takes separate date and time values from GHL webhook custom fields and combines them into a single formatted string. It is used when The GHL webhook fires (when a homeowner is moved to "Need to Book" status), when Processing the 3 availability slots that the admin set up in GHL custom fields, and when Converting separate date/time fields from GHL into the unified format our system expects. All 3 of these uses are in this file, within the main handler function where the webhoom processes the availability data (const availabletime1 =  ... etc.) 
   if (!dateValue && !timeValue) {
     return '';
   }
@@ -36,7 +36,7 @@ function combineDateAndTime(dateValue, timeValue) {
   return `${formattedDate}, ${processedTime}`;
 }
 
-function formatDateFromISO(isoDate) {
+function formatDateFromISO(isoDate) { ///this function converts ISO date format (YYYY-MM-DD) from GHL webhook into MM/DD/YY format used throughout the system. /it is called by combineDateAndTime when processing the 3 availability date fields from the webhook. handles edge cases like missing dates and invalid formats with error logging
   try {
     if (!isoDate) return '';
     const date = new Date(isoDate + 'T00:00:00');
@@ -50,7 +50,7 @@ function formatDateFromISO(isoDate) {
   }
 }
 
-function processTimeInput(timeInput) {
+function processTimeInput(timeInput) { ///this function standardizes time format from GHL webhook custom fields for consistency. converts time ranges with " - " to " to " format (e.g., "2:00 PM - 4:00 PM" becomes "2:00 PM to 4:00 PM"). it is called by combineDateAndTime when processing the 3 availability time fields from the webhook  
   if (!timeInput) return '';
   const trimmed = timeInput.trim();
   if (trimmed.includes(' - ')) {
@@ -59,16 +59,145 @@ function processTimeInput(timeInput) {
   }
   return trimmed;
 }
+function parseTimeSlotForGHL(timeSlot) {
+  ///this function converts our system's time slot format back to GHL API format for calendar conflict checking
+  ///it is called by checkGHLCalendarConflicts when validating each of the 3 availability slots against existing GHL appointments
+  ///takes format like "1/15/25, 2:00 PM to 4:00 PM" and extracts date as "2025-01-15" and time as "2:00 PM to 4:00 PM"
+  ///handles the reverse conversion of what combineDateAndTime does - from our format back to GHL-compatible format
+  try {
+    if (!timeSlot || !timeSlot.includes(', ')) {
+      throw new Error('Invalid time slot format');
+    }
 
-async function storeAvailableJob(contactData, originalWebhookData) {
+    const parts = timeSlot.split(', ');
+    const datePart = parts[0]; // "1/15/25"
+    const timePart = parts[1]; // "2:00 PM to 4:00 PM"
+
+    // Convert date format (1/15/25 -> 2025-01-15)
+    const [month, day, year] = datePart.split('/');
+    const fullYear = year.length === 2 ? `20${year}` : year;
+    const formattedDate = `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+    return { date: formattedDate, time: timePart };
+  } catch (error) {
+    console.error('Error parsing time slot for GHL:', timeSlot, error);
+    return null;
+  }
+}
+
+async function checkGHLCalendarConflicts(timeSlots) {
+  ///this function checks each proposed availability time slot against existing GHL calendar appointments to prevent booking conflicts
+  ///it is called by storeAvailableJob before saving the job to database, validating all 3 admin-set availability slots
+  ///queries GHL calendar API for each date to find existing appointments and compares times
+  ///returns array of conflicting time slots that should be filtered out to prevent contractor booking failures
+  ///prevents the scenario where contractors see available times but GHL booking fails due to existing appointments
+  const conflicts = [];
+
+  for (const timeSlot of timeSlots) {
+    if (!timeSlot || timeSlot === '' || timeSlot.includes('TBD')) {
+      continue; // Skip empty or TBD slots
+    }
+
+    try {
+      const parsed = parseTimeSlotForGHL(timeSlot);
+      if (!parsed) continue;
+
+      const { date, time } = parsed;
+
+      // Check GHL calendar for existing appointments on this date
+      const ghlApiKey = process.env.GOHIGHLEVEL_API_KEY;
+      const locationId = process.env.GOHIGHLEVEL_LOCATION_ID;
+
+      if (!ghlApiKey || !locationId) {
+        console.warn('GHL API credentials not configured, skipping conflict check');
+        continue;
+      }
+
+      const response = await fetch(`https://rest.gohighlevel.com/v1/calendars/appointments?locationId=${locationId}&startDate=${date}&endDate=${date}`, {
+        headers: {
+          Authorization: `Bearer ${ghlApiKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const appointments = data.appointments || [];
+
+        // Extract time range from our time slot for comparison
+        let timeToCheck = time;
+        if (time.includes(' to ')) {
+          // For ranges like "2:00 PM to 4:00 PM", check the start time
+          timeToCheck = time.split(' to ')[0].trim();
+        }
+
+        // Check if any appointment conflicts with this time
+        const hasConflict = appointments.some(appointment => {
+          const appointmentTime = new Date(appointment.startTime).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          });
+          return appointmentTime === timeToCheck;
+        });
+
+        if (hasConflict) {
+          conflicts.push(timeSlot);
+          console.warn(`GHL calendar conflict detected: ${timeSlot}`);
+        }
+      } else {
+        console.error(`GHL API error for ${timeSlot}:`, response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error(`Error checking GHL calendar for ${timeSlot}:`, error);
+    }
+  }
+
+  return conflicts;
+}
+
+async function storeAvailableJob(contactData, originalWebhookData) { ///this function creates or updates job records in the database when homeowners are moved to "Need to Book" pipeline stage
+  ///it is called by the main webhook handler after processing the GHL webhook payload
+  ///handles 3 scenarios: new job creation, updating existing available jobs, and reactivating previously removed jobs
+  ///processes the 3 combined availability times and stores them in the availableTimes array for contractors to see
+  ///also stores admin-set individual times in adminSetTimes for reference and potential future admin editing
+  ///manages job status logic based on existing bookings when reactivating removed jobs
   try {
     console.log('Storing available job in database...');
 
-    const availableTimes = [
+    const proposedTimes = [
       contactData.availableTime1,
       contactData.availableTime2,
       contactData.availableTime3
     ].filter(time => typeof time === 'string' && time.trim() !== '');
+
+    // NEW: Check for GHL calendar conflicts
+    console.log('Checking GHL calendar for conflicts...');
+    const conflicts = await checkGHLCalendarConflicts(proposedTimes);
+
+    let availableTimes;
+    let conflictWarning = '';
+
+    if (conflicts.length > 0) {
+      console.warn('GHL CALENDAR CONFLICTS DETECTED:', conflicts);
+      console.warn('These times already have appointments booked in GoHighLevel:');
+      conflicts.forEach(conflict => console.warn(`  - ${conflict}`));
+
+      // Filter out conflicting times
+      availableTimes = proposedTimes.filter(time => !conflicts.includes(time));
+      console.log('Available times after removing conflicts:', availableTimes);
+
+      conflictWarning = `${conflicts.length} time slot(s) removed due to existing GHL appointments`;
+
+      // If no times remain, log error but still create job
+      if (availableTimes.length === 0) {
+        console.error('ALL PROPOSED TIMES HAVE CONFLICTS! Job created but no available times.');
+      }
+    } else {
+      console.log('No GHL calendar conflicts detected');
+      availableTimes = proposedTimes;
+    }
+
 
     console.log('Processed available times:', availableTimes);
     console.log('DEBUG: availableTimes before saving to DB:', availableTimes);
@@ -213,7 +342,11 @@ async function storeAvailableJob(contactData, originalWebhookData) {
   }
 }
 
-async function notifyContractors(contactData) {
+async function notifyContractors(contactData) {   ///this function handles contractor notification logic when new jobs become available  
+  ///it is called by the main webhook handler after a job is successfully stored in the database
+  ///currently finds contractors with matching tags (specifically "kitchen remodeling") and logs who would be notified
+  ///the actual email sending functionality is not yet implemented - this is a placeholder for future email integration
+  ///filters contractors by: role=contractor, has matching tags, and isActive=true status
   console.log('CONTRACTOR NOTIFICATION TRIGGERED!');
   console.log('Project Budget:', contactData.projectBudget);
   console.log('Customer:', contactData.contactName);
@@ -249,7 +382,12 @@ async function notifyContractors(contactData) {
   }
 }
 
-export default async function handler(req, res) {
+export default async function handler(req, res) { ///this is the main webhook endpoint that receives POST requests from GoHighLevel when opportunities change pipeline stages
+  ///it processes webhook payloads when homeowners are moved to/from "Need to Book" status
+  ///extracts availability data from 6 GHL custom fields (3 dates + 3 times) and combines them using combineDateAndTime
+  ///calls storeAvailableJob to save/update job records and notifyContractors to alert relevant contractors
+  ///handles both job creation (moving TO "Need to Book") and job removal (moving AWAY from "Need to Book" or deletion)
+  ///returns success/error responses back to GHL to confirm webhook processing status
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -370,19 +508,24 @@ export default async function handler(req, res) {
     });
 
     // Store job in database
-    await storeAvailableJob(contactData, webhookData);
+    const storedJob = await storeAvailableJob(contactData, webhookData);
 
     // Send email notifications to contractors
     await notifyContractors(contactData);
 
-    // Return success response to GHL
+    // Return success response to GHL with conflict info
+    const conflictCount = [contactData.availableTime1, contactData.availableTime2, contactData.availableTime3]
+      .filter(time => time && !time.includes('TBD')).length - (storedJob.availableTimes?.length || 0);
+
     res.status(200).json({
       success: true,
-      message: 'Job stored and contractors notified successfully!',
+      message: conflictCount > 0
+        ? `Job stored successfully! ${conflictCount} time slot(s) were removed due to existing GHL appointments.`
+        : 'Job stored and contractors notified successfully!',
       contact: contactData.contactName,
-      availableTimes: [contactData.availableTime1, contactData.availableTime2, contactData.availableTime3].filter(t => t)
+      availableTimes: storedJob.availableTimes || [],
+      conflictsRemoved: conflictCount || 0
     });
-
   } catch (error) {
     console.error('Webhook error:', error);
     res.status(500).json({ error: 'Webhook processing failed' });
