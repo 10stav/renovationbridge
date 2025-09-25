@@ -41,16 +41,31 @@ export function AuthProvider({ children }) {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await authenticatedRequest('/auth/me');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
       if (!response.ok) {
+        if (response.status === 401) {
+          // Token is invalid, clear it and return
+          localStorage.removeItem('token');
+          setUser(null);
+          return;
+        }
         console.error("Failed to load user profile");
         return;
       }
 
-      // pull out the raw user object
       const { user: rawUser } = await response.json();
 
-      // flatten nested tags into one array
       const flatTags = rawUser.contractorTags
         ?? [
           ...(rawUser.tags?.renovation || []),
@@ -58,23 +73,24 @@ export function AuthProvider({ children }) {
           ...(rawUser.tags?.grouping || [])
         ];
 
-      // enforce “pending approval” logout if needed
       if (rawUser.role === 'contractor' && !rawUser.isApproved) {
-        console.warn("🚫 Contractor is not approved. Logging out.");
-        logout();
+        console.warn("Contractor is not approved. Logging out.");
+        localStorage.removeItem('token');
+        setUser(null);
         alert("Your account is still pending approval by an admin.");
         return;
       }
 
-      // finally set into React state
       setUser({
         ...rawUser,
         contractorTags: flatTags
       });
 
-      console.log("🔄 Refreshed user profile:", rawUser);
+      console.log("Refreshed user profile:", rawUser);
     } catch (err) {
       console.error("Error fetching user profile:", err);
+      localStorage.removeItem('token');
+      setUser(null);
     }
   };
 
