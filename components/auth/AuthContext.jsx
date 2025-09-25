@@ -138,11 +138,17 @@ export function AuthProvider({ children }) {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      let data = {};
+
+      try {
+        data = await response.json(); // attempt to parse
+      } catch (parseErr) {
+        console.warn('❗ Could not parse JSON response from login API');
+      }
 
       if (!response.ok) {
         const errorMessage = data.error || data.message || 'Login failed';
-        return { success: false, error: errorMessage };  // ← return, not throw
+        return { success: false, error: errorMessage };
       }
 
       localStorage.setItem('token', data.token);
@@ -162,6 +168,7 @@ export function AuthProvider({ children }) {
       setIsLoading(false);
     }
   };
+
 
 
 
