@@ -118,7 +118,7 @@ export function AuthProvider({ children }) {
         body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Login failed');
+      if (!response.ok) throw new Error(data.error || data.message || 'Login failed');
 
       // ← add this so we immediately pull in contractorTags
       localStorage.setItem('token', data.token);

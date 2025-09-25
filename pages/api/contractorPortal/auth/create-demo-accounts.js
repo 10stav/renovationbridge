@@ -24,38 +24,68 @@ export default async function handler(req, res) {
       console.log('Demo admin created');
     }
 
-    let contractor = await User.findOne({ email: 'contractor@test.com' });
-    if (!contractor) {
-      contractor = new User({
-        name: 'Demo Contractor',
-        email: 'contractor@test.com',
+    // Create 3 test contractors
+    const contractors = [
+      {
+        name: 'Test Contractor 1',
+        email: 'contractor1@test.com',
         password: 'contractor123',
-        role: 'contractor',
-        phone: '555-CONTRACT',
-        companyName: 'Demo Construction Co',
-        kitchenRemodeling: true,
-        testTag2: false,
-        isApproved: true
+        phone: '555-TEST-1',
+        companyName: 'Test Construction 1'
+      },
+      {
+        name: 'Test Contractor 2',
+        email: 'contractor2@test.com',
+        password: 'contractor123',
+        phone: '555-TEST-2',
+        companyName: 'Test Construction 2'
+      },
+      {
+        name: 'Test Contractor 3',
+        email: 'contractor3@test.com',
+        password: 'contractor123',
+        phone: '555-TEST-3',
+        companyName: 'Test Construction 3'
+      }
+    ];
+
+    const createdContractors = [];
+
+    for (const contractorData of contractors) {
+      let contractor = await User.findOne({ email: contractorData.email });
+      if (!contractor) {
+        contractor = new User({
+          ...contractorData,
+          role: 'contractor',
+          contractorTags: ['bay area', 'visible-to-all'], // Match your job tags
+          isApproved: true,
+          isActive: true
+        });
+        await contractor.save();
+        console.log(`Created contractor: ${contractorData.name}`);
+      }
+      createdContractors.push({
+        email: contractorData.email,
+        password: contractorData.password
       });
-      await contractor.save();
-      console.log('Demo contractor created');
     }
+
 
     res.json({
       success: true,
       message: 'Demo accounts created!',
       accounts: {
         admin: { email: 'admin@renovationbridge.com', password: 'admin123' },
-        contractor: { email: 'contractor@test.com', password: 'contractor123' }
+        contractors: createdContractors // New array of 3 contractors
       }
     });
 
   } catch (error) {
     console.error('Error creating demo accounts:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to create demo accounts', 
-      details: error.message 
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create demo accounts',
+      details: error.message
     });
   }
 }
