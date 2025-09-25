@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        return;
+        return null;
       }
 
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
@@ -58,10 +58,10 @@ export function AuthProvider({ children }) {
           // Token is invalid, clear it and return
           localStorage.removeItem('token');
           setUser(null);
-          return;
+          return null;
         }
         console.error("Failed to load user profile");
-        return;
+        return null;
       }
 
       const { user: rawUser } = await response.json();
@@ -78,19 +78,22 @@ export function AuthProvider({ children }) {
         localStorage.removeItem('token');
         setUser(null);
         alert("Your account is still pending approval by an admin.");
-        return;
+        return null;
       }
 
-      setUser({
+      const finalUser = {
         ...rawUser,
         contractorTags: flatTags
-      });
+      };
 
-      console.log("Refreshed user profile:", rawUser);
+      setUser(finalUser);
+      console.log("Refreshed user profile:", finalUser);
+      return finalUser;
     } catch (err) {
       console.error("Error fetching user profile:", err);
       localStorage.removeItem('token');
       setUser(null);
+      return null;
     }
   };
 
@@ -138,10 +141,13 @@ export function AuthProvider({ children }) {
 
       // ← add this so we immediately pull in contractorTags
       localStorage.setItem('token', data.token);
-      await fetchUserProfile();
+      const fetchedUser = await fetchUserProfile();
 
       console.log('✅ Login successful');
-      return { success: true };
+      return {
+        success: true,
+        user: fetchedUser
+      };
     } catch (error) {
       console.error('❌ Login error:', error);
       return { success: false, error: error.message };
