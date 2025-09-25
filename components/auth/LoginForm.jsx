@@ -18,8 +18,9 @@ function LoginForm() {
     console.log('Login result:', result);
 
     if (!result.success) {
+      // ✅ ensure a non-empty string so the error box renders
       setError(result.error || 'Invalid email or password');
-      return; // stop here on failure
+      return; // ⛔ stop here on failure (prevents redirect)
     }
 
     const role = result.user?.role;
@@ -40,7 +41,7 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Header section */}
+      {/* Header */}
       <div className="relative w-full overflow-hidden flex-shrink-0" style={{ height: '60vh' }}>
         <img
           src="/assets/Creation-7-Project-Tice-7.jpg"
@@ -51,10 +52,7 @@ function LoginForm() {
       </div>
 
       {/* Card */}
-      <div
-        className="relative z-20 w-full flex-grow flex items-start justify-center"
-        style={{ marginTop: '-12rem' }}
-      >
+      <div className="relative z-20 w-full flex-grow flex items-start justify-center" style={{ marginTop: '-12rem' }}>
         <div
           className="bg-white shadow-lg p-8 w-full"
           style={{
@@ -70,27 +68,17 @@ function LoginForm() {
             <img
               src="/assets/Renovation.png"
               alt="Logo"
-              style={{
-                height: '224px',
-                width: '224px',
-                marginBottom: '0',
-                maxHeight: '224px',
-                maxWidth: '224px',
-              }}
+              style={{ height: '224px', width: '224px', marginBottom: '0', maxHeight: '224px', maxWidth: '224px' }}
             />
 
             {/* Title */}
-            {isLogin && (
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-                Welcome Back!
-              </h2>
-            )}
+            {isLogin && <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Welcome Back!</h2>}
 
             {isLogin ? (
               <>
                 {/* ⛔ User-visible error message (outside the form) */}
                 {Boolean(error) && (
-                  <div className="w-full mb-4 px-4" aria-live="assertive">
+                  <div className="w-full mb-4 px-4" role="alert" aria-live="assertive">
                     <div className="p-3 bg-red-100 border border-red-300 text-red-700 font-semibold rounded-md text-center shadow">
                       {error || 'Invalid email or password'}
                     </div>
@@ -149,10 +137,7 @@ function LoginForm() {
             <div className="mt-6 text-center w-full">
               <p className="text-gray-600">
                 {isLogin ? 'New contractor? ' : 'Already have an account? '}
-                <button
-                  onClick={() => setIsLogin(!isLogin)}
-                  className="text-blue-600 font-semibold hover:text-blue-800"
-                >
+                <button onClick={() => setIsLogin(!isLogin)} className="text-blue-600 font-semibold hover:text-blue-800">
                   {isLogin ? 'Create Account' : 'Login'}
                 </button>
               </p>
