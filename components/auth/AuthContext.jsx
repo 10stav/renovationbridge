@@ -131,30 +131,39 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     try {
       setIsLoading(true);
+
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || data.message || 'Login failed');
 
-      // ← add this so we immediately pull in contractorTags
+      const data = await response.json();
+
+      if (!response.ok) {
+        const errorMessage = data.error || data.message || 'Login failed';
+        return { success: false, error: errorMessage };  // ← return, not throw
+      }
+
       localStorage.setItem('token', data.token);
       const fetchedUser = await fetchUserProfile();
 
-      console.log('✅ Login successful');
       return {
         success: true,
-        user: fetchedUser
+        user: fetchedUser,
       };
     } catch (error) {
       console.error('❌ Login error:', error);
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error.message || 'Something went wrong during login',
+      };
     } finally {
       setIsLoading(false);
     }
   };
+
+
 
   const register = async (userData) => {
     try {

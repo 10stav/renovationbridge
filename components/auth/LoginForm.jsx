@@ -15,17 +15,18 @@ function LoginForm() {
         setError('');
 
         const result = await login(formData.email, formData.password);
+        console.log('Login result:', result);
         if (!result.success) {
             setError(result.error);
         } else {
-                const role = result.user?.role;
-                console.log('User role:', role);
-                const adminEmails = ['admin@renovationbridge.com', 'admin2@company.com'];
-                if (result.user?.role === 'admin' || adminEmails.includes(formData.email)) {
-                    router.replace('/admin');// ← Next.js navigation
-                } else if (role === 'contractor') {
-                    router.replace('/contractorPortal'); // ← Stay on same page (9/16 - replacing router.push with router.replace for no delay and avoiding wrong page redirect for split second before right one)
-                } else router.replace('/contractorPortal');
+            const role = result.user?.role;
+            console.log('User role:', role);
+            const adminEmails = ['admin@renovationbridge.com', 'admin2@company.com'];
+            if (result.user?.role === 'admin' || adminEmails.includes(formData.email)) {
+                router.replace('/admin');// ← Next.js navigation
+            } else if (role === 'contractor') {
+                router.replace('/contractorPortal'); // ← Stay on same page (9/16 - replacing router.push with router.replace for no delay and avoiding wrong page redirect for split second before right one)
+            } else router.replace('/contractorPortal');
         }
     };
 
@@ -76,6 +77,15 @@ function LoginForm() {
 
                         {isLogin ? (
                             <form onSubmit={handleSubmit} className="space-y-4 w-full">
+
+
+                                {error && (
+                                    <div className="p-3 bg-red-100 border border-red-300 text-red-700 font-semibold rounded-md text-center shadow mb-4">
+                                        {error}
+                                    </div>
+                                )}
+
+
                                 <input
                                     type="email"
                                     name="email"
@@ -98,11 +108,7 @@ function LoginForm() {
                                     className="w-full px-4 py-3 bg-gray-50 rounded-xl focus:ring-2 focus:ring-blue-500"
                                 />
 
-                                {error && (
-                                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                                        <p className="text-red-600 text-sm">{error}</p>
-                                    </div>
-                                )}
+
 
                                 <button
                                     type="submit"
