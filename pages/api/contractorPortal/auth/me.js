@@ -1,8 +1,4 @@
-///this file: Allows authenticated users to retrieve their own profile information, serving as a "get current user" or "profile data" endpoint
-///this file is also a Next.js API route handler
-
-///basically a user profile endpoint
-
+// /pages/api/contractorPortal/auth/me.js  (or similar path)
 
 import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
 import User from '../../../../lib/contractorPortal/models/User';
@@ -13,39 +9,46 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  await connectToDatabase();
-
   try {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ error: 'JWT_SECRET not configured' });
+    }
+
+    await connectToDatabase();
+
+    const authHeader = req.headers.authorization || req.headers['authorization'];
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
+
     if (!token) {
       return res.status(401).json({ error: 'Access token required' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select('-password');
-    
+    // Verify token; normalize auth errors to 401 to match client expectations
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      const isExpired = err?.name === 'TokenExpiredError';
+      return res.status(401).json({ error: isExpired ? 'Token expired' : 'Invalid token' });
+    }
+
+    const user = await User.findById(decoded.userId).select('-password -__v');
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Use the simple contractorTags array directly
-    const flatTags = user.contractorTags || [];
-    
-    res.json({
+    // Always provide a flat contractorTags array
+    const flatTags = Array.isArray(user.contractorTags) ? user.contractorTags : [];
+
+    return res.json({
       success: true,
       user: {
         ...user.toObject(),
-        contractorTags: flatTags
-      }
+        contractorTags: flatTags,
+      },
     });
-
   } catch (error) {
     console.error('Profile fetch error:', error);
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(403).json({ error: 'Invalid or expired token' });
-    }
-    res.status(500).json({ error: 'Failed to fetch user profile' });
+    return res.status(500).json({ error: 'Failed to fetch user profile' });
   }
 }

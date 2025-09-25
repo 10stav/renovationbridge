@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/router'; // ← Next.js routing
 import { useAuth } from './AuthContext';
 import RegisterForm2 from './RegisterForm2';
@@ -10,32 +10,19 @@ function LoginForm() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
 
-  // (Optional) Debug any unexpected navigation that might wipe state
-  // useEffect(() => {
-  //   const start = (url) => console.log('[routeChangeStart]', url);
-  //   const done = (url) => console.log('[routeChangeComplete]', url);
-  //   router.events.on('routeChangeStart', start);
-  //   router.events.on('routeChangeComplete', done);
-  //   return () => {
-  //     router.events.off('routeChangeStart', start);
-  //     router.events.off('routeChangeComplete', done);
-  //   };
-  // }, [router.events]);
-
   const handleSubmit = async (e) => {
-    // Safe whether called from a button or future <form>
+    // ← CHANGED: guard against native navigation just in case
     e?.preventDefault?.();
     e?.stopPropagation?.();
-
-    setError(''); // clear any previous error
+    setError('');
 
     const result = await login(formData.email, formData.password);
     console.log('Login result:', result);
 
     if (!result?.success) {
-      // ✅ ensure a non-empty string so the error box renders
-      setError(result?.error || 'Invalid email or password');
-      return; // ⛔ stop here on failure (prevents any redirect)
+      // ← CHANGED: ensure a non-empty string so the error box renders
+      setError(result?.error || 'Invalid credentials. Please try again.');
+      return; // ← CHANGED: stop here on failure (prevents redirect)
     }
 
     const role = result.user?.role;
@@ -45,7 +32,7 @@ function LoginForm() {
     if (role === 'admin' || adminEmails.includes(formData.email)) {
       router.replace('/admin'); // ← Next.js navigation
     } else if (role === 'contractor') {
-      router.replace('/contractorPortal');
+      router.replace('/contractorPortal'); // ← Stay on same page
     } else {
       router.replace('/contractorPortal');
     }
@@ -68,10 +55,7 @@ function LoginForm() {
       </div>
 
       {/* Card overlapping header with slight negative margin */}
-      <div
-        className="relative z-20 w-full flex-grow flex items-start justify-center"
-        style={{ marginTop: '-12rem' }}
-      >
+      <div className="relative z-20 w-full flex-grow flex items-start justify-center" style={{ marginTop: '-12rem' }}>
         <div
           className="bg-white shadow-lg p-8 w-full"
           style={{
@@ -79,7 +63,7 @@ function LoginForm() {
             borderTopRightRadius: '1.5rem',
             borderBottomLeftRadius: '0.5rem',
             borderBottomRightRadius: '0.5rem',
-            minHeight: '70vh'
+            minHeight: '70vh',
           }}
         >
           <div className="w-full px-4 flex flex-col items-center">
@@ -92,7 +76,7 @@ function LoginForm() {
                 width: '224px',
                 marginBottom: '0',
                 maxHeight: '224px',
-                maxWidth: '224px'
+                maxWidth: '224px',
               }}
             />
 
@@ -105,7 +89,7 @@ function LoginForm() {
 
             {isLogin ? (
               <>
-                {/* ⛔ User-visible error message (kept OUTSIDE any form so it persists) */}
+                {/* ⛔ User-visible error message (outside form to avoid being unmounted) */}
                 {Boolean(error) && (
                   <div className="w-full mb-4 px-4" role="alert" aria-live="assertive">
                     <div className="p-3 bg-red-100 border border-red-300 text-red-700 font-semibold rounded-md text-center shadow">
@@ -114,8 +98,8 @@ function LoginForm() {
                   </div>
                 )}
 
-                {/* Replaced <form> to avoid native navigation that wipes state */}
-                <div className="space-y-4 w-full">
+                {/* CHANGED: no native submit; use button type="button" */}
+                <form className="space-y-4 w-full">
                   <input
                     type="email"
                     name="email"
@@ -139,8 +123,8 @@ function LoginForm() {
                   />
 
                   <button
-                    type="button"          // ← IMPORTANT: not "submit"
-                    onClick={handleSubmit} // ← call handler here
+                    type="button"               // ← CHANGED: prevents native submit/navigation
+                    onClick={handleSubmit}       // ← CHANGED: call handler explicitly
                     disabled={isLoading}
                     className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold disabled:opacity-50 mt-6"
                     style={{ boxShadow: '0 4px 0 #1e40af, 0 6px 8px rgba(0,0,0,0.3)' }}
@@ -159,7 +143,7 @@ function LoginForm() {
                   >
                     {isLoading ? 'Logging in...' : 'Log In'}
                   </button>
-                </div>
+                </form>
               </>
             ) : (
               <RegisterForm2 />

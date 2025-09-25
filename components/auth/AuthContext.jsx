@@ -16,7 +16,11 @@
  * - Use useAuth() hook in any component
  */
 
+'use client'; // ← CHANGED: required for client-side usage (localStorage, hooks)
+
 import React, { useState, useContext, createContext, useEffect } from 'react';
+// ADD this import at the top
+import { useRouter } from 'next/router';
 
 // API Base URL - Points to your backend
 const API_BASE_URL = '/api/contractorPortal';
@@ -35,9 +39,22 @@ export function useAuth() {
 
 // Authentication Provider Component
 export function AuthProvider({ children }) {
+  const router = useRouter(); // ← add this
+
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+
+  // Routes that should render immediately (no "Loading..." gate)
+  // ← CHANGED: include your actual login/page paths so the Loading screen is skipped there
+  const publicRoutes = new Set([
+    '/contractorPortal',        // ← your login page
+    '/login',                   // keep if you also have this
+    '/contractorPortal/login',  // keep only if you actually use it
+    '/',                        // only if homepage is public
+  ]);
+
+  const isPublicRoute = publicRoutes.has(router.pathname);
 
   const fetchUserProfile = async () => {
     try {
@@ -97,7 +114,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-
   // Check for existing token on app startup
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -126,6 +142,7 @@ export function AuthProvider({ children }) {
     };
 
     checkAuthStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = async (email, password) => {
@@ -172,10 +189,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-
-
-
-
   const register = async (userData) => {
     try {
       setIsLoading(true);
@@ -203,7 +216,6 @@ export function AuthProvider({ children }) {
         };
       }
 
-
       console.log('✅ Registration successful - waiting for approval');
       return {
         success: true,
@@ -219,7 +231,6 @@ export function AuthProvider({ children }) {
       setIsLoading(false);
     }
   };
-
 
   const logout = () => {
     console.log(' LOGOUT TRIGGERED - Stack trace:');
@@ -276,7 +287,8 @@ export function AuthProvider({ children }) {
     API_BASE_URL
   };
 
-  if (isInitializing) {
+  // ← CHANGED: Only show the Loading gate on protected routes
+  if (isInitializing && !isPublicRoute) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-600 via-white to-blue-800 flex items-center justify-center">
         <div className="bg-white rounded-lg p-8 shadow-xl">
