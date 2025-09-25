@@ -31,7 +31,6 @@ function LoginForm() {
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        if (error) setError('');
     };
 
     return (
