@@ -111,7 +111,6 @@ function AdminJobsView({ jobs, loading, onBack }) {
       total: originalTotal,
       booked: bookedCount,
       available: currentAvailable,
-      appointments: job.appointments?.length || 0
     };
   };
 
@@ -421,7 +420,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
 
                 {/* Appointment Statistics */}
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
                     <div>
                       <div className="text-lg font-bold text-blue-600">{appointmentCounts.total}</div>
                       <div className="text-xs text-gray-500">Total Slots</div>
@@ -433,10 +432,6 @@ function AdminJobsView({ jobs, loading, onBack }) {
                     <div>
                       <div className="text-lg font-bold text-red-600">{appointmentCounts.booked}</div>
                       <div className="text-xs text-gray-500">Booked</div>
-                    </div>
-                    <div>
-                      <div className="text-lg font-bold text-purple-600">{appointmentCounts.appointments}</div>
-                      <div className="text-xs text-gray-500">Appointments</div>
                     </div>
                   </div>
                 </div>
