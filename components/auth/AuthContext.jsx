@@ -16,10 +16,9 @@
  * - Use useAuth() hook in any component
  */
 
-'use client'; // ← CHANGED: required for client-side usage (localStorage, hooks)
+'use client'; // required for client-side usage (localStorage, hooks)
 
 import React, { useState, useContext, createContext, useEffect } from 'react';
-// ADD this import at the top
 import { useRouter } from 'next/router';
 
 // API Base URL - Points to your backend
@@ -37,31 +36,36 @@ export function useAuth() {
   return context;
 }
 
+// Normalize route (strip query + trailing slashes)
+function useNormalizedPath() {
+  const router = useRouter();
+  const path =
+    (router?.asPath?.split('?')[0] || router?.pathname || '/').replace(/\/+$/, '') || '/';
+  return { router, path };
+}
+
 // Authentication Provider Component
 export function AuthProvider({ children }) {
-  const router = useRouter(); // ← add this
+  const { router, path } = useNormalizedPath();
 
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
 
   // Routes that should render immediately (no "Loading..." gate)
-  // ← CHANGED: include your actual login/page paths so the Loading screen is skipped there
-  const publicRoutes = new Set([
-    '/contractorPortal',        // ← your login page
-    '/login',                   // keep if you also have this
-    '/contractorPortal/login',  // keep only if you actually use it
-    '/',                        // only if homepage is public
-  ]);
+  // IMPORTANT: login is public; contractorPortal (dashboard) is NOT public
+  // Public pages that must NOT be guarded
+const PUBLIC_ROUTES = new Set([
+  'contractorPortal/login',
+  //'/', // only if home is public
+]);
 
-  const isPublicRoute = publicRoutes.has(router.pathname);
+  const isPublicRoute = PUBLIC_ROUTES.has(path);
 
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        return null;
-      }
+      if (!token) return null;
 
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
         headers: {
@@ -77,37 +81,35 @@ export function AuthProvider({ children }) {
           setUser(null);
           return null;
         }
-        console.error("Failed to load user profile");
+        console.error('Failed to load user profile');
         return null;
       }
 
       const { user: rawUser } = await response.json();
 
-      const flatTags = rawUser.contractorTags
-        ?? [
+      const flatTags =
+        rawUser.contractorTags ??
+        [
           ...(rawUser.tags?.renovation || []),
           ...(rawUser.tags?.location || []),
           ...(rawUser.tags?.grouping || [])
         ];
 
       if (rawUser.role === 'contractor' && !rawUser.isApproved) {
-        console.warn("Contractor is not approved. Logging out.");
+        console.warn('Contractor is not approved. Logging out.');
         localStorage.removeItem('token');
         setUser(null);
-        alert("Your account is still pending approval by an admin.");
+        alert('Your account is still pending approval by an admin.');
         return null;
       }
 
-      const finalUser = {
-        ...rawUser,
-        contractorTags: flatTags
-      };
+      const finalUser = { ...rawUser, contractorTags: flatTags };
 
       setUser(finalUser);
-      console.log("Refreshed user profile:", finalUser);
+      console.log('Refreshed user profile:', finalUser);
       return finalUser;
     } catch (err) {
-      console.error("Error fetching user profile:", err);
+      console.error('Error fetching user profile:', err);
       localStorage.removeItem('token');
       setUser(null);
       return null;
@@ -134,7 +136,7 @@ export function AuthProvider({ children }) {
           localStorage.removeItem('token');
         }
       } catch (err) {
-        console.error("Error checking auth status:", err);
+        console.error('Error checking auth status:', err);
         localStorage.removeItem('token');
       } finally {
         setIsInitializing(false);
@@ -155,16 +157,15 @@ export function AuthProvider({ children }) {
         body: JSON.stringify({ email, password }),
       });
 
-      // ✅ Attempt to parse response (even if error)
-      let data;
+      // Attempt to parse response (even if error)
+      let data = {};
       try {
         data = await response.json();
-      } catch (parseErr) {
-        console.warn('❗ Failed to parse error response JSON');
-        data = {};
+      } catch {
+        // ignore parse failures
       }
 
-      // ❌ Handle failure
+      // Failure
       if (!response.ok) {
         const errorMessage =
           data?.error ||
@@ -176,7 +177,7 @@ export function AuthProvider({ children }) {
         return { success: false, error: errorMessage };
       }
 
-      // ✅ Success
+      // Success
       localStorage.setItem('token', data.token);
       const fetchedUser = await fetchUserProfile();
 
@@ -194,16 +195,11 @@ export function AuthProvider({ children }) {
       setIsLoading(true);
       console.log('📝 Attempting registration for:', userData.email);
 
-      const registrationData = {
-        ...userData,
-        role: 'contractor'
-      };
+      const registrationData = { ...userData, role: 'contractor' };
 
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(registrationData),
       });
 
@@ -212,21 +208,18 @@ export function AuthProvider({ children }) {
       if (!response.ok) {
         return {
           success: false,
-          error: data.error || data.message || 'Registration failed'
+          error: data.error || data.message || 'Registration failed',
         };
       }
 
       console.log('✅ Registration successful - waiting for approval');
       return {
         success: true,
-        message: data.message || 'Account created! Please wait for admin approval.'
+        message: data.message || 'Account created! Please wait for admin approval.',
       };
     } catch (error) {
       console.error('❌ Registration error:', error);
-      return {
-        success: false,
-        error: error.message || 'Registration failed'
-      };
+      return { success: false, error: error.message || 'Registration failed' };
     } finally {
       setIsLoading(false);
     }
@@ -240,19 +233,15 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  const isAuthenticated = () => {
-    return !!user && !!localStorage.getItem('token');
-  };
+  const isAuthenticated = () => !!user && !!localStorage.getItem('token');
 
-  const hasRole = (requiredRole) => {
-    return user?.role === requiredRole;
-  };
+  const hasRole = (requiredRole) => user?.role === requiredRole;
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
     return {
       'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
+      ...(token && { Authorization: `Bearer ${token}` }),
     };
   };
 
@@ -261,8 +250,8 @@ export function AuthProvider({ children }) {
       ...options,
       headers: {
         ...getAuthHeaders(),
-        ...options.headers
-      }
+        ...options.headers,
+      },
     });
 
     if (response.status === 401) {
@@ -284,10 +273,10 @@ export function AuthProvider({ children }) {
     hasRole,
     getAuthHeaders,
     authenticatedRequest,
-    API_BASE_URL
+    API_BASE_URL,
   };
 
-  // ← CHANGED: Only show the Loading gate on protected routes
+  // Only show the Loading gate on protected routes
   if (isInitializing && !isPublicRoute) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-600 via-white to-blue-800 flex items-center justify-center">
@@ -301,9 +290,5 @@ export function AuthProvider({ children }) {
     );
   }
 
-  return (
-    <AuthContext.Provider value={authValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>;
 }

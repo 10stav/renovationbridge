@@ -1,52 +1,62 @@
 /**
  * PROTECTED ROUTE - Authentication and authorization guard component
+ * - Skips auth checks on public routes (e.g., /login)
+ * - Waits for AuthContext initialization before redirecting
+ * - Uses replace() to avoid polluting browser history
  */
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../auth/AuthContext';
 
+// Public pages that must NOT be guarded
+const PUBLIC_ROUTES = new Set([
+  'contractorPortal/login',
+  //'/', // only if home is public
+]);
+
+function normalizePath(router) {
+  const p = (router.asPath && router.asPath.split('?')[0]) || router.pathname || '/';
+  const trimmed = p.replace(/\/+$/, '');
+  return trimmed || '/';
+}
+
 function ProtectedRoute({ children, requiredRole }) {
-  const { user, isInitializing, logout } = useAuth();
+  const { user, isInitializing, isAuthenticated } = useAuth();
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  // Handle all redirects in a single useEffect (following React Hook rules)
+  const path = normalizePath(router);
+  const isPublic = PUBLIC_ROUTES.has(path);
+
+  // If this is a public route, DO NOT guard — render immediately
+  if (isPublic) return children;
+
+  // Handle redirects only for protected routes
   useEffect(() => {
-    // Don't run during initialization
     if (isInitializing) return;
 
-    // Check for token and user - SSR safe
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const authed = typeof isAuthenticated === 'function' ? isAuthenticated() : !!user;
 
-    if (!token || !user) {
-      console.log('🔒 ProtectedRoute: User not authenticated, redirecting to login');
+    // Not authenticated → go to login page
+    if (!authed) {
       setIsRedirecting(true);
-      router.push('/login');
+      router.replace('/login');
       return;
     }
 
-    // Check if user has required role
-    if (requiredRole && user?.role !== requiredRole) {
-      console.log(`🚫 ProtectedRoute: User role "${user?.role}" does not match required role "${requiredRole}"`);
+    // Role enforcement (only on protected routes)
+    if (requiredRole && user && user.role !== requiredRole) {
       setIsRedirecting(true);
-      
-      // Redirect to appropriate dashboard based on actual role
-      if (user?.role === 'admin') {
-        router.push('/admin');
-      } else if (user?.role === 'contractor') {
-        router.push('/contractorPortal');
-      } else {
-        router.push('/login');
-      }
+      if (user.role === 'admin') router.replace('/admin');
+      else router.replace('/contractorPortal');
       return;
     }
 
-    // If we get here, user is properly authenticated
     setIsRedirecting(false);
-  }, [isInitializing, user, requiredRole, router]);
+  }, [isInitializing, user, requiredRole, router, isAuthenticated, path]);
 
-  // Show loading spinner during initial authentication check
+  // Minimal interstitial while checking a PROTECTED route
   if (isInitializing || isRedirecting) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -60,83 +70,7 @@ function ProtectedRoute({ children, requiredRole }) {
     );
   }
 
-  // Final checks for rendering (SSR safe)
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  
-  if (!token || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  // Check role for rendering
-  if (requiredRole && user?.role !== requiredRole) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  // Special check for contractors - must be approved
-  if (requiredRole === 'contractor' && !user?.isApproved) {
-    console.log('⏳ ProtectedRoute: Contractor not yet approved by admin');
-
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 text-center">
-          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Account Pending Approval
-          </h2>
-
-          <p className="text-gray-600 mb-6 leading-relaxed">
-            Thanks for registering, <strong>{user?.name}</strong>!
-            Your contractor account is currently being reviewed by our admin team.
-          </p>
-
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold text-blue-800 mb-2">What's Next?</h3>
-            <ul className="text-blue-700 text-sm space-y-1 text-left">
-              <li>• Admin will review your application</li>
-              <li>• You'll be notified when approved</li>
-              <li>• Then you can access job opportunities</li>
-            </ul>
-          </div>
-
-          <div className="space-y-3">
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              🔄 Check Approval Status
-            </button>
-
-            <button
-              onClick={logout}
-              className="w-full bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium"
-            >
-              👋 Logout
-            </button>
-          </div>
-
-          <p className="text-xs text-gray-500 mt-6">
-            Questions? Contact admin for assistance.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // User is authenticated and authorized - render protected content
-  console.log(`✅ ProtectedRoute: User authorized for ${requiredRole} access`);
+  // By here: PROTECTED route + authenticated (+ role ok)
   return children;
 }
 
