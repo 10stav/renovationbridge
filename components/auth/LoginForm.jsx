@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router'; // ← Next.js routing
 import { useAuth } from './AuthContext';
 import RegisterForm2 from './RegisterForm2';
@@ -10,27 +10,42 @@ function LoginForm() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
 
+  // (Optional) Debug any unexpected navigation that might wipe state
+  // useEffect(() => {
+  //   const start = (url) => console.log('[routeChangeStart]', url);
+  //   const done = (url) => console.log('[routeChangeComplete]', url);
+  //   router.events.on('routeChangeStart', start);
+  //   router.events.on('routeChangeComplete', done);
+  //   return () => {
+  //     router.events.off('routeChangeStart', start);
+  //     router.events.off('routeChangeComplete', done);
+  //   };
+  // }, [router.events]);
+
   const handleSubmit = async (e) => {
-    // safe whether called from form submit or button click
+    // Safe whether called from a button or future <form>
     e?.preventDefault?.();
-    setError('');
+    e?.stopPropagation?.();
+
+    setError(''); // clear any previous error
 
     const result = await login(formData.email, formData.password);
     console.log('Login result:', result);
 
-    if (!result.success) {
+    if (!result?.success) {
       // ✅ ensure a non-empty string so the error box renders
-      setError(result.error || 'Invalid email or password');
-      return; // ⛔ stop here on failure (prevents redirect)
+      setError(result?.error || 'Invalid email or password');
+      return; // ⛔ stop here on failure (prevents any redirect)
     }
 
     const role = result.user?.role;
     console.log('User role:', role);
     const adminEmails = ['admin@renovationbridge.com', 'admin2@company.com'];
+
     if (role === 'admin' || adminEmails.includes(formData.email)) {
       router.replace('/admin'); // ← Next.js navigation
     } else if (role === 'contractor') {
-      router.replace('/contractorPortal'); // ← Stay on same page
+      router.replace('/contractorPortal');
     } else {
       router.replace('/contractorPortal');
     }
@@ -90,7 +105,7 @@ function LoginForm() {
 
             {isLogin ? (
               <>
-                {/* ⛔ User-visible error message (kept OUTSIDE the form so it persists) */}
+                {/* ⛔ User-visible error message (kept OUTSIDE any form so it persists) */}
                 {Boolean(error) && (
                   <div className="w-full mb-4 px-4" role="alert" aria-live="assertive">
                     <div className="p-3 bg-red-100 border border-red-300 text-red-700 font-semibold rounded-md text-center shadow">
@@ -99,14 +114,8 @@ function LoginForm() {
                   </div>
                 )}
 
-                {/* Keep the form for semantics, but disable native navigation */}
-                <form
-                  onSubmit={handleSubmit}
-                  className="space-y-4 w-full"
-                  action="#"
-                  noValidate
-                  autoComplete="off"
-                >
+                {/* Replaced <form> to avoid native navigation that wipes state */}
+                <div className="space-y-4 w-full">
                   <input
                     type="email"
                     name="email"
@@ -150,7 +159,7 @@ function LoginForm() {
                   >
                     {isLoading ? 'Logging in...' : 'Log In'}
                   </button>
-                </form>
+                </div>
               </>
             ) : (
               <RegisterForm2 />
