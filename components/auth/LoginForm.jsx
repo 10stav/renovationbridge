@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/router'; // ← Next.js routing
 import { useAuth } from './AuthContext';
 import RegisterForm2 from './RegisterForm2';
 
 function LoginForm() {
   const { login, isLoading } = useAuth();
-  const router = useRouter();
+  const router = useRouter(); // ← Next.js router
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    // safe whether called from form submit or button click
+    e?.preventDefault?.();
     setError('');
 
     const result = await login(formData.email, formData.password);
@@ -24,12 +25,12 @@ function LoginForm() {
     }
 
     const role = result.user?.role;
+    console.log('User role:', role);
     const adminEmails = ['admin@renovationbridge.com', 'admin2@company.com'];
-
     if (role === 'admin' || adminEmails.includes(formData.email)) {
-      router.replace('/admin');
+      router.replace('/admin'); // ← Next.js navigation
     } else if (role === 'contractor') {
-      router.replace('/contractorPortal');
+      router.replace('/contractorPortal'); // ← Stay on same page
     } else {
       router.replace('/contractorPortal');
     }
@@ -41,7 +42,7 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Header */}
+      {/* Header section: fixed 30% of viewport height */}
       <div className="relative w-full overflow-hidden flex-shrink-0" style={{ height: '60vh' }}>
         <img
           src="/assets/Creation-7-Project-Tice-7.jpg"
@@ -51,8 +52,11 @@ function LoginForm() {
         <div className="absolute inset-0 bg-black bg-opacity-30" />
       </div>
 
-      {/* Card */}
-      <div className="relative z-20 w-full flex-grow flex items-start justify-center" style={{ marginTop: '-12rem' }}>
+      {/* Card overlapping header with slight negative margin */}
+      <div
+        className="relative z-20 w-full flex-grow flex items-start justify-center"
+        style={{ marginTop: '-12rem' }}
+      >
         <div
           className="bg-white shadow-lg p-8 w-full"
           style={{
@@ -60,23 +64,33 @@ function LoginForm() {
             borderTopRightRadius: '1.5rem',
             borderBottomLeftRadius: '0.5rem',
             borderBottomRightRadius: '0.5rem',
-            minHeight: '70vh',
+            minHeight: '70vh'
           }}
         >
           <div className="w-full px-4 flex flex-col items-center">
-            {/* Logo */}
+            {/* Logo above title */}
             <img
               src="/assets/Renovation.png"
               alt="Logo"
-              style={{ height: '224px', width: '224px', marginBottom: '0', maxHeight: '224px', maxWidth: '224px' }}
+              style={{
+                height: '224px',
+                width: '224px',
+                marginBottom: '0',
+                maxHeight: '224px',
+                maxWidth: '224px'
+              }}
             />
 
-            {/* Title */}
-            {isLogin && <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Welcome Back!</h2>}
+            {/* Conditional welcome text - only show for login */}
+            {isLogin && (
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                Welcome Back!
+              </h2>
+            )}
 
             {isLogin ? (
               <>
-                {/* ⛔ User-visible error message (outside the form) */}
+                {/* ⛔ User-visible error message (kept OUTSIDE the form so it persists) */}
                 {Boolean(error) && (
                   <div className="w-full mb-4 px-4" role="alert" aria-live="assertive">
                     <div className="p-3 bg-red-100 border border-red-300 text-red-700 font-semibold rounded-md text-center shadow">
@@ -85,7 +99,14 @@ function LoginForm() {
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-4 w-full">
+                {/* Keep the form for semantics, but disable native navigation */}
+                <form
+                  onSubmit={handleSubmit}
+                  className="space-y-4 w-full"
+                  action="#"
+                  noValidate
+                  autoComplete="off"
+                >
                   <input
                     type="email"
                     name="email"
@@ -109,7 +130,8 @@ function LoginForm() {
                   />
 
                   <button
-                    type="submit"
+                    type="button"          // ← IMPORTANT: not "submit"
+                    onClick={handleSubmit} // ← call handler here
                     disabled={isLoading}
                     className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold disabled:opacity-50 mt-6"
                     style={{ boxShadow: '0 4px 0 #1e40af, 0 6px 8px rgba(0,0,0,0.3)' }}
@@ -137,7 +159,10 @@ function LoginForm() {
             <div className="mt-6 text-center w-full">
               <p className="text-gray-600">
                 {isLogin ? 'New contractor? ' : 'Already have an account? '}
-                <button onClick={() => setIsLogin(!isLogin)} className="text-blue-600 font-semibold hover:text-blue-800">
+                <button
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-blue-600 font-semibold hover:text-blue-800"
+                >
                   {isLogin ? 'Create Account' : 'Login'}
                 </button>
               </p>
