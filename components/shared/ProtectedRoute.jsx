@@ -1,6 +1,6 @@
 /**
  * PROTECTED ROUTE - Authentication and authorization guard component
- * - Skips auth checks on public routes (e.g., /login)
+ * - Skips auth checks on public routes (e.g., /contractorPortal/login)
  * - Waits for AuthContext initialization before redirecting
  * - Uses replace() to avoid polluting browser history
  */
@@ -9,10 +9,10 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../auth/AuthContext';
 
-// Public pages that must NOT be guarded
+// Public pages that must NOT be guarded (MUST start with '/')
 const PUBLIC_ROUTES = new Set([
   '/contractorPortal/login',
-  //'/', // only if home is public
+  // '/', // add only if your home is public
 ]);
 
 function normalizePath(router) {
@@ -22,41 +22,40 @@ function normalizePath(router) {
 }
 
 function ProtectedRoute({ children, requiredRole }) {
-  const { user, isInitializing, isAuthenticated } = useAuth();
   const router = useRouter();
+  const { user, isInitializing, isAuthenticated } = useAuth();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   const path = normalizePath(router);
   const isPublic = PUBLIC_ROUTES.has(path);
 
-  // If this is a public route, DO NOT guard — render immediately
-  if (isPublic) return children;
-
-  // Handle redirects only for protected routes
+  // 👇 Hooks must be called unconditionally; the effect early-returns if public.
   useEffect(() => {
-    if (isInitializing) return;
+    if (isPublic) return;               // public route: do nothing
+    if (isInitializing) return;         // still bootstrapping
 
-    const authed = typeof isAuthenticated === 'function' ? isAuthenticated() : !!user;
+    const authed =
+      typeof isAuthenticated === 'function' ? isAuthenticated() : !!user;
 
-    // Not authenticated → go to login page
     if (!authed) {
       setIsRedirecting(true);
       router.replace('/contractorPortal/login');
       return;
     }
 
-    // Role enforcement (only on protected routes)
     if (requiredRole && user && user.role !== requiredRole) {
       setIsRedirecting(true);
-      if (user.role === 'admin') router.replace('/admin');
-      else router.replace('/contractorPortal');
+      router.replace(user.role === 'admin' ? '/admin' : '/contractorPortal');
       return;
     }
 
     setIsRedirecting(false);
-  }, [isInitializing, user, requiredRole, router, isAuthenticated, path]);
+  }, [isPublic, isInitializing, isAuthenticated, user, requiredRole, router]);
 
-  // Minimal interstitial while checking a PROTECTED route
+  // Public route? Render immediately (no guard)
+  if (isPublic) return children;
+
+  // Protected route: show minimal interstitial while checking/redirecting
   if (isInitializing || isRedirecting) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -70,7 +69,7 @@ function ProtectedRoute({ children, requiredRole }) {
     );
   }
 
-  // By here: PROTECTED route + authenticated (+ role ok)
+  // Auth OK for this protected route
   return children;
 }
 
