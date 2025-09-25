@@ -11,7 +11,7 @@ import { useAuth } from '../auth/AuthContext';
 
 // Public pages that must NOT be guarded
 const PUBLIC_ROUTES = new Set([
-  'contractorPortal/login',
+  '/contractorPortal/login',
   //'/', // only if home is public
 ]);
 
@@ -41,7 +41,7 @@ function ProtectedRoute({ children, requiredRole }) {
     // Not authenticated → go to login page
     if (!authed) {
       setIsRedirecting(true);
-      router.replace('/login');
+      router.replace('/contractorPortal/login');
       return;
     }
 

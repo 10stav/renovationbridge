@@ -56,7 +56,7 @@ export function AuthProvider({ children }) {
   // IMPORTANT: login is public; contractorPortal (dashboard) is NOT public
   // Public pages that must NOT be guarded
 const PUBLIC_ROUTES = new Set([
-  'contractorPortal/login',
+  '/contractorPortal/login',
   //'/', // only if home is public
 ]);
 

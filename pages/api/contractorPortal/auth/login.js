@@ -20,8 +20,8 @@ export default async function handler(req, res) {
     }
 
     // Import dependencies
-    const { connectToDatabase } = await import('../../../../../lib/contractorPortal/utils/mongodb'); // ← path adjusted by one ../
-    const User = (await import('../../../../../lib/contractorPortal/models/User')).default;          // ← path adjusted by one ../
+    const { connectToDatabase } = await import('../../../../lib/contractorPortal/utils/mongodb'); // ← path adjusted by one ../
+    const User = (await import('../../../../lib/contractorPortal/models/User')).default;          // ← path adjusted by one ../
     const jwt = await import('jsonwebtoken');
 
     // Connect to database
