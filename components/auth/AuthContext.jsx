@@ -138,36 +138,40 @@ export function AuthProvider({ children }) {
         body: JSON.stringify({ email, password }),
       });
 
-      let data = {};
-
+      // ✅ Attempt to parse response (even if error)
+      let data;
       try {
-        data = await response.json(); // attempt to parse
+        data = await response.json();
       } catch (parseErr) {
-        console.warn('❗ Could not parse JSON response from login API');
+        console.warn('❗ Failed to parse error response JSON');
+        data = {};
       }
 
+      // ❌ Handle failure
       if (!response.ok) {
-        const errorMessage = data.error || data.message || 'Login failed';
+        const errorMessage =
+          data?.error ||
+          data?.message ||
+          (response.status === 400
+            ? 'Invalid credentials. Please try again.'
+            : 'An unexpected error occurred.');
+
         return { success: false, error: errorMessage };
       }
 
+      // ✅ Success
       localStorage.setItem('token', data.token);
       const fetchedUser = await fetchUserProfile();
 
-      return {
-        success: true,
-        user: fetchedUser,
-      };
+      return { success: true, user: fetchedUser };
     } catch (error) {
       console.error('❌ Login error:', error);
-      return {
-        success: false,
-        error: error.message || 'Something went wrong during login',
-      };
+      return { success: false, error: 'Network error. Please try again later.' };
     } finally {
       setIsLoading(false);
     }
   };
+
 
 
 

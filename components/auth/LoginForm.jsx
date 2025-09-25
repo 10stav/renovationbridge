@@ -18,6 +18,7 @@ function LoginForm() {
         console.log('Login result:', result);
         if (!result.success) {
             setError(result.error);
+            return;
         } else {
             const role = result.user?.role;
             console.log('User role:', role);
