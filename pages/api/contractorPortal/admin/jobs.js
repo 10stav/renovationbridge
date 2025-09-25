@@ -65,7 +65,6 @@ export default async function handler(req, res) {
           availableTimes: expandedAvailableTimes, // Now shows individual time slots
           adminSetTimes: job.adminSetTimes,
           bookedTimes: job.bookedTimes || [],
-          appointments: job.appointments || [],
           homeownerTags: job.homeownerTags || [],
           claimedBy: job.claimedBy,
           createdAt: job.createdAt
