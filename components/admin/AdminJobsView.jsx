@@ -278,11 +278,6 @@ function AdminJobsView({ jobs, loading, onBack }) {
             return (
               <div key={job._id} className="border border-gray-200 rounded-lg p-5 hover:bg-gray-50 transition-colors duration-200">
 
-                {/* ADD THIS DEBUG BLOCK HERE - right after the opening div */}
-                <div className="bg-gray-100 p-2 mb-2 text-xs">
-                  <strong>Debug:</strong> Conflicts: {JSON.stringify(job.conflicts)}
-                </div>
-
                 {/* Job Header */}
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
@@ -384,7 +379,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
                     <p className="text-gray-400 text-sm italic mb-4">No appointment times set by admin</p>
                   )}
 
-                  {/* Add this after the Available Times section */}
+                  {/* Times Not Published (Conflicts Detected) */}
                   {job.conflicts && job.conflicts.length > 0 && (
                     <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                       <h4 className="text-sm font-medium text-yellow-800 mb-2">
@@ -395,14 +390,14 @@ function AdminJobsView({ jobs, loading, onBack }) {
                           <div key={index} className="text-sm text-yellow-700">
                             <span className="font-medium">{conflict.timeSlot}</span> -
                             {conflict.conflictType === 'available'
-                              ? ` Already offered to contractors for ${conflict.conflictingJob}`
-                              : ` Already booked for ${conflict.conflictingJob}`
+                              ? ` Too close to available time for ${conflict.conflictingJob} (appointments must be at least 1.5 hours apart)`
+                              : ` Too close to booked appointment for ${conflict.conflictingJob} (appointments must be at least 1.5 hours apart)`
                             }
                           </div>
                         ))}
                       </div>
                       <p className="text-xs text-yellow-600 mt-2">
-                        These times were removed before showing to contractors to prevent double-booking
+                        These times were removed before showing to contractors to prevent scheduling conflicts and ensure adequate time between appointments
                       </p>
                     </div>
                   )}

@@ -91,6 +91,7 @@ async function checkGHLCalendarConflicts(timeSlots) {
   ///queries booked appointments for each date to find existing appointments and compares times
   ///returns array of conflicting time slots that should be filtered out to prevent contractor booking failures
   ///prevents the scenario where contractors see available times but GHL booking fails due to existing appointments
+  ///NOW ALSO checks for time slots within 1.5 hours of each other to ensure adequate spacing between appointments
   const conflicts = [];
 
   for (const timeSlot of timeSlots) {
@@ -99,34 +100,46 @@ async function checkGHLCalendarConflicts(timeSlots) {
     }
 
     try {
-      // Check 1: Against available times from other jobs
-      const jobWithAvailableTime = await AvailableJob.findOne({
-        availableTimes: timeSlot,
-        status: { $in: ['available', 'claimed'] }
-      });
-
-      // Check 2: Against already booked appointments
-      const jobWithBookedTime = await AvailableJob.findOne({
-        'bookedTimes.time': timeSlot,
-        status: { $in: ['available', 'claimed'] }
-      });
-
-      if (jobWithAvailableTime) {
-        conflicts.push({
-          timeSlot: timeSlot,
-          conflictType: 'available',
-          conflictingJob: jobWithAvailableTime.customerName
-        });
-        console.warn(`Available time conflict: ${timeSlot} already available for ${jobWithAvailableTime.customerName}`);
+      // Parse the proposed time slot
+      const proposedTime = parseTimeSlotToDate(timeSlot);
+      if (!proposedTime) {
+        console.warn(`Could not parse time slot: ${timeSlot}`);
+        continue;
       }
 
-      if (jobWithBookedTime) {
-        conflicts.push({
-          timeSlot: timeSlot,
-          conflictType: 'booked',
-          conflictingJob: jobWithBookedTime.customerName
-        });
-        console.warn(`Booked time conflict: ${timeSlot} already booked for ${jobWithBookedTime.customerName}`);
+      // Get all existing jobs to check against
+      const existingJobs = await AvailableJob.find({
+        status: { $in: ['available', 'claimed'] }
+      });
+
+      for (const existingJob of existingJobs) {
+        // Check against available times
+        for (const availableTime of existingJob.availableTimes || []) {
+          const existingTime = parseTimeSlotToDate(availableTime);
+          if (existingTime && hasTimeConflict(proposedTime, existingTime)) {
+            conflicts.push({
+              timeSlot: timeSlot,
+              conflictType: 'available',
+              conflictingJob: existingJob.customerName
+            });
+            console.warn(`Time overlap detected: ${timeSlot} within 1.5hr of ${availableTime} for ${existingJob.customerName}`);
+            break; // Found conflict, no need to check more times for this job
+          }
+        }
+
+        // Check against booked times
+        for (const booking of existingJob.bookedTimes || []) {
+          const bookedTime = parseTimeSlotToDate(booking.time);
+          if (bookedTime && hasTimeConflict(proposedTime, bookedTime)) {
+            conflicts.push({
+              timeSlot: timeSlot,
+              conflictType: 'booked',
+              conflictingJob: existingJob.customerName
+            });
+            console.warn(`Time overlap detected: ${timeSlot} within 1.5hr of booked ${booking.time} for ${existingJob.customerName}`);
+            break;
+          }
+        }
       }
 
     } catch (error) {
@@ -135,6 +148,56 @@ async function checkGHLCalendarConflicts(timeSlots) {
   }
 
   return conflicts;
+}
+
+// Helper function to parse time slots into Date objects
+function parseTimeSlotToDate(timeSlot) {
+  try {
+    // Format: "10/17/25, 2:00 PM" or "10/17/25, 2:00 PM to 4:00 PM"
+    const parts = timeSlot.split(', ');
+    if (parts.length < 2) return null;
+
+    const datePart = parts[0]; // "10/17/25"
+    let timePart = parts[1]; // "2:00 PM" or "2:00 PM to 4:00 PM"
+
+    // If it's a range, use the start time
+    if (timePart.includes(' to ')) {
+      timePart = timePart.split(' to ')[0].trim();
+    }
+
+    // Parse date
+    const [month, day, year] = datePart.split('/');
+    const fullYear = year.length === 2 ? `20${year}` : year;
+
+    // Create date string in format that Date constructor can parse
+    const dateStr = `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+    // Parse time
+    const timeMatch = timePart.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    if (!timeMatch) return null;
+
+    let hours = parseInt(timeMatch[1]);
+    const minutes = parseInt(timeMatch[2]);
+    const period = timeMatch[3].toUpperCase();
+
+    // Convert to 24-hour format
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+
+    const dateObj = new Date(`${dateStr}T${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`);
+
+    return isNaN(dateObj.getTime()) ? null : dateObj;
+  } catch (error) {
+    console.error('Error parsing time slot:', timeSlot, error);
+    return null;
+  }
+}
+
+// Helper function to check if two times conflict (within 1.5 hours)
+function hasTimeConflict(time1, time2) {
+  const BUFFER_MS = 1.5 * 60 * 60 * 1000; // 1.5 hours in milliseconds
+  const timeDiff = Math.abs(time1.getTime() - time2.getTime());
+  return timeDiff < BUFFER_MS;
 }
 
 async function storeAvailableJob(contactData, originalWebhookData) { ///this function creates or updates job records in the database when homeowners are moved to "Need to Book" pipeline stage
@@ -307,7 +370,7 @@ async function storeAvailableJob(contactData, originalWebhookData) { ///this fun
       homeownerTags: contactData.tags,
       ghlData: originalWebhookData
     });
-    
+
 
     const savedJob = await availableJob.save();
 
