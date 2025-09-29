@@ -463,7 +463,7 @@ export default async function handler(req, res) { ///this is the main webhook en
     const contactData = {
       contactId: webhookData.contact_id,
       contactName: webhookData.full_name,
-      contactEmail: webhookData.email,
+      contactEmail: webhookData.email || 'No email provided',  // ← ADD THE FALLBACK
       contactPhone: webhookData.phone || 'No phone provided',
       projectBudget: webhookData['Project Budget'],
       projectDescription: webhookData['Project Description '],

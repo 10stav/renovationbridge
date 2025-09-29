@@ -278,6 +278,11 @@ function AdminJobsView({ jobs, loading, onBack }) {
             return (
               <div key={job._id} className="border border-gray-200 rounded-lg p-5 hover:bg-gray-50 transition-colors duration-200">
 
+                {/* ADD THIS DEBUG BLOCK HERE - right after the opening div */}
+                <div className="bg-gray-100 p-2 mb-2 text-xs">
+                  <strong>Debug:</strong> Conflicts: {JSON.stringify(job.conflicts)}
+                </div>
+
                 {/* Job Header */}
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
