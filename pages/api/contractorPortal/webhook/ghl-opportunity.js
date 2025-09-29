@@ -157,6 +157,10 @@ async function checkGHLCalendarConflicts(timeSlots) {
 }
 
 async function storeAvailableJob(contactData, originalWebhookData) { ///this function creates or updates job records in the database when homeowners are moved to "Need to Book" pipeline stage
+  console.log('=== STORE AVAILABLE JOB STARTED ===');
+  console.log('Contact data received:', contactData);
+
+
   ///it is called by the main webhook handler after processing the GHL webhook payload
   ///handles 3 scenarios: new job creation, updating existing available jobs, and reactivating previously removed jobs
   ///processes the 3 combined availability times and stores them in the availableTimes array for contractors to see
@@ -508,6 +512,9 @@ export default async function handler(req, res) { ///this is the main webhook en
     });
 
     // Store job in database
+    console.log('=== ABOUT TO CALL STORE AVAILABLE JOB ===');
+    console.log('Contact data being passed:', contactData);
+
     const storedJob = await storeAvailableJob(contactData, webhookData);
 
     // Send email notifications to contractors
