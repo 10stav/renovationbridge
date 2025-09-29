@@ -379,6 +379,29 @@ function AdminJobsView({ jobs, loading, onBack }) {
                     <p className="text-gray-400 text-sm italic mb-4">No appointment times set by admin</p>
                   )}
 
+                  {/* Add this after the Available Times section */}
+                  {job.conflicts && job.conflicts.length > 0 && (
+                    <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <h4 className="text-sm font-medium text-yellow-800 mb-2">
+                        ⚠️ Times Not Published (Conflicts Detected)
+                      </h4>
+                      <div className="space-y-1">
+                        {job.conflicts.map((conflict, index) => (
+                          <div key={index} className="text-sm text-yellow-700">
+                            <span className="font-medium">{conflict.timeSlot}</span> -
+                            {conflict.conflictType === 'available'
+                              ? ` Already offered to contractors for ${conflict.conflictingJob}`
+                              : ` Already booked for ${conflict.conflictingJob}`
+                            }
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-yellow-600 mt-2">
+                        These times were removed before showing to contractors to prevent double-booking
+                      </p>
+                    </div>
+                  )}
+
                   {/* Contractor Bookings */}
                   {job.bookedTimes && job.bookedTimes.length > 0 && (
                     <div className="space-y-2">
