@@ -86,70 +86,51 @@ function parseTimeSlotForGHL(timeSlot) {
 }
 
 async function checkGHLCalendarConflicts(timeSlots) {
-  ///this function checks each proposed availability time slot against existing GHL calendar appointments to prevent booking conflicts
+  ///this function checks each proposed availability time slot against existing booked appointments(in our system, no need to check ghl suince we have recorded all booked jobs as well here) to prevent booking conflicts
   ///it is called by storeAvailableJob before saving the job to database, validating all 3 admin-set availability slots
-  ///queries GHL calendar API for each date to find existing appointments and compares times
+  ///queries booked appointments for each date to find existing appointments and compares times
   ///returns array of conflicting time slots that should be filtered out to prevent contractor booking failures
   ///prevents the scenario where contractors see available times but GHL booking fails due to existing appointments
   const conflicts = [];
 
   for (const timeSlot of timeSlots) {
     if (!timeSlot || timeSlot === '' || timeSlot.includes('TBD')) {
-      continue; // Skip empty or TBD slots
+      continue;
     }
 
     try {
-      const parsed = parseTimeSlotForGHL(timeSlot);
-      if (!parsed) continue;
-
-      const { date, time } = parsed;
-
-      // Check GHL calendar for existing appointments on this date
-      const ghlApiKey = process.env.GHL_API_KEY_APPDEV;
-      const locationId = process.env.GHL_LOCATION_ID_APPDEV;
-
-      if (!ghlApiKey || !locationId) {
-        console.warn('GHL API credentials not configured, skipping conflict check');
-        continue;
-      }
-
-      const response = await fetch(`https://rest.gohighlevel.com/v1/calendars/appointments?locationId=${locationId}&startDate=${date}&endDate=${date}`, {
-        headers: {
-          Authorization: `Bearer ${ghlApiKey}`,
-          'Content-Type': 'application/json'
-        }
+      // Check 1: Against available times from other jobs
+      const jobWithAvailableTime = await AvailableJob.findOne({
+        availableTimes: timeSlot,
+        status: { $in: ['available', 'claimed'] }
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        const appointments = data.appointments || [];
+      // Check 2: Against already booked appointments
+      const jobWithBookedTime = await AvailableJob.findOne({
+        'bookedTimes.time': timeSlot,
+        status: { $in: ['available', 'claimed'] }
+      });
 
-        // Extract time range from our time slot for comparison
-        let timeToCheck = time;
-        if (time.includes(' to ')) {
-          // For ranges like "2:00 PM to 4:00 PM", check the start time
-          timeToCheck = time.split(' to ')[0].trim();
-        }
-
-        // Check if any appointment conflicts with this time
-        const hasConflict = appointments.some(appointment => {
-          const appointmentTime = new Date(appointment.startTime).toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-          });
-          return appointmentTime === timeToCheck;
+      if (jobWithAvailableTime) {
+        conflicts.push({
+          timeSlot: timeSlot,
+          conflictType: 'available',
+          conflictingJob: jobWithAvailableTime.customerName
         });
-
-        if (hasConflict) {
-          conflicts.push(timeSlot);
-          console.warn(`GHL calendar conflict detected: ${timeSlot}`);
-        }
-      } else {
-        console.error(`GHL API error for ${timeSlot}:`, response.status, response.statusText);
+        console.warn(`Available time conflict: ${timeSlot} already available for ${jobWithAvailableTime.customerName}`);
       }
+
+      if (jobWithBookedTime) {
+        conflicts.push({
+          timeSlot: timeSlot,
+          conflictType: 'booked',
+          conflictingJob: jobWithBookedTime.customerName
+        });
+        console.warn(`Booked time conflict: ${timeSlot} already booked for ${jobWithBookedTime.customerName}`);
+      }
+
     } catch (error) {
-      console.error(`Error checking GHL calendar for ${timeSlot}:`, error);
+      console.error(`Error checking conflicts for ${timeSlot}:`, error);
     }
   }
 
@@ -183,22 +164,21 @@ async function storeAvailableJob(contactData, originalWebhookData) { ///this fun
     let conflictWarning = '';
 
     if (conflicts.length > 0) {
-      console.warn('GHL CALENDAR CONFLICTS DETECTED:', conflicts);
-      console.warn('These times already have appointments booked in GoHighLevel:');
-      conflicts.forEach(conflict => console.warn(`  - ${conflict}`));
+      console.warn('INTERNAL CONFLICTS DETECTED:', conflicts);
 
       // Filter out conflicting times
-      availableTimes = proposedTimes.filter(time => !conflicts.includes(time));
+      availableTimes = proposedTimes.filter(time =>
+        !conflicts.some(conflict => conflict.timeSlot === time)
+      );
+
+      // Log detailed conflict info
+      conflicts.forEach(conflict => {
+        console.warn(`  - ${conflict.timeSlot} conflicts with ${conflict.conflictingJob} (${conflict.conflictType})`);
+      });
+
       console.log('Available times after removing conflicts:', availableTimes);
-
-      conflictWarning = `${conflicts.length} time slot(s) removed due to existing GHL appointments`;
-
-      // If no times remain, log error but still create job
-      if (availableTimes.length === 0) {
-        console.error('ALL PROPOSED TIMES HAVE CONFLICTS! Job created but no available times.');
-      }
     } else {
-      console.log('No GHL calendar conflicts detected');
+      console.log('No internal conflicts detected');
       availableTimes = proposedTimes;
     }
 
