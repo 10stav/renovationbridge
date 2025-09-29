@@ -307,6 +307,7 @@ async function storeAvailableJob(contactData, originalWebhookData) { ///this fun
       homeownerTags: contactData.tags,
       ghlData: originalWebhookData
     });
+    
 
     const savedJob = await availableJob.save();
 
@@ -514,7 +515,8 @@ export default async function handler(req, res) { ///this is the main webhook en
         : 'Job stored and contractors notified successfully!',
       contact: contactData.contactName,
       availableTimes: storedJob.availableTimes || [],
-      conflictsRemoved: conflictCount || 0
+      conflictsRemoved: conflictCount || 0,
+      debugConflicts: storedJob.conflicts || [] // ADD THIS LINE
     });
   } catch (error) {
     console.error('Webhook error:', error);
