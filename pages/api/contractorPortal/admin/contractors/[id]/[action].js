@@ -48,8 +48,8 @@ export default async function handler(req, res) { /// this function makes sure w
       if (!teamMemberId) {
         console.log("🔍 No teamMemberId provided, attempting auto-match by email...");
 
-        const ghlApiKey = process.env.GOHIGHLEVEL_API_KEY;
-        const locationId = process.env.GOHIGHLEVEL_LOCATION_ID;
+        const ghlApiKey = process.env.GHL_API_KEY_APPDEV;
+        const locationId = process.env.GHL_LOCATION_ID_APPDEV;
 
         const response = await fetch(`https://rest.gohighlevel.com/v1/locations/${locationId}/users/`, {
           headers: {

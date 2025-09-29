@@ -105,8 +105,8 @@ async function checkGHLCalendarConflicts(timeSlots) {
       const { date, time } = parsed;
 
       // Check GHL calendar for existing appointments on this date
-      const ghlApiKey = process.env.GOHIGHLEVEL_API_KEY;
-      const locationId = process.env.GOHIGHLEVEL_LOCATION_ID;
+      const ghlApiKey = process.env.GHL_API_KEY_APPDEV;
+      const locationId = process.env.GHL_LOCATION_ID_APPDEV;
 
       if (!ghlApiKey || !locationId) {
         console.warn('GHL API credentials not configured, skipping conflict check');
