@@ -206,6 +206,7 @@ async function storeAvailableJob(contactData, originalWebhookData) { ///this fun
               time3: contactData.availableTime3
             },
             availableTimes: availableTimes,
+            conflicts: conflicts, // ADD THIS LINE
             updatedAt: new Date(),
             ghlData: originalWebhookData
           },
@@ -251,6 +252,7 @@ async function storeAvailableJob(contactData, originalWebhookData) { ///this fun
               time3: contactData.availableTime3
             },
             availableTimes: availableTimes,
+            conflicts: conflicts, // ADD THIS LINE
             bookedTimes: [],
             appointments: [],
             updatedAt: new Date(),
@@ -277,7 +279,7 @@ async function storeAvailableJob(contactData, originalWebhookData) { ///this fun
     console.log('Creating new job for:', contactData.contactName);
     console.log('DEBUG SCENARIO 3: About to create new job with availableTimes:', availableTimes);
 
-    const availableJob = new AvailableJob({
+    const availableJob = new AvailableJob({ /// when a contact that hasnt been in our external website system(our app) is dragged into need to book (in ghl) -> (therefore entering into our external website system/app) checked by seeing if it has an existing contactID matching in our system. if it already does, we either use updatedJob (if status is "available") OR reactivatedJob (if status is "removed"). both of those functions can be found above
       customerId: contactData.contactId,
       customerName: contactData.contactName,
       customerEmail: contactData.contactEmail,
@@ -299,6 +301,7 @@ async function storeAvailableJob(contactData, originalWebhookData) { ///this fun
         time3: contactData.availableTime3
       },
       availableTimes: availableTimes,
+      conflicts: conflicts, // ADD THIS LINE
       bookedTimes: [],
       appointments: [],
       homeownerTags: contactData.tags,
