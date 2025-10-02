@@ -68,6 +68,7 @@ export default async function handler(req, res) {
           homeownerTags: job.homeownerTags || [],
           claimedBy: job.claimedBy,
           conflicts: job.conflicts || [], // Include conflict data
+          feedback: job.feedback || [], // ADD THIS LINE
           createdAt: job.createdAt
         };
       })

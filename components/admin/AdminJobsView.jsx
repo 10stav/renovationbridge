@@ -439,6 +439,48 @@ function AdminJobsView({ jobs, loading, onBack }) {
                       </div>
                     </div>
                   )}
+                  
+
+                  {/* ADD THIS: Contractor Feedback Section */}
+                  {job.feedback && job.feedback.length > 0 && (
+                    <div className="space-y-2 mt-4">
+                      <h4 className="text-sm font-medium text-purple-700">Contractor Feedback:</h4>
+                      <div className="space-y-2">
+                        {job.feedback.map((feedback, index) => (
+                          <div key={index} className="bg-purple-50 p-3 rounded-lg border border-purple-200">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <div className="font-medium text-purple-800">
+                                  {feedback.contractorName}
+                                </div>
+                                <div className="text-sm text-purple-600">
+                                  Appointment: {feedback.appointmentTime}
+                                </div>
+                              </div>
+                              <div className="flex items-center">
+                                <span className="text-yellow-500 font-medium text-lg">
+                                  {'⭐'.repeat(feedback.rating)}
+                                </span>
+                                <span className="text-sm text-gray-600 ml-1">
+                                  ({feedback.rating}/5)
+                                </span>
+                              </div>
+                            </div>
+                            {feedback.comment && (
+                              <div className="bg-white p-2 rounded border border-purple-100 mt-2">
+                                <p className="text-sm text-gray-700 italic">
+                                  "{feedback.comment}"
+                                </p>
+                              </div>
+                            )}
+                            <div className="text-xs text-gray-500 mt-2">
+                              Submitted: {new Date(feedback.submittedAt).toLocaleString()}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Appointment Statistics */}

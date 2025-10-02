@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
+import FeedbackForm from './FeedbackForm'; // ADD THIS IMPORT
 
 export default function ContractorYourAppointments({ jobs, loading, onBack, onRefresh }) {
     const { user, authenticatedRequest } = useAuth();
     const [selectedJob, setSelectedJob] = useState(null);
     const [searchTerm, setSearchTerm] = useState(''); //creates a react variable called searchTerm, sets it initially to '', creates a function called setSearchTerm to update the state, this state is then available throuought this entire file(ContractorYourAppointments.jsx)
     const [syncing, setSyncing] = useState(false);
+    const [feedbackModal, setFeedbackModal] = useState({ show: false, job: null, time: null });
 
     // // Auto-sync with GHL when component loads
     // useEffect(() => {
@@ -247,12 +249,29 @@ export default function ContractorYourAppointments({ jobs, loading, onBack, onRe
                                                         <p className="text-gray-800">
                                                             <strong>Time:</strong> {app.scheduledTime}
                                                         </p>
+                                                        {/* ADD FEEDBACK BUTTON HERE */}
+                                                        <button
+                                                            onClick={() => setFeedbackModal({
+                                                                show: true,
+                                                                job: job,
+                                                                time: `${app.scheduledDate}, ${app.scheduledTime}`
+                                                            })}
+                                                            className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                                                        >
+                                                            Leave Feedback
+                                                        </button>
+
+
+
+
+
+
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
                                     </div>
-                                            
+
 
                                     {/* Project Budget / Description */}
                                     {/* {job.projectBudget && (
@@ -275,11 +294,26 @@ export default function ContractorYourAppointments({ jobs, loading, onBack, onRe
                                 </div>
                             );
                         })}
-                                </div>
+                    </div>
                 )}
-                    
+
             </div>
-                
+            {/* ADD FEEDBACK MODAL AT THE END */}
+            {feedbackModal.show && (
+                <FeedbackForm
+                    job={feedbackModal.job}
+                    appointmentTime={feedbackModal.time}
+                    onClose={() => setFeedbackModal({ show: false, job: null, time: null })}
+                    onSuccess={() => {
+                        alert('Thank you for your feedback!');
+                        setFeedbackModal({ show: false, job: null, time: null });
+                        if (onRefresh) {
+                            onRefresh();
+                        }
+                    }}
+                />
+            )}
+
         </div>
     );
 }
