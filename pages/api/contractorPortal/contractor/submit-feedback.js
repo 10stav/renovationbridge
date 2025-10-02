@@ -1,6 +1,36 @@
 import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
 import AvailableJob from '../../../../lib/contractorPortal/models/Availablejob';
-import { authenticateContractor } from '../../../../lib/contractorPortal/utils/auth';
+import User from '../../../../lib/contractorPortal/models/User';
+import jwt from 'jsonwebtoken';
+
+// Auth middleware - ADD THIS FUNCTION
+async function authenticateContractor(req, res, next) {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user || user.role !== 'contractor' || !user.isApproved) {
+      return res.status(403).json({ message: 'Contractor access required' });
+    }
+
+    req.user = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      contractorTags: user.contractorTags || [],
+      ...user.toObject()
+    };
+
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Invalid token' });
+  }
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -8,8 +38,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    const contractor = await authenticateContractor(req);
     await connectToDatabase();
+
+    // Authenticate contractor - CHANGE THIS PART
+    await new Promise((resolve, reject) => {
+      authenticateContractor(req, res, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
 
     const { jobId, appointmentTime, rating, comment } = req.body;
 
@@ -22,14 +59,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Rating must be between 1 and 5' });
     }
 
-    // Find the job and verify the contractor booked this appointment
+    // Find the job - USE req.user instead of contractor
     const job = await AvailableJob.findById(jobId);
     if (!job) {
       return res.status(404).json({ error: 'Job not found' });
     }
 
     const booking = job.bookedTimes.find(
-      b => b.contractorId === contractor.id && b.time === appointmentTime
+      b => b.contractorId && b.contractorId.toString() === req.user.id.toString() && b.time === appointmentTime
     );
 
     if (!booking) {
@@ -38,7 +75,7 @@ export default async function handler(req, res) {
 
     // Check if feedback already exists
     const existingFeedback = job.feedback?.find(
-      f => f.contractorId === contractor.id && f.appointmentTime === appointmentTime
+      f => f.contractorId === req.user.id.toString() && f.appointmentTime === appointmentTime
     );
 
     if (existingFeedback) {
@@ -51,8 +88,8 @@ export default async function handler(req, res) {
       {
         $push: {
           feedback: {
-            contractorId: contractor.id,
-            contractorName: contractor.name,
+            contractorId: req.user.id.toString(),
+            contractorName: req.user.name,
             appointmentTime: appointmentTime,
             rating: rating,
             comment: comment || '',
