@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useAuth } from '../auth/AuthContext'; // ADD THIS IMPORT
 
 function FeedbackForm({ job, appointmentTime, onClose, onSuccess }) {
+  const { authenticatedRequest } = useAuth(); // ADD THIS LINE
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -19,7 +21,8 @@ function FeedbackForm({ job, appointmentTime, onClose, onSuccess }) {
     setError('');
 
     try {
-      const response = await fetch('/api/contractorPortal/contractor/submit-feedback', {
+      // REPLACE fetch with authenticatedRequest
+      const response = await authenticatedRequest('/contractor/submit-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
