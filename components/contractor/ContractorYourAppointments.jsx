@@ -256,7 +256,16 @@ export default function ContractorYourAppointments({ jobs, loading, onBack, onRe
                                                                 job: job,
                                                                 time: `${app.scheduledDate}, ${app.scheduledTime}`
                                                             })}
-                                                            className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                                                            className="mt-3 bg-blue-600 text-white py-2 px-4 rounded-xl font-semibold"
+                                                            style={{ boxShadow: '0 4px 0 #1e40af, 0 6px 8px rgba(0,0,0,0.3)' }}
+                                                            onMouseEnter={(e) => {
+                                                                e.target.style.boxShadow = '0 8px 0 #1e2b7a, 0 10px 20px rgba(0,0,0,0.4)';
+                                                                e.target.style.transform = 'translateY(-4px)';
+                                                            }}
+                                                            onMouseLeave={(e) => {
+                                                                e.target.style.boxShadow = '0 4px 0 #1e2b7a, 0 6px 8px rgba(0,0,0,0.3)';
+                                                                e.target.style.transform = 'translateY(0px)';
+                                                            }}
                                                         >
                                                             Leave Feedback
                                                         </button>
