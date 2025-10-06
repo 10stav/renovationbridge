@@ -253,14 +253,11 @@ export default function ContractorYourAppointments({ jobs, loading, onBack, onRe
                                                         {(() => {
                                                             const feedbackTime = `${app.scheduledDate}, ${app.scheduledTime}`;
                                                             const userIdStr = user?._id?.toString() || user?.id?.toString() || '';
-                                                            // TEMPORARY DEBUG
-                                                            const matchingFeedback = job.feedback?.filter(f => {
+
+                                                            const hasFeedback = job.feedback?.some(f => {
                                                                 const contractorIdStr = f.contractorId?.toString() || '';
-                                                                alert(`Comparing:\nUser ID: ${userIdStr}\nFeedback Contractor ID: ${contractorIdStr}\nMatch: ${contractorIdStr === userIdStr}\n\nFeedback Time: ${f.appointmentTime}\nApp Time: ${feedbackTime}\nMatch: ${f.appointmentTime === feedbackTime}`);
                                                                 return contractorIdStr === userIdStr && f.appointmentTime === feedbackTime;
                                                             });
-
-                                                            const hasFeedback = matchingFeedback && matchingFeedback.length > 0;
 
                                                             if (hasFeedback) {
                                                                 return (
