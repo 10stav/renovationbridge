@@ -250,12 +250,15 @@ export default function ContractorYourAppointments({ jobs, loading, onBack, onRe
                                                             <strong>Time:</strong> {app.scheduledTime}
                                                         </p>
                                                         {/* ADD FEEDBACK BUTTON HERE */}
-                                                        {(() => {   
+                                                        {(() => {
                                                             const hasFeedback = job.feedback?.some(f => {
                                                                 const feedbackTime = `${app.scheduledDate}, ${app.scheduledTime}`;
-                                                                return f.contractorId === user?.id?.toString() &&
+                                                                const userIdStr = user?.id?.toString() || '';
+                                                                const contractorIdStr = f.contractorId?.toString() || '';
+
+                                                                return contractorIdStr === userIdStr &&
                                                                     (f.appointmentTime === feedbackTime ||
-                                                                        f.appointmentTime?.trim() === feedbackTime.trim());
+                                                                        f.appointmentTime?.trim() === feedbackTime?.trim());
                                                             });
 
                                                             if (hasFeedback) {
