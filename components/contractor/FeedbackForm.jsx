@@ -26,7 +26,7 @@ function FeedbackForm({ job, appointmentTime, onClose, onSuccess }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          jobId: job._id,
+          jobId: job.jobId || job._id,
           appointmentTime: appointmentTime,
           rating: rating,
           comment: comment.trim()
