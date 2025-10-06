@@ -252,8 +252,7 @@ export default function ContractorYourAppointments({ jobs, loading, onBack, onRe
                                                         {/* ADD FEEDBACK BUTTON HERE */}
                                                         {(() => {
                                                             const feedbackTime = `${app.scheduledDate}, ${app.scheduledTime}`;
-                                                            const userIdStr = user?.id?.toString() || '';
-
+                                                            const userIdStr = user?._id?.toString() || user?.id?.toString() || '';
                                                             // TEMPORARY DEBUG
                                                             const matchingFeedback = job.feedback?.filter(f => {
                                                                 const contractorIdStr = f.contractorId?.toString() || '';
