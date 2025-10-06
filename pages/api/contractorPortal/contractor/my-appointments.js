@@ -98,6 +98,7 @@ export default async function handler(req, res) {
         myAppointments.push({
           _id: booking._id,
           jobId: job._id,
+          feedback: job.feedback || [],  // ADD THIS LINE
           customerName: job.customerName,
           customerEmail: job.customerEmail,
           customerPhone: job.customerPhone,
@@ -121,6 +122,7 @@ export default async function handler(req, res) {
     const individualAppointmentJobs = myAppointments.map(appointment => ({
       _id: appointment._id,
       jobId: appointment.jobId,  // ADD THIS LINE
+      feedback: appointment.feedback,  // ADD THIS LINE
       customerName: appointment.customerName,
       customerEmail: appointment.customerEmail,
       customerPhone: appointment.customerPhone,

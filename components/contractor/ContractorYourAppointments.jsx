@@ -250,30 +250,50 @@ export default function ContractorYourAppointments({ jobs, loading, onBack, onRe
                                                             <strong>Time:</strong> {app.scheduledTime}
                                                         </p>
                                                         {/* ADD FEEDBACK BUTTON HERE */}
-                                                        <button
-                                                            onClick={() => setFeedbackModal({
-                                                                show: true,
-                                                                job: job,
-                                                                time: `${app.scheduledDate}, ${app.scheduledTime}`
-                                                            })}
-                                                            className="mt-3 bg-blue-600 text-white py-2 px-4 rounded-xl font-semibold"
-                                                            style={{ boxShadow: '0 4px 0 #1e40af, 0 6px 8px rgba(0,0,0,0.3)' }}
-                                                            onMouseEnter={(e) => {
-                                                                e.target.style.boxShadow = '0 8px 0 #1e2b7a, 0 10px 20px rgba(0,0,0,0.4)';
-                                                                e.target.style.transform = 'translateY(-4px)';
-                                                            }}
-                                                            onMouseLeave={(e) => {
-                                                                e.target.style.boxShadow = '0 4px 0 #1e2b7a, 0 6px 8px rgba(0,0,0,0.3)';
-                                                                e.target.style.transform = 'translateY(0px)';
-                                                            }}
-                                                        >
-                                                            Leave Feedback
-                                                        </button>
+                                                        {(() => {
+                                                            const hasFeedback = job.feedback?.some(f =>
+                                                                f.contractorId === user.id.toString() &&
+                                                                f.appointmentTime === `${app.scheduledDate}, ${app.scheduledTime}`
+                                                            );
 
-
-
-
-
+                                                            if (hasFeedback) {
+                                                                return (
+                                                                    <div className="mt-3 bg-green-50 border border-green-200 rounded-lg p-3">
+                                                                        <p className="text-green-800 font-medium mb-1">✓ Feedback Submitted</p>
+                                                                        <p className="text-sm text-gray-600">
+                                                                            Add or change feedback? Contact{' '}
+                                                                            <a href="mailto:onn@renovationbridge.com" className="text-blue-600 hover:underline">
+                                                                                onn@renovationbridge.com
+                                                                            </a>
+                                                                        </p>
+                                                                    </div>
+                                                                );
+                                                            } else {
+                                                                return (
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setFeedbackModal({
+                                                                                show: true,
+                                                                                job: job,
+                                                                                time: `${app.scheduledDate}, ${app.scheduledTime}`
+                                                                            });
+                                                                        }}
+                                                                        className="mt-3 bg-blue-600 text-white py-2 px-4 rounded-xl font-semibold"
+                                                                        style={{ boxShadow: '0 4px 0 #1e40af, 0 6px 8px rgba(0,0,0,0.3)' }}
+                                                                        onMouseEnter={(e) => {
+                                                                            e.target.style.boxShadow = '0 8px 0 #1e2b7a, 0 10px 20px rgba(0,0,0,0.4)';
+                                                                            e.target.style.transform = 'translateY(-4px)';
+                                                                        }}
+                                                                        onMouseLeave={(e) => {
+                                                                            e.target.style.boxShadow = '0 4px 0 #1e2b7a, 0 6px 8px rgba(0,0,0,0.3)';
+                                                                            e.target.style.transform = 'translateY(0px)';
+                                                                        }}
+                                                                    >
+                                                                        Leave Feedback
+                                                                    </button>
+                                                                );
+                                                            }
+                                                        })()}
 
                                                     </div>
                                                 ))}
