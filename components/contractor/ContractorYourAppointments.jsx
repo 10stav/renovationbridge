@@ -249,16 +249,13 @@ export default function ContractorYourAppointments({ jobs, loading, onBack, onRe
                                                         <p className="text-gray-800">
                                                             <strong>Time:</strong> {app.scheduledTime}
                                                         </p>
-                                                        {/*FEEDBACK BUTTON HERE */}
+                                                        {/* ADD FEEDBACK BUTTON HERE */}
                                                         <button
-                                                            onClick={() => {
-                                                                alert(`Job ID: ${job._id}\nCustomer: ${job.customerName}\nDate: ${app.scheduledDate}\nTime: ${app.scheduledTime}`);
-                                                                setFeedbackModal({
-                                                                    show: true,
-                                                                    job: job,
-                                                                    time: `${app.scheduledDate}, ${app.scheduledTime}`
-                                                                });
-                                                            }}
+                                                            onClick={() => setFeedbackModal({
+                                                                show: true,
+                                                                job: job,
+                                                                time: `${app.scheduledDate}, ${app.scheduledTime}`
+                                                            })}
                                                             className="mt-3 bg-blue-600 text-white py-2 px-4 rounded-xl font-semibold"
                                                             style={{ boxShadow: '0 4px 0 #1e40af, 0 6px 8px rgba(0,0,0,0.3)' }}
                                                             onMouseEnter={(e) => {

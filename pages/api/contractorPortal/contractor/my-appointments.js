@@ -120,6 +120,7 @@ export default async function handler(req, res) {
     // Convert each appointment to look like a "job" for the frontend
     const individualAppointmentJobs = myAppointments.map(appointment => ({
       _id: appointment._id,
+      jobId: appointment.jobId,  // ADD THIS LINE
       customerName: appointment.customerName,
       customerEmail: appointment.customerEmail,
       customerPhone: appointment.customerPhone,
