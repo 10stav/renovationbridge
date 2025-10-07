@@ -35,6 +35,7 @@ import { useAuth } from '../auth/AuthContext';
 import PendingContractors from './PendingContractors';
 import ManageContractors from './ManageContractors';
 import AdminJobsView from './AdminJobsView';
+import CreateContractorForm from './CreateContractorForm';
 
 
 function AdminDashboard() {
@@ -307,6 +308,18 @@ function AdminDashboard() {
     );
   }
 
+  if (currentView === 'create-contractor') {
+    return (
+      <CreateContractorForm
+        onBack={() => setCurrentView('overview')}
+        onSuccess={() => {
+          alert('Contractor created successfully!');
+          setCurrentView('overview');
+        }}
+      />
+    );
+  }
+
   /**
    * OVERVIEW DASHBOARD - Main admin landing page
    * 
@@ -399,6 +412,22 @@ function AdminDashboard() {
           className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 font-medium"
         >
           View Feedback
+        </button>
+      </div>
+
+      {/* Create New Contractor Card */}
+      <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Create New Contractor
+        </h3>
+        <p className="text-gray-600 mb-4">
+          Register a new contractor account in the system
+        </p>
+        <button
+          onClick={() => setCurrentView('create-contractor')}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 font-medium"
+        >
+          Add Contractor
         </button>
       </div>
 

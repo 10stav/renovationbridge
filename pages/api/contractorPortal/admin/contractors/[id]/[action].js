@@ -191,17 +191,6 @@ export default async function handler(req, res) { /// this function makes sure w
       // Update contractorTags directly
       contractor.contractorTags = tags;
 
-      // Update booleans for all tag types
-      contractor.kitchenRemodeling = tags.includes("kitchen remodeling");
-      contractor.bathroomRemodeling = tags.includes("bathroom remodeling");
-      contractor.roofing = tags.includes("roofing");
-      contractor.bayArea = tags.includes("bay area");
-      contractor.losAngeles = tags.includes("los angeles");
-      contractor.orangeCounty = tags.includes("orange county");
-      contractor.groupA = tags.includes("group a");
-      contractor.groupB = tags.includes("group b");
-      contractor.groupC = tags.includes("group c");
-
       await contractor.save();
 
       return res.json({ success: true, contractor: { contractorTags: contractor.contractorTags } });
