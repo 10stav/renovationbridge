@@ -352,7 +352,7 @@ function AdminDashboard() {
             setCurrentView('manage');
             fetchContractors();
           }}
-          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 font-medium"
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 font-medium"
         >
           Manage All
         </button>
@@ -396,7 +396,7 @@ function AdminDashboard() {
             setCurrentView('booked-jobs');
             fetchJobs();
           }}
-          className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors duration-200 font-medium"
+          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 font-medium"
         >
           View Feedback
         </button>
