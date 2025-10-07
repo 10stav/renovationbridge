@@ -301,6 +301,7 @@ function AdminDashboard() {
           jobs={jobs.filter(job => job.feedback && job.feedback.length > 0)}
           loading={loading}
           onBack={() => setCurrentView('overview')}
+          showFeedbackOnly={true}
         />
       </div>
     );

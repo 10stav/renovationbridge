@@ -38,7 +38,7 @@
 
 import React, { useState } from 'react';
 
-function AdminJobsView({ jobs, loading, onBack }) {
+function AdminJobsView({ jobs, loading, onBack, showFeedbackOnly = false }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -182,7 +182,9 @@ function AdminJobsView({ jobs, loading, onBack }) {
 
       {/* Header with Back Button */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Available Jobs Overview</h2>
+        <h2 className="text-2xl font-bold text-gray-800">
+          {showFeedbackOnly ? 'Booked Jobs with Feedback' : 'Available Jobs Overview'}
+        </h2>
         <button
           onClick={onBack}
           className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-200 font-medium"
@@ -439,7 +441,7 @@ function AdminJobsView({ jobs, loading, onBack }) {
                       </div>
                     </div>
                   )}
-                  
+
 
                   {/* ADD THIS: Contractor Feedback Section */}
                   {job.feedback && job.feedback.length > 0 && (
