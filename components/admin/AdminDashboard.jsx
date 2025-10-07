@@ -282,6 +282,30 @@ function AdminDashboard() {
     );
   }
 
+  if (currentView === 'booked-jobs') {
+    return (
+      <div>
+        <div className="mb-6">
+          <button
+            onClick={() => setCurrentView('overview')}
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Dashboard
+          </button>
+        </div>
+
+        <AdminJobsView
+          jobs={jobs.filter(job => job.feedback && job.feedback.length > 0)}
+          loading={loading}
+          onBack={() => setCurrentView('overview')}
+        />
+      </div>
+    );
+  }
+
   /**
    * OVERVIEW DASHBOARD - Main admin landing page
    * 
@@ -357,6 +381,28 @@ function AdminDashboard() {
           View Jobs
         </button>
       </div>
+
+      {/* Booked Jobs with Feedback Card */}
+      <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Booked Jobs with Feedback
+        </h3>
+        <p className="text-gray-600 mb-4">
+          View completed appointments and contractor feedback ratings
+        </p>
+        <button
+          onClick={() => {
+            setCurrentView('booked-jobs');
+            fetchJobs();
+          }}
+          className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors duration-200 font-medium"
+        >
+          View Feedback
+        </button>
+      </div>
+
+
+
     </div>
   );
 }
