@@ -1,5 +1,5 @@
-import { connectToDatabase } from '../../../lib/contractorPortal/utils/mongodb';
-import User from '../../../lib/contractorPortal/models/User';
+import { connectToDatabase } from '../../../../lib/contractorPortal/utils/mongodb';
+import User from '../../../../lib/contractorPortal/models/User';
 import jwt from 'jsonwebtoken';
 
 const authenticateAdmin = async (req) => {
