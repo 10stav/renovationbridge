@@ -269,6 +269,26 @@ function ContractorJobsList({ jobs, loading, onBook, onBack }) {
                         </div>
                       )}
 
+                      {/* ADD PROJECT DESCRIPTION HERE */}
+                      {job.projectDescription && (
+                        <div className="mb-4">
+                          <p className="text-sm font-medium text-gray-700 mb-1">Project Description:</p>
+                          <p className="text-gray-600 text-sm leading-relaxed">
+                            {job.projectDescription}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* ADD TIMELINE HERE */}
+                      {job.projectTimeline && (
+                        <div className="mb-4">
+                          <p className="text-sm font-medium text-gray-700 mb-1">Timeline:</p>
+                          <p className="text-gray-600 text-sm">
+                            {job.projectTimeline}
+                          </p>
+                        </div>
+                      )}
+
                       {/* Homeowner Tags */}
                       {job.homeownerTags && job.homeownerTags.length > 0 && (
                         <div className="mb-4">
@@ -408,9 +428,9 @@ function expandTimeRanges(timeArray) {
  */
 function normalizeTimeFormat(timeStr) {
   if (!timeStr || typeof timeStr !== 'string') return timeStr;
-  
+
   // Simply find any am/pm (case insensitive) and make it uppercase
-  return timeStr.replace(/\b([ap])m\b/gi, function(match, letter) {
+  return timeStr.replace(/\b([ap])m\b/gi, function (match, letter) {
     return letter.toUpperCase() + 'M';
   });
 }
