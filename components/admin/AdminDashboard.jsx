@@ -299,7 +299,11 @@ function AdminDashboard() {
         </div>
 
         <AdminJobsView
-          jobs={jobs.filter(job => job.feedback && job.feedback.length > 0)}
+          jobs={jobs.filter(job =>
+            job.feedback &&
+            job.feedback.length > 0 &&
+            (job.bookedTimes && job.bookedTimes.length > 0)
+          )}
           loading={loading}
           onBack={() => setCurrentView('overview')}
           showFeedbackOnly={true}
