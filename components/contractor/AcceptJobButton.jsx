@@ -72,7 +72,8 @@ function AcceptJobButton({ job, onJobAccepted }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          homeownerEmail: job._originalEmail || job.customerEmail  // ← to avoid masking causing issues
+          homeownerEmail: job._originalEmail || job.customerEmail,
+          jobId: job._id  // ADD THIS LINE - send both!
         })
       });
 
@@ -106,12 +107,12 @@ function AcceptJobButton({ job, onJobAccepted }) {
   };
 
   const handleAcceptJob = async () => {
-  console.log('🎯 BUTTON CLICKED - Starting job acceptance process');
-  console.log('📋 Job data:', job);
+    console.log('🎯 BUTTON CLICKED - Starting job acceptance process');
+    console.log('📋 Job data:', job);
 
-  // First fetch the available times
-  await fetchContactTimes();
-};
+    // First fetch the available times
+    await fetchContactTimes();
+  };
 
 
 

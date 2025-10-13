@@ -10,35 +10,53 @@ export default async function handler(req, res) {
     await connectToDatabase();
 
     console.log('🔍 FETCHING CONTACT TIMES');
-    const { homeownerEmail } = req.body;
+    const { homeownerEmail, jobId } = req.body;
 
-    if (!homeownerEmail) {
-      return res.status(400).json({ error: 'Homeowner email required' });
+    if (!homeownerEmail && !jobId) {
+      return res.status(400).json({ error: 'Either homeowner email or job ID required' });
     }
 
-    console.log('📧 Looking for job with email:', homeownerEmail);
+    console.log('📧 Looking for job with:', homeownerEmail ? `email: ${homeownerEmail}` : `ID: ${jobId}`);
 
-    // Find the job record
-    const job = await AvailableJob.findOne({
-      customerEmail: homeownerEmail,
-      status: { $in: ['available', 'unavailable'] }
-    });
+    // Try to find by email first, fallback to ID
+    let job;
+    if (homeownerEmail) {
+      job = await AvailableJob.findOne({
+        customerEmail: homeownerEmail,
+        status: { $in: ['available', 'unavailable'] }
+      });
+    }
+
+    // If not found by email (or no email provided), try by ID
+    if (!job && jobId) {
+      console.log('⚠️ No job found by email, trying by ID...');
+      job = await AvailableJob.findById(jobId);
+    }
 
     if (!job) {
-      console.log('❌ No available job found for:', homeownerEmail);
+      console.log('❌ No available job found');
       return res.status(404).json({ error: 'No available job found' });
     }
 
     console.log('✅ Job found:', job.customerName);
 
     // Calculate remaining available time slots
-    const allTimes = job.availableTimes || []; // Temporarily skip expansion
+    const allTimes = expandTimeRanges(job.availableTimes || []);
     const bookedTimeStrings = (job.bookedTimes || []).map(entry =>
       typeof entry === 'string' ? entry : entry.time
     );
 
     const availableTimes = allTimes
-      .filter(time => !bookedTimeStrings.includes(time));
+      .filter(time => !bookedTimeStrings.includes(time))
+      .sort((a, b) => {
+        // Parse "11/4/25, 10:00 AM" format correctly
+        const parseDate = (timeStr) => {
+          const [datePart] = timeStr.split(',');
+          const [month, day, year] = datePart.split('/');
+          return new Date(`20${year}`, month - 1, day);
+        };
+        return parseDate(a) - parseDate(b);
+      });
 
     console.log('✅ Returning available times:', availableTimes);
 
