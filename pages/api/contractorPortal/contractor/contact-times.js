@@ -18,16 +18,18 @@ export default async function handler(req, res) {
 
     console.log('📧 Looking for job with:', homeownerEmail ? `email: ${homeownerEmail}` : `ID: ${jobId}`);
 
-    // Try to find by email first, fallback to ID
+    // Try to find by ID first if email is generic, otherwise use email
     let job;
-    if (homeownerEmail) {
+
+    // If email is generic ("No email provided"), skip email search and use ID directly
+    if (homeownerEmail && homeownerEmail !== "No email provided") {
       job = await AvailableJob.findOne({
         customerEmail: homeownerEmail,
         status: { $in: ['available', 'unavailable'] }
       });
     }
 
-    // If not found by email (or no email provided), try by ID
+    // If not found by email (or email is generic), try by ID
     if (!job && jobId) {
       console.log('⚠️ No job found by email, trying by ID...');
       job = await AvailableJob.findById(jobId);
