@@ -109,8 +109,16 @@ function AcceptJobButton({ job, onJobAccepted }) {
     console.log('🎯 BUTTON CLICKED - Starting job acceptance process');
     console.log('📋 Job data:', job);
 
-    // First fetch the available times
-    await fetchContactTimes();
+    // Use the times directly from the job object instead of fetching
+    const times = job.availableTimes?.filter(time => time && time.trim()) || [];
+    setAvailableTimes(times);
+
+    if (times.length > 0) {
+      setSelectedTimeOption(times[0]);
+      setShowTimeSelection(true);
+    } else {
+      alert('❌ No available times for this job');
+    }
   };
 
 
@@ -256,21 +264,6 @@ function AcceptJobButton({ job, onJobAccepted }) {
                 <strong>Project:</strong> {job.projectDescription || 'Details to be discussed'}
               </div>
 
-              {/* ADD THIS DEBUG BOX HERE */}
-              <div style={{
-                backgroundColor: '#fff3cd',
-                padding: '12px',
-                marginBottom: '12px',
-                borderRadius: '6px',
-                fontSize: '12px',
-                fontFamily: 'monospace'
-              }}>
-                <div><strong>DEBUG INFO:</strong></div>
-                <div>unbookedTimes length: {unbookedTimes.length}</div>
-                <div>First time: {unbookedTimes[0]}</div>
-                <div>job.availableTimes[0]: {job.availableTimes?.[0]}</div>
-                <div>availableTimes[0]: {availableTimes[0]}</div>
-              </div>
 
               <div>
                 <strong>Available Times (Set by Admin):</strong>
