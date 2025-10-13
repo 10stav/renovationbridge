@@ -32,7 +32,8 @@ export default async function handler(req, res) {
     console.log('✅ Job found:', job.customerName);
 
     // Calculate remaining available time slots
-    const allTimes = expandTimeRanges(job.availableTimes || []); const bookedTimeStrings = (job.bookedTimes || []).map(entry =>
+    const allTimes = job.availableTimes || []; // Temporarily skip expansion
+    const bookedTimeStrings = (job.bookedTimes || []).map(entry =>
       typeof entry === 'string' ? entry : entry.time
     );
 
