@@ -316,8 +316,6 @@ async function storeAvailableJob(contactData, originalWebhookData) { ///this fun
             },
             availableTimes: availableTimes,
             conflicts: conflicts, // ADD THIS LINE
-            bookedTimes: [],
-            appointments: [],
             updatedAt: new Date(),
             ghlData: originalWebhookData
           },
@@ -365,8 +363,6 @@ async function storeAvailableJob(contactData, originalWebhookData) { ///this fun
       },
       availableTimes: availableTimes,
       conflicts: conflicts, // ADD THIS LINE
-      bookedTimes: [],
-      appointments: [],
       homeownerTags: contactData.tags,
       ghlData: originalWebhookData
     });
