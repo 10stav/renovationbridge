@@ -106,20 +106,12 @@ function AcceptJobButton({ job, onJobAccepted }) {
   };
 
   const handleAcceptJob = async () => {
-    console.log('🎯 BUTTON CLICKED - Starting job acceptance process');
-    console.log('📋 Job data:', job);
+  console.log('🎯 BUTTON CLICKED - Starting job acceptance process');
+  console.log('📋 Job data:', job);
 
-    // Use the times directly from the job object instead of fetching
-    const times = job.availableTimes?.filter(time => time && time.trim()) || [];
-    setAvailableTimes(times);
-
-    if (times.length > 0) {
-      setSelectedTimeOption(times[0]);
-      setShowTimeSelection(true);
-    } else {
-      alert('❌ No available times for this job');
-    }
-  };
+  // First fetch the available times
+  await fetchContactTimes();
+};
 
 
 

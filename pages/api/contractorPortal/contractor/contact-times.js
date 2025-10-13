@@ -39,9 +39,13 @@ export default async function handler(req, res) {
     const availableTimes = allTimes
       .filter(time => !bookedTimeStrings.includes(time))
       .sort((a, b) => {
-        const dateA = new Date(a.split(',')[0] || a.split(' at ')[0]);
-        const dateB = new Date(b.split(',')[0] || b.split(' at ')[0]);
-        return dateA - dateB;
+        // Parse "11/4/25, 10:00 AM" format correctly
+        const parseDate = (timeStr) => {
+          const [datePart] = timeStr.split(',');
+          const [month, day, year] = datePart.split('/');
+          return new Date(`20${year}`, month - 1, day);
+        };
+        return parseDate(a) - parseDate(b);
       });
 
     console.log('✅ Returning available times:', availableTimes);
