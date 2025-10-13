@@ -294,9 +294,15 @@ export default async function handler(req, res) {
 
     } else {
       console.error('GHL calendar creation failed:', ghlResult.error);
+
+      // Check if it's a missing contact info issue
+      const errorMessage = (job.customerEmail === "No email provided" || job.customerPhone === "No phone provided")
+        ? 'Email not provided for homeowner in GHL, so appointment cannot be booked.'
+        : 'GHL appointment creation failed';
+
       res.status(207).json({
         success: false,
-        message: 'GHL appointment creation failed',
+        message: errorMessage,
         error: ghlResult.error
       });
     }
