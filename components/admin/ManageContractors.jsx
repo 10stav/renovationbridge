@@ -271,7 +271,7 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
                   </div>
                 ) : (
                   <span className="text-gray-500 italic">
-                    No filtering tags assigned – can see all jobs with tag "visible-to-all in GoHighLevel"
+                    No filtering tags assigned – can see all jobs with tag "visible-to-all" in GoHighLevel
                   </span>
                 )}
               </div>
