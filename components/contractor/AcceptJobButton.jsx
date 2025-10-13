@@ -256,6 +256,22 @@ function AcceptJobButton({ job, onJobAccepted }) {
                 <strong>Project:</strong> {job.projectDescription || 'Details to be discussed'}
               </div>
 
+              {/* ADD THIS DEBUG BOX HERE */}
+              <div style={{
+                backgroundColor: '#fff3cd',
+                padding: '12px',
+                marginBottom: '12px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontFamily: 'monospace'
+              }}>
+                <div><strong>DEBUG INFO:</strong></div>
+                <div>unbookedTimes length: {unbookedTimes.length}</div>
+                <div>First time: {unbookedTimes[0]}</div>
+                <div>job.availableTimes[0]: {job.availableTimes?.[0]}</div>
+                <div>availableTimes[0]: {availableTimes[0]}</div>
+              </div>
+
               <div>
                 <strong>Available Times (Set by Admin):</strong>
                 {loadingTimes ? (
