@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 
 const authenticateAdmin = async (req) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
-  
+
   if (!token) {
     throw new Error('No token provided');
   }
@@ -32,19 +32,17 @@ export default async function handler(req, res) {
   await connectToDatabase();
 
   try {
-    const admin = await authenticateAdmin(req);
+    await authenticateAdmin(req);
 
     console.log('Admin fetching dashboard stats...');
 
     const [
       totalContractors,
-      pendingContractors,
       approvedContractors,
       availableJobs,
       claimedJobs
     ] = await Promise.all([
       User.countDocuments({ role: 'contractor' }),
-      User.countDocuments({ role: 'contractor', isApproved: false }),
       User.countDocuments({ role: 'contractor', isApproved: true }),
       AvailableJob.countDocuments({ status: 'available' }),
       AvailableJob.countDocuments({ status: 'claimed' })
@@ -53,7 +51,6 @@ export default async function handler(req, res) {
     const stats = {
       contractors: {
         total: totalContractors,
-        pending: pendingContractors,
         approved: approvedContractors
       },
       jobs: {

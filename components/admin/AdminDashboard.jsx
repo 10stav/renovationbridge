@@ -32,7 +32,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router'; // ADD THIS
 import { useAuth } from '../auth/AuthContext';
-import PendingContractors from './PendingContractors';
 import ManageContractors from './ManageContractors';
 import AdminJobsView from './AdminJobsView';
 import CreateContractorForm from './CreateContractorForm';
@@ -87,7 +86,7 @@ function AdminDashboard() {
   /**
    * FETCH CONTRACTORS - Get all contractors from backend
    * 
-   * Retrieves both pending and approved contractors for management.
+   * Retrieves active contractors for management.
    * Used by contractor management components.
    */
   const fetchContractors = async () => {
@@ -138,41 +137,7 @@ function AdminDashboard() {
     }
   };
 
-  /**
-   * APPROVE CONTRACTOR - Approve pending contractor registration
-   * 
-   * @param {string} contractorId - ID of contractor to approve
-   */
-  const approveContractor = async (contractorId, contractorGhlId, skipGhl = false) => {
-    try {
-      console.log(' AdminDashboard: Approving contractor:', contractorId, { contractorGhlId, skipGhl });
 
-      // If skipGhl === true, we never call the HighLevel API
-      let teamMemberId = skipGhl ? null : contractorGhlId;
-
-      // … existing fetchContractorById, find user, etc …
-
-      if (!skipGhl && !teamMemberId) {
-        // your existing “auto-match by email” logic here
-        // if no match → 400 error
-      }
-
-      // Now simply flip the flags
-      contractor.isApproved = true;
-      contractor.isActive = true;
-      contractor.denied = false;
-
-      if (teamMemberId) {
-        contractor.contractorGhlId = teamMemberId;
-      }
-
-      await contractor.save();
-      console.log('Contractor approved:', contractor.name);
-      fetchContractors();
-    } catch (err) {
-      console.error('AdminDashboard: Error approving contractor:', err);
-    }
-  };
 
 
   /**
@@ -220,17 +185,7 @@ function AdminDashboard() {
    */
 
 
-  if (currentView === 'pending') {
-    return (
-      <PendingContractors
-        contractors={contractors}
-        loading={loading}
-        onApprove={approveContractor}
-        onDenyRefresh={fetchContractors} // ✅ new prop for contractor denial refresh
-        onBack={() => setCurrentView('overview')}
-      />
-    );
-  }
+
 
   if (currentView === 'manage') {
     return (
@@ -335,26 +290,6 @@ function AdminDashboard() {
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-
-
-      {/* Pending Contractors Card
-      <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-200">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">
-          Pending Contractors
-        </h3>
-        <p className="text-gray-600 mb-4">
-          Approve new contractor registrations and manage approval workflow
-        </p>
-        <button
-          onClick={() => {
-            setCurrentView('pending');
-            fetchContractors();
-          }}
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 font-medium"
-        >
-          View Pending
-        </button>
-      </div> */}
 
       {/* Manage Contractors Card */}
       <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-200">

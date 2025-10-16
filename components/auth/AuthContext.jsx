@@ -7,7 +7,7 @@
  * Features:
  * - JWT token management
  * - Role-based authentication (admin/contractor)
- * - Contractor approval workflow
+ * - Contractor approval workflow (removed 10/16/25)
  * - Error handling and loading states
  * - Persistent login via localStorage
  * 
@@ -95,13 +95,7 @@ const PUBLIC_ROUTES = new Set([
           ...(rawUser.tags?.grouping || [])
         ];
 
-      if (rawUser.role === 'contractor' && !rawUser.isApproved) {
-        console.warn('Contractor is not approved. Logging out.');
-        localStorage.removeItem('token');
-        setUser(null);
-        alert('Your account is still pending approval by an admin.');
-        return null;
-      }
+   
 
       const finalUser = { ...rawUser, contractorTags: flatTags };
 

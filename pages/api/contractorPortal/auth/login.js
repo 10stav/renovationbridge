@@ -36,12 +36,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Check if user is approved (for contractors)
-    if (user.role === 'contractor' && !user.isApproved) {
-      return res.status(400).json({ 
-        error: 'Your contractor account is pending approval'
-      });
-    }
+    
 
     // Verify password
     const isValidPassword = await user.comparePassword(password);

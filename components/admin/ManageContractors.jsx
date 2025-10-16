@@ -73,12 +73,12 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
 
 
   /**
-   * FILTER APPROVED CONTRACTORS
+   * SHOW CONTRACTORS
    * 
-   * Shows only contractors who have been approved by admin.
-   * Pending contractors are handled in the PendingContractors component.
+   * Shows the contractors who have been added by admin and are in our system.
    */
-  const approvedContractors = contractors.filter(contractor => contractor.isApproved);
+  const approvedContractors = contractors;
+
 
   /**
    * START EDITING TAGS
@@ -198,7 +198,7 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No Approved Contractors</h3>
           <p className="text-gray-500">Approved contractors will appear here for tag management.</p>
-          <p className="text-sm text-gray-400 mt-2">Check the "Pending Contractors" section to approve new registrations.</p>
+          <p className="text-sm text-gray-400 mt-2">Add contractors through admin dashboard to see new registrations.</p>
         </div>
 
         /* Contractor Management List */
