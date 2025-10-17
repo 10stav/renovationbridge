@@ -38,12 +38,12 @@ export default async function handler(req, res) {
 
     const [
       totalContractors,
-      approvedContractors,
+      activeContractors,
       availableJobs,
       claimedJobs
     ] = await Promise.all([
       User.countDocuments({ role: 'contractor' }),
-      User.countDocuments({ role: 'contractor', isApproved: true }),
+      User.countDocuments({ role: 'contractor', isActive: true }),
       AvailableJob.countDocuments({ status: 'available' }),
       AvailableJob.countDocuments({ status: 'claimed' })
     ]);
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
     const stats = {
       contractors: {
         total: totalContractors,
-        approved: approvedContractors
+        active: activeContractors
       },
       jobs: {
         available: availableJobs,

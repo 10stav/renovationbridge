@@ -14,7 +14,7 @@ async function authenticateContractor(req, res, next) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId);
 
-    if (!user || user.role !== 'contractor' || !user.isApproved) {
+    if (!user || user.role !== 'contractor' || !user.isActive) {
       return res.status(403).json({ message: 'Contractor access required' });
     }
 

@@ -39,7 +39,7 @@ export default async function handler(req, res) { ///same function as in action.
 
       const contractors = await User.find({
         role: 'contractor',
-        denied: { $ne: true }
+        isActive: true
       }).sort({ createdAt: -1 });
 
       console.log(`Found ${contractors.length} contractors`);
@@ -53,15 +53,14 @@ export default async function handler(req, res) { ///same function as in action.
           phone: c.phone,
           companyName: c.companyName,
           contractorTags: c.contractorTags || [],
-          isApproved: c.isApproved,
-          denied: c.denied,
+          isActive: c.isActive,
           contractorGhlId: c.ghlUserId || null
         }))
       });
     }
 
     if (req.method === 'POST') {
-      // Handle contractor actions (approve/deny/tags)
+      // Handle contractor actions (assign tags)
       return res.status(405).json({ error: 'Use specific action endpoints' });
     }
 

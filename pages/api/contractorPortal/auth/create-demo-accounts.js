@@ -58,7 +58,6 @@ export default async function handler(req, res) {
           ...contractorData,
           role: 'contractor',
           contractorTags: ['bay area', 'visible-to-all'], // Match your job tags
-          isApproved: true,
           isActive: true
         });
         await contractor.save();

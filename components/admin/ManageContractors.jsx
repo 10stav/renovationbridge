@@ -1,18 +1,18 @@
 /**
  * MANAGE CONTRACTORS - Tag assignment and contractor management interface
  * 
- * Handles the assignment of filtering tags to approved contractors.
+ * Handles the assignment of filtering tags to contractors.
  * Extracted from App.jsx to create a focused contractor management interface.
  * 
  * Features:
- * - View all approved contractors
+ * - View all contractors
  * - Assign/edit filtering tags for job matching
  * - Inline editing interface for tag management
  * - Contractor deactivation (placeholder)
  * - Professional contractor information display
  * 
  * Business Logic:
- * - Only shows approved contractors (isApproved: true)
+ * - Shows contractors in our system
  * - Tags control which jobs contractors can see
  * - Homeowner GHL tags match against contractor tags
  * - Multiple tags can be assigned per contractor
@@ -77,7 +77,7 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
    * 
    * Shows the contractors who have been added by admin and are in our system.
    */
-  const approvedContractors = contractors;
+  const activeContractors = contractors;
 
 
   /**
@@ -188,16 +188,16 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
           </div>
         </div>
 
-        /* Empty State - No Approved Contractors */
-      ) : approvedContractors.length === 0 ? (
+        /* Empty State - No Contractors */
+      ) : activeContractors.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Approved Contractors</h3>
-          <p className="text-gray-500">Approved contractors will appear here for tag management.</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Contractors</h3>
+          <p className="text-gray-500">Contractors will appear here for tag management.</p>
           <p className="text-sm text-gray-400 mt-2">Add contractors through admin dashboard to see new registrations.</p>
         </div>
 
@@ -206,11 +206,11 @@ function ManageContractors({ contractors, loading, onUpdateTags, onBack }) {
         <div className="space-y-6">
           <div className="mb-4">
             <p className="text-gray-600">
-              Managing <span className="font-semibold text-green-600">{approvedContractors.length}</span> approved contractor{approvedContractors.length === 1 ? '' : 's'}
+              Managing <span className="font-semibold text-green-600">{activeContractors.length}</span> contractor{activeContractors.length === 1 ? '' : 's'}
             </p>
           </div>
 
-          {approvedContractors.map(contractor => (
+          {activeContractors.map(contractor => (
             <div key={contractor._id} className="border border-gray-200 rounded-lg p-5 hover:bg-gray-50 transition-colors duration-200">
 
               {/* Contractor Header */}

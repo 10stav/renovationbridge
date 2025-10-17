@@ -55,9 +55,7 @@ export default async function handler(req, res) {
       phone: phone || '',
       companyName: companyName || '',
       license: license || '',
-      isApproved: true,  // Auto-approve since admin is creating
       isActive: true,
-      denied: false,
       contractorTags: []  // Start with no tags, admin assigns later
     });
 

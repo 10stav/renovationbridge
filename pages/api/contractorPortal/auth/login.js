@@ -74,7 +74,7 @@ export default async function handler(req, res) {
         role: user.role,
         companyName: user.companyName,
         contractorTags: user.contractorTags,
-        isApproved: user.isApproved
+        isActive: user.isActive
       }
     });
 
