@@ -1,4 +1,5 @@
-/// This file: Allows authenticated admins to retrieve a list of all contractors in the system for management purposes
+/// This file: Allows authenticated admins to retrieve a list of all contractors in the system for 
+// management purposes
 /// is also a Next.js API route handler 
 
 ///not to be confused with jobs.js which exists in the same location as this file but is slightly different:

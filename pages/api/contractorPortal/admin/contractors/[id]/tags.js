@@ -1,7 +1,23 @@
-///this file:
-/// File Type: Next.js API route handler
-/// (used to be [action].js, now just tags.js) if you're wondering why, it's explained here: Functionality: It's an admin-only endpoint that allows administrators to perform only 1 actions on contractor accounts:
-// update tags. it used to let them do 3 actions, (approve, deny, update tags), but I removed the approve deny flow so now they just create the contractor inside the admin dashboard so only update tags here
+/// File: admin/contractors/[id]/tags.js
+/// Type: Next.js API Route Handler
+///
+/// Purpose:
+///   Allows authenticated admins to update contractor tags.
+///   Previously, this file (named [action].js) also supported approve/deny
+///   actions, but those were removed — contractors are now created directly
+///   by admins inside the dashboard.
+///
+/// Dependencies:
+///   - MongoDB connection utility (connectToDatabase)
+///   - User model (Mongoose)
+///   - JWT for admin authentication
+///
+/// Summary:
+///   1. Authenticates admin using JWT
+///   2. Finds contractor by ID from query param
+///   3. Updates contractorTags (array of strings)
+///   4. Returns updated tags JSON
+
 import { connectToDatabase } from '../../../../../../lib/contractorPortal/utils/mongodb'; ///imports mongodb file from file path shown, which Establishes and manages MongoDB connections for the contractor portal application
 import User from '../../../../../../lib/contractorPortal/models/User'; ///imports user, which is a model(object) in my repo which was built using uses Mongoose (MongoDB ODM) to serve as the main user/contractor data structure for the renovation portal system.
 import jwt from 'jsonwebtoken'; /// Brings in the jsonwebtoken npm package functionality; Allows the file to create, verify, and decode JWT tokens
@@ -23,7 +39,7 @@ const authenticateAdmin = async (req) => { ///this function authenticates an alr
   return user;
 };
 
-export default async function handler(req, res) { /// this function makes sure we accept POST requests and rejects all other HTTP methods (GET, PUT, DELETE, etc.)
+export default async function handler(req, res) { /// this function makes sure we accept POST requests and rejects all other HTTP methods (GET, PUT, DELETE, etc.), when we use functions to play with this data (tags)
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   await connectToDatabase();
 
@@ -32,13 +48,13 @@ export default async function handler(req, res) { /// this function makes sure w
     const { id: contractorId } = req.query;
     const { tags } = req.body || {};
 
-    const contractor = await User.findById(contractorId);
-    if (!contractor) return res.status(404).json({ success: false, message: 'Contractor not found' });
+    const contractor = await User.findById(contractorId); ///makes sure the contractor is existing to be used by a function (since this is just the handler)
+    if (!contractor) return res.status(404).json({ success: false, message: 'Contractor not found' }); 
 
     contractor.contractorTags = Array.isArray(tags) ? tags : [];
     await contractor.save();
 
-    return res.json({ success: true, contractor: { contractorTags: contractor.contractorTags } });
+    return res.json({ success: true, contractor: { contractorTags: contractor.contractorTags } }); ///makes sure that contractor has tags (by returning a json with the tags) so we can possibly change them in functions (handler functionality still)
   } catch (error) {
     const code = (error.message.includes('token') || error.message.includes('Admin')) ? 401 : 500;
     return res.status(code).json({ success: false, message: error.message });
