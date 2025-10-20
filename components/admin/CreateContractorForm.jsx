@@ -56,14 +56,14 @@ export default function CreateContractorForm({ onBack, onSuccess }) {
           onClick={onBack}
           className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-200 font-medium"
         >
-          ← Back to Dashboard
+          Back to Dashboard
         </button>
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
         <h3 className="font-semibold text-blue-800 mb-2">ℹ️ Instructions</h3>
         <p className="text-blue-700 text-sm">
-          Create a new contractor account. After creation, you can assign tags to the contractor 
+          Create a new contractor account. After creation, you can assign tags to the contractor
           via "Manage Contractors" to control which jobs they can see.
         </p>
       </div>
