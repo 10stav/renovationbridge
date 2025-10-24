@@ -60,6 +60,25 @@ export default function CreateContractorForm({ onBack, onSuccess }) {
         </button>
       </div>
 
+      {/* ADD THIS NEW WARNING BOX HERE - BEFORE the existing blue info box */}
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+        <h3 className="font-semibold text-yellow-800 mb-2">⚠️ Important: GHL Contact Required</h3>
+        <div className="text-yellow-700 text-sm space-y-2">
+          <p>
+            <strong>Before creating a contractor here, you must first:</strong>
+          </p>
+          <ol className="list-decimal ml-5 space-y-1">
+            <li>Create the contractor as a contact in GoHighLevel</li>
+            <li>Tag them as a "contractor" in GHL</li>
+            <li>Use the SAME email address in both systems</li>
+          </ol>
+          <p className="mt-2">
+            When you submit this form, we'll verify the contractor exists in GHL and link them automatically.
+            This linkage is required for appointment booking automation to work properly.
+          </p>
+        </div>
+      </div>
+
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
         <h3 className="font-semibold text-blue-800 mb-2">ℹ️ Instructions</h3>
         <p className="text-blue-700 text-sm">
