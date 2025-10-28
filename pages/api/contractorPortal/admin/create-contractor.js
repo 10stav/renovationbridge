@@ -31,13 +31,13 @@ const checkGHLTeamMember = async (email) => {
     console.log('🔍 Checking GHL for team member with email:', email);
 
     const response = await fetch(
-      `https://services.leadconnectorhq.com/users/?locationId=${ghlLocationId}&limit=100`,
+      `https://services.leadconnectorhq.com/users/?locationId=${ghlLocationId}`,
       {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${ghlApiKey}`,
           'Content-Type': 'application/json',
-          'Version': '2021-07-28'  // ← Add this
+          'Version': '2021-07-28'
         }
       }
     );
