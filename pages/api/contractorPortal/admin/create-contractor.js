@@ -142,10 +142,12 @@ export default async function handler(req, res) {
 
     // FIX: Check if there's an error property OR if ghlTeamMember is null
     if (!ghlTeamMember || ghlTeamMember.error) {
+      const debugInfo = ghlTeamMember?.debug ?
+        `\n\nDebug Info:\n- Searched for: ${ghlTeamMember.debug.searchedEmail}\n- Total team members found in GHL: ${ghlTeamMember.debug.totalUsers}` : '';
+
       return res.status(400).json({
         success: false,
-        error: ghlTeamMember?.error || 'Contractor not found in GoHighLevel team members. Please add them as a team member/user in GHL first with the same email address.',
-        debug: ghlTeamMember?.debug || null
+        error: (ghlTeamMember?.error || 'Contractor not found in GoHighLevel team members.') + debugInfo
       });
     }
 

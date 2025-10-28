@@ -184,7 +184,7 @@ export default function CreateContractorForm({ onBack, onSuccess }) {
 
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600 text-sm">{error}</p>
+            <p className="text-red-600 text-sm whitespace-pre-wrap">{error}</p>
           </div>
         )}
 
