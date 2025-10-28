@@ -31,38 +31,25 @@ const checkGHLTeamMember = async (email) => {
 
     console.log('🔍 Checking GHL for team member with email:', email);
 
-    // Try the v1 endpoint with pagination
+    // Use V2 API with proper pagination
     let allUsers = [];
-    let skip = 0;
+    let startAfterId = null;
     let hasMore = true;
+    let pageCount = 0;
 
-    while (hasMore && skip < 100) { // Safety limit: max 100 users
-      let response = await fetch(
-        `https://rest.gohighlevel.com/v1/users/?locationId=${ghlLocationId}&skip=${skip}&limit=20`,
-        {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${ghlApiKey}`,
-            'Content-Type': 'application/json'
-          }
+    while (hasMore && pageCount < 10) { // Safety limit: max 10 pages
+      const url = startAfterId
+        ? `https://services.leadconnectorhq.com/users/?locationId=${ghlLocationId}&limit=100&startAfterId=${startAfterId}`
+        : `https://services.leadconnectorhq.com/users/?locationId=${ghlLocationId}&limit=100`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${ghlApiKey}`,
+          'Version': '2021-07-28',
+          'Content-Type': 'application/json'
         }
-      );
-
-      // If v1 fails, try the v2 endpoint
-      if (!response.ok && skip === 0) {
-        console.log('⚠️ V1 endpoint failed, trying V2...');
-        response = await fetch(
-          `https://services.leadconnectorhq.com/users/?locationId=${ghlLocationId}`,
-          {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${ghlApiKey}`,
-              'Version': '2021-07-28',
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-      }
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -77,16 +64,17 @@ const checkGHLTeamMember = async (email) => {
       const users = data.users || [];
 
       allUsers = allUsers.concat(users);
+      pageCount++;
 
-      // Check if there are more users to fetch
-      if (users.length < 20) {
-        hasMore = false;
+      // Check if there are more pages
+      if (data.meta && data.meta.nextStartAfterId) {
+        startAfterId = data.meta.nextStartAfterId;
       } else {
-        skip += 20;
+        hasMore = false;
       }
     }
 
-    console.log('📦 GHL returned', allUsers.length, 'total team members');
+    console.log('📦 GHL returned', allUsers.length, 'total team members across', pageCount, 'pages');
 
     // Find team member by email
     const teamMember = allUsers.find(user =>
@@ -103,11 +91,14 @@ const checkGHLTeamMember = async (email) => {
     }
 
     console.log('❌ No matching team member found');
+    console.log('All emails found:', allUsers.map(u => u.email).join(', '));
+
     return {
       error: 'No team member found',
       debug: {
         searchedEmail: email,
-        totalUsers: allUsers.length
+        totalUsers: allUsers.length,
+        allEmails: allUsers.map(u => u.email).slice(0, 20) // First 20 emails for debugging
       }
     };
 
