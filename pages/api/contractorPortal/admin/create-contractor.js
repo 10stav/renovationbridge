@@ -140,10 +140,12 @@ export default async function handler(req, res) {
     console.log('🔍 Verifying contractor exists as GHL team member...');
     const ghlTeamMember = await checkGHLTeamMember(email);
 
-    if (!ghlTeamMember) {
+    // FIX: Check if there's an error property OR if ghlTeamMember is null
+    if (!ghlTeamMember || ghlTeamMember.error) {
       return res.status(400).json({
         success: false,
-        error: 'Contractor not found in GoHighLevel team members. Please add them as a team member/user in GHL first with the same email address.'
+        error: ghlTeamMember?.error || 'Contractor not found in GoHighLevel team members. Please add them as a team member/user in GHL first with the same email address.',
+        debug: ghlTeamMember?.debug || null
       });
     }
 
