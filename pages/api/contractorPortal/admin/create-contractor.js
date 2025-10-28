@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 const authenticateAdmin = async (req) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
-  
+
   if (!token) {
     throw new Error('No token provided');
   }
@@ -19,42 +19,60 @@ const authenticateAdmin = async (req) => {
   return user;
 };
 
-// UPDATED FUNCTION: Check if contractor exists as a GHL Team Member/User
 const checkGHLTeamMember = async (email) => {
   try {
     const ghlApiKey = process.env.GHL_API_KEY;
     const ghlLocationId = process.env.GHL_LOCATION_ID;
 
     if (!ghlApiKey) {
-      console.warn('⚠️ GHL_API_KEY not set - skipping GHL verification');
-      return null;
+      console.warn('⚠️ GHL_API_KEY not set');
+      return { error: 'GHL_API_KEY not configured' };
     }
 
     console.log('🔍 Checking GHL for team member with email:', email);
 
-    // Get all users/team members from the location
-    const response = await fetch(
-      `https://services.leadconnectorhq.com/users/?locationId=${ghlLocationId}`,
+    // Try the v1 endpoint first
+    let response = await fetch(
+      `https://rest.gohighlevel.com/v1/users/?locationId=${ghlLocationId}`,
       {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${ghlApiKey}`,
-          'Version': '2021-07-28',
           'Content-Type': 'application/json'
         }
       }
     );
 
+    // If v1 fails, try the v2 endpoint
     if (!response.ok) {
-      console.error('❌ GHL API error:', response.status, response.statusText);
-      return null;
+      console.log('⚠️ V1 endpoint failed, trying V2...');
+      response = await fetch(
+        `https://services.leadconnectorhq.com/users/?locationId=${ghlLocationId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${ghlApiKey}`,
+            'Version': '2021-07-28',
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ GHL API error:', response.status, errorText);
+      return {
+        error: `GHL API returned ${response.status}`,
+        details: errorText
+      };
     }
 
     const data = await response.json();
     console.log('📦 GHL returned', data.users?.length || 0, 'team members');
 
     // Find team member by email
-    const teamMember = data.users?.find(user => 
+    const teamMember = data.users?.find(user =>
       user.email?.toLowerCase() === email.toLowerCase()
     );
 
@@ -67,12 +85,18 @@ const checkGHLTeamMember = async (email) => {
       };
     }
 
-    console.log('❌ No matching team member found in GHL');
-    return null;
+    console.log('❌ No matching team member found');
+    return {
+      error: 'No team member found',
+      debug: {
+        searchedEmail: email,
+        totalUsers: data.users?.length || 0
+      }
+    };
 
   } catch (error) {
-    console.error('❌ Error checking GHL team members:', error);
-    return null;
+    console.error('❌ Error checking GHL:', error);
+    return { error: error.message };
   }
 };
 
@@ -90,25 +114,25 @@ export default async function handler(req, res) {
 
     // Validation
     if (!name || !email || !password) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        error: 'Name, email, and password are required' 
+        error: 'Name, email, and password are required'
       });
     }
 
     if (password.length < 6) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        error: 'Password must be at least 6 characters' 
+        error: 'Password must be at least 6 characters'
       });
     }
 
     // Check if email already exists in our system
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        error: 'Email already registered in our system' 
+        error: 'Email already registered in our system'
       });
     }
 
@@ -157,11 +181,11 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('❌ Error creating contractor:', error);
-    
+
     if (error.message.includes('token') || error.message.includes('Admin')) {
       return res.status(401).json({ success: false, error: error.message });
     }
-    
+
     res.status(500).json({
       success: false,
       error: 'Failed to create contractor',
