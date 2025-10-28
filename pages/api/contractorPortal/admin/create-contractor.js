@@ -19,8 +19,8 @@ const authenticateAdmin = async (req) => {
   return user;
 };
 
-// NEW FUNCTION: Check if contractor exists in GHL
-const checkGHLContactExists = async (email) => {
+// UPDATED FUNCTION: Check if contractor exists as a GHL Team Member/User
+const checkGHLTeamMember = async (email) => {
   try {
     const ghlApiKey = process.env.GHL_API_KEY;
     const ghlLocationId = process.env.GHL_LOCATION_ID;
@@ -30,11 +30,11 @@ const checkGHLContactExists = async (email) => {
       return null;
     }
 
-    console.log('🔍 Checking GHL for contact with email:', email);
+    console.log('🔍 Checking GHL for team member with email:', email);
 
-    // Search for contact by email in GHL
+    // Get all users/team members from the location
     const response = await fetch(
-      `https://services.leadconnectorhq.com/contacts/search/duplicate?locationId=${ghlLocationId}&email=${encodeURIComponent(email)}`,
+      `https://services.leadconnectorhq.com/users/?locationId=${ghlLocationId}`,
       {
         method: 'GET',
         headers: {
@@ -51,33 +51,27 @@ const checkGHLContactExists = async (email) => {
     }
 
     const data = await response.json();
-    console.log('📦 GHL response:', JSON.stringify(data, null, 2));
+    console.log('📦 GHL returned', data.users?.length || 0, 'team members');
 
-    // Check if contact exists and has "contractor" tag
-    if (data.contact) {
-      const contact = data.contact;
-      const hasContractorTag = contact.tags?.some(tag => 
-        tag.toLowerCase().includes('contractor')
-      );
+    // Find team member by email
+    const teamMember = data.users?.find(user => 
+      user.email?.toLowerCase() === email.toLowerCase()
+    );
 
-      if (hasContractorTag) {
-        console.log('✅ Found contractor in GHL with ID:', contact.id);
-        return {
-          id: contact.id,
-          name: contact.firstName + ' ' + contact.lastName,
-          email: contact.email
-        };
-      } else {
-        console.log('⚠️ Contact found but missing "contractor" tag');
-        return null;
-      }
+    if (teamMember) {
+      console.log('✅ Found team member in GHL:', teamMember.name, 'ID:', teamMember.id);
+      return {
+        id: teamMember.id,
+        name: teamMember.name,
+        email: teamMember.email
+      };
     }
 
-    console.log('❌ No matching contact found in GHL');
+    console.log('❌ No matching team member found in GHL');
     return null;
 
   } catch (error) {
-    console.error('❌ Error checking GHL:', error);
+    console.error('❌ Error checking GHL team members:', error);
     return null;
   }
 };
@@ -118,14 +112,14 @@ export default async function handler(req, res) {
       });
     }
 
-    // NEW: Check if contractor exists in GHL first
-    console.log('🔍 Verifying contractor exists in GHL...');
-    const ghlContact = await checkGHLContactExists(email);
+    // Check if contractor exists as a GHL team member
+    console.log('🔍 Verifying contractor exists as GHL team member...');
+    const ghlTeamMember = await checkGHLTeamMember(email);
 
-    if (!ghlContact) {
+    if (!ghlTeamMember) {
       return res.status(400).json({
         success: false,
-        error: 'Contractor not found in GoHighLevel. Please create them as a contact in GHL first with the tag "contractor" and use the same email address.'
+        error: 'Contractor not found in GoHighLevel team members. Please add them as a team member/user in GHL first with the same email address.'
       });
     }
 
@@ -141,23 +135,23 @@ export default async function handler(req, res) {
       companyName: companyName || '',
       license: license || '',
       isActive: true,
-      contractorTags: [],  // Start with no tags, admin assigns later
-      ghlContactId: ghlContact.id  // NEW: Store GHL contact ID for automation
+      contractorTags: [],
+      ghlUserId: ghlTeamMember.id  // Store GHL team member ID (this is what gets assigned to appointments)
     });
 
     await contractor.save();
 
-    console.log('✅ Admin created contractor:', contractor.name, 'with GHL ID:', ghlContact.id);
+    console.log('✅ Admin created contractor:', contractor.name, 'with GHL User ID:', ghlTeamMember.id);
 
     res.json({
       success: true,
-      message: 'Contractor created successfully and linked to GHL',
+      message: 'Contractor created successfully and linked to GHL team member',
       contractor: {
         _id: contractor._id,
         name: contractor.name,
         email: contractor.email,
         role: contractor.role,
-        ghlContactId: contractor.ghlContactId
+        ghlUserId: contractor.ghlUserId
       }
     });
 
