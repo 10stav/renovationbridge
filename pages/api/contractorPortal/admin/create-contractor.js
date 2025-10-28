@@ -128,10 +128,9 @@ export default async function handler(req, res) {
     console.log('🔍 Verifying contractor exists as GHL team member...');
     const ghlTeamMember = await checkGHLTeamMember(email);
 
-    // FIX: Check if there's an error property OR if ghlTeamMember is null
     if (!ghlTeamMember || ghlTeamMember.error) {
       const debugInfo = ghlTeamMember?.debug ?
-        `\n\nDebug Info:\n- Searched for: ${ghlTeamMember.debug.searchedEmail}\n- Total team members found in GHL: ${ghlTeamMember.debug.totalUsers}` : '';
+        `\n\nDebug Info:\n- Searched for: ${ghlTeamMember.debug.searchedEmail}\n- Total team members found in GHL: ${ghlTeamMember.debug.totalUsers}\n- All emails found: ${ghlTeamMember.debug.allEmails?.join(', ')}` : '';
 
       return res.status(400).json({
         success: false,
