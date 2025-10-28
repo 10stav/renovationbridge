@@ -30,14 +30,14 @@ const checkGHLTeamMember = async (email) => {
 
     console.log('🔍 Checking GHL for team member with email:', email);
 
-    // Use V1 API - fetch with high limit to get all users
     const response = await fetch(
-      `https://rest.gohighlevel.com/v1/users/?locationId=${ghlLocationId}&limit=100`,
+      `https://services.leadconnectorhq.com/users/?locationId=${ghlLocationId}&limit=100`,
       {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${ghlApiKey}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Version': '2021-07-28'  // ← Add this
         }
       }
     );
