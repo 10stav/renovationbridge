@@ -74,12 +74,7 @@ const checkGHLTeamMember = async (email) => {
     console.log('❌ No matching team member found');
 
     return {
-      error: 'No team member found',
-      debug: {
-        searchedEmail: email,
-        totalUsers: allUsers.length,
-        allEmails: allUsers.map(u => u.email) // All emails for debugging
-      }
+      error: 'No team member found'
     };
 
   } catch (error) {
@@ -129,12 +124,9 @@ export default async function handler(req, res) {
     const ghlTeamMember = await checkGHLTeamMember(email);
 
     if (!ghlTeamMember || ghlTeamMember.error) {
-      const debugInfo = ghlTeamMember?.debug ?
-        `\n\nDebug Info:\n- Searched for: ${ghlTeamMember.debug.searchedEmail}\n- Total team members found in GHL: ${ghlTeamMember.debug.totalUsers}\n- All emails found: ${ghlTeamMember.debug.allEmails?.join(', ')}` : '';
-
       return res.status(400).json({
         success: false,
-        error: (ghlTeamMember?.error || 'Contractor not found in GoHighLevel team members.') + debugInfo
+        error: ghlTeamMember?.error || 'Contractor not found in GoHighLevel team members. Please add them as a team member/user in GHL first with the same email address.'
       });
     }
 
