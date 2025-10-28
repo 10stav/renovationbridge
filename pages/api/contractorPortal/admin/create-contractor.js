@@ -20,12 +20,12 @@ const authenticateAdmin = async (req) => {
 };
 const checkGHLTeamMember = async (email) => {
   try {
-    const ghlApiKey = process.env.GHL_API_KEY;
-    const ghlLocationId = process.env.GHL_LOCATION_ID;
+    const ghlApiKey = process.env.GHL_API_KEY_APPDEV;
+    const ghlLocationId = process.env.GHL_LOCATION_ID_APPDEV;
 
     if (!ghlApiKey) {
-      console.warn('⚠️ GHL_API_KEY not set');
-      return { error: 'GHL_API_KEY not configured' };
+      console.warn('⚠️ GHL_API_KEY_APPDEV not set');
+      return { error: 'GHL_API_KEY_APPDEV not configured' };
     }
 
     console.log('🔍 Checking GHL for team member with email:', email);
