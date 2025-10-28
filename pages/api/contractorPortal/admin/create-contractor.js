@@ -31,48 +31,65 @@ const checkGHLTeamMember = async (email) => {
 
     console.log('🔍 Checking GHL for team member with email:', email);
 
-    // Try the v1 endpoint first
-    let response = await fetch(
-      `https://rest.gohighlevel.com/v1/users/?locationId=${ghlLocationId}`,
-      {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${ghlApiKey}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    // Try the v1 endpoint with pagination
+    let allUsers = [];
+    let skip = 0;
+    let hasMore = true;
 
-    // If v1 fails, try the v2 endpoint
-    if (!response.ok) {
-      console.log('⚠️ V1 endpoint failed, trying V2...');
-      response = await fetch(
-        `https://services.leadconnectorhq.com/users/?locationId=${ghlLocationId}`,
+    while (hasMore && skip < 100) { // Safety limit: max 100 users
+      let response = await fetch(
+        `https://rest.gohighlevel.com/v1/users/?locationId=${ghlLocationId}&skip=${skip}&limit=20`,
         {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${ghlApiKey}`,
-            'Version': '2021-07-28',
             'Content-Type': 'application/json'
           }
         }
       );
+
+      // If v1 fails, try the v2 endpoint
+      if (!response.ok && skip === 0) {
+        console.log('⚠️ V1 endpoint failed, trying V2...');
+        response = await fetch(
+          `https://services.leadconnectorhq.com/users/?locationId=${ghlLocationId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${ghlApiKey}`,
+              'Version': '2021-07-28',
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      }
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ GHL API error:', response.status, errorText);
+        return {
+          error: `GHL API returned ${response.status}`,
+          details: errorText
+        };
+      }
+
+      const data = await response.json();
+      const users = data.users || [];
+
+      allUsers = allUsers.concat(users);
+
+      // Check if there are more users to fetch
+      if (users.length < 20) {
+        hasMore = false;
+      } else {
+        skip += 20;
+      }
     }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ GHL API error:', response.status, errorText);
-      return {
-        error: `GHL API returned ${response.status}`,
-        details: errorText
-      };
-    }
-
-    const data = await response.json();
-    console.log('📦 GHL returned', data.users?.length || 0, 'team members');
+    console.log('📦 GHL returned', allUsers.length, 'total team members');
 
     // Find team member by email
-    const teamMember = data.users?.find(user =>
+    const teamMember = allUsers.find(user =>
       user.email?.toLowerCase() === email.toLowerCase()
     );
 
@@ -90,7 +107,7 @@ const checkGHLTeamMember = async (email) => {
       error: 'No team member found',
       debug: {
         searchedEmail: email,
-        totalUsers: data.users?.length || 0
+        totalUsers: allUsers.length
       }
     };
 
