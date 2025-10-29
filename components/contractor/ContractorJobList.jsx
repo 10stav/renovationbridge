@@ -1,6 +1,6 @@
 // src/components/contractor/ContractorJobsList.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import AcceptJobButton from './AcceptJobButton';
 
@@ -9,6 +9,28 @@ function ContractorJobsList({ jobs, loading, onBook, onBack }) {
   const [selectedJob, setSelectedJob] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [hiddenJobs, setHiddenJobs] = useState(new Set());
+
+
+
+
+
+  const hasAlreadyBooked = (job) => {
+    if (!job.bookedTimes || !Array.isArray(job.bookedTimes)) return false;
+    return job.bookedTimes.some(booking =>
+      booking.contractorId === user?._id
+    );
+  };
+
+  // Auto-hide jobs where contractor already booked
+  useEffect(() => {
+    const jobsToAutoHide = jobs
+      .filter(job => hasAlreadyBooked(job))
+      .map(job => job._id);
+
+    if (jobsToAutoHide.length > 0) {
+      setHiddenJobs(new Set(jobsToAutoHide));
+    }
+  }, [jobs, user]);
 
   /**
    * FILTER JOBS - Apply search filtering
@@ -24,6 +46,17 @@ function ContractorJobsList({ jobs, loading, onBook, onBack }) {
       job.projectBudget?.toLowerCase().includes(searchLower)
     );
   });
+
+  // Sort jobs - booked ones go to bottom
+  const sortedJobs = [...filteredJobs].sort((a, b) => {
+    const aBooked = hasAlreadyBooked(a);
+    const bBooked = hasAlreadyBooked(b);
+    if (aBooked && !bBooked) return 1;
+    if (!aBooked && bBooked) return -1;
+    return 0;
+  });
+
+  
 
   /**
    * HANDLE JOB ACCEPTED - Callback when AcceptJobButton books appointment
@@ -183,10 +216,11 @@ function ContractorJobsList({ jobs, loading, onBook, onBack }) {
         ) : (
           <div className="space-y-6">
             {/* Jobs List */}
-            {filteredJobs.map(job => {
+            {sortedJobs.map(job => {
               const availableSlots = countAvailableTimes(job);
               const isExpanded = selectedJob === job._id;
               const isHidden = hiddenJobs.has(job._id);
+              const alreadyBooked = hasAlreadyBooked(job);
 
               return (
                 <div key={job._id} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow duration-200">
@@ -195,6 +229,11 @@ function ContractorJobsList({ jobs, loading, onBook, onBack }) {
                     <div className="flex justify-between items-center py-2">
                       <div className="flex items-center text-gray-500">
                         <span className="text-sm">📋 {job.customerName} - Hidden</span>
+                        {alreadyBooked && (
+                          <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                            Already Booked
+                          </span>
+                        )}
                         <span className="ml-2 text-xs bg-gray-100 px-2 py-1 rounded">
                           {countAvailableTimes(job)} slots available
                         </span>
