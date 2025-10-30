@@ -536,7 +536,13 @@ export default async function handler(req, res) { ///this is the main webhook en
       availableTime1: availableTime1,
       availableTime2: availableTime2,
       availableTime3: availableTime3,
-      maxBookings: parseInt(webhookData['Max Bookings']) || 3  // ADD THIS LINE - reads from GHL custom field
+      maxBookings: parseInt(
+        webhookData['Max Bookings'] ||
+        webhookData['max_bookings'] ||
+        webhookData['maxBookings'] ||
+        webhookData.customField?.['Max Bookings'] ||
+        webhookData.customFields?.['Max Bookings']
+      ) || 3
     };
 
     // Debug tags
