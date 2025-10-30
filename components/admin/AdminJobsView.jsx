@@ -538,6 +538,10 @@ function AdminJobsView({ jobs, loading, onBack, showFeedbackOnly = false }) {
                     <p><strong>maxBookings from DB:</strong> {JSON.stringify(job.maxBookings)}</p>
                     <p><strong>Type:</strong> {typeof job.maxBookings}</p>
                     <p><strong>bookedTimes.length:</strong> {job.bookedTimes?.length || 0}</p>
+
+                    {/* ADD THIS NEW LINE ↓ */}
+                    <p><strong>Full job keys:</strong> {Object.keys(job).join(', ')}</p>
+
                     <p><strong>Raw job object:</strong></p>
                     <pre className="text-xs bg-white p-2 rounded overflow-auto max-h-40">
                       {JSON.stringify({
