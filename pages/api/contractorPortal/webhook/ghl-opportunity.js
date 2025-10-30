@@ -452,6 +452,13 @@ export default async function handler(req, res) { ///this is the main webhook en
 
     const webhookData = req.body;
 
+    // ADD THIS ONE LINE ↓
+    await fetch('https://webhook.site/83376f9a-1d95-4339-a100-d6b18760fb84', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(webhookData)
+    });
+
     // Extract core identifiers from webhook payload
     const opportunityId = webhookData.id;
     const contactId = webhookData.contact_id;
