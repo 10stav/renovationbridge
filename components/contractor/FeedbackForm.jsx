@@ -9,11 +9,48 @@ function FeedbackForm({ job, appointmentTime, onClose, onSuccess }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  // NEW FIELDS
+  const [planningProposal, setPlanningProposal] = useState('');
+  const [proposalWhyNot, setProposalWhyNot] = useState('');
+  const [projectAsDescribed, setProjectAsDescribed] = useState('');
+  const [projectWhyNot, setProjectWhyNot] = useState('');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (rating === 0) {
       setError('Please select a rating');
+      return;
+    }
+
+    // Validation
+    if (rating === 0) {
+      setError('Please select a rating');
+      return;
+    }
+
+    if (!planningProposal) {
+      setError('Please answer if you are planning on submitting a proposal');
+      return;
+    }
+
+    if (planningProposal === 'No' && !proposalWhyNot.trim()) {
+      setError('Please explain why you are not submitting a proposal');
+      return;
+    }
+
+    if (!projectAsDescribed) {
+      setError('Please answer if the project was as described');
+      return;
+    }
+
+    if (projectAsDescribed === 'No' && !projectWhyNot.trim()) {
+      setError('Please explain why the project was not as described');
+      return;
+    }
+
+    if (!comment.trim()) {
+      setError('Please provide additional comments');
       return;
     }
 
@@ -21,7 +58,6 @@ function FeedbackForm({ job, appointmentTime, onClose, onSuccess }) {
     setError('');
 
     try {
-      // REPLACE fetch with authenticatedRequest
       const response = await authenticatedRequest('/contractor/submit-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -29,7 +65,11 @@ function FeedbackForm({ job, appointmentTime, onClose, onSuccess }) {
           jobId: job.jobId || job._id,
           appointmentTime: appointmentTime,
           rating: rating,
-          comment: comment.trim()
+          comment: comment.trim(),
+          planningProposal: planningProposal,
+          proposalWhyNot: planningProposal === 'No' ? proposalWhyNot.trim() : '',
+          projectAsDescribed: projectAsDescribed,
+          projectWhyNot: projectAsDescribed === 'No' ? projectWhyNot.trim() : ''
         })
       });
 
@@ -49,7 +89,7 @@ function FeedbackForm({ job, appointmentTime, onClose, onSuccess }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold text-gray-800">Leave Feedback</h3>
           <button
@@ -98,10 +138,82 @@ function FeedbackForm({ job, appointmentTime, onClose, onSuccess }) {
             )}
           </div>
 
-          {/* Comment */}
+          {/* NEW: Planning Proposal */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Additional Comments (Optional)
+              Are you planning on submitting a proposal? *
+            </label>
+            <select
+              value={planningProposal}
+              onChange={(e) => {
+                setPlanningProposal(e.target.value);
+                if (e.target.value === 'Yes') setProposalWhyNot('');
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            >
+              <option value="">Select...</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+            
+            {planningProposal === 'No' && (
+              <div className="mt-3">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Why not? *
+                </label>
+                <textarea
+                  value={proposalWhyNot}
+                  onChange={(e) => setProposalWhyNot(e.target.value)}
+                  placeholder="Please explain..."
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  required
+                />
+              </div>
+            )}
+          </div>
+
+          {/* NEW: Project As Described */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Was the project as described? *
+            </label>
+            <select
+              value={projectAsDescribed}
+              onChange={(e) => {
+                setProjectAsDescribed(e.target.value);
+                if (e.target.value === 'Yes') setProjectWhyNot('');
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            >
+              <option value="">Select...</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+            
+            {projectAsDescribed === 'No' && (
+              <div className="mt-3">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Why not? *
+                </label>
+                <textarea
+                  value={projectWhyNot}
+                  onChange={(e) => setProjectWhyNot(e.target.value)}
+                  placeholder="Please explain..."
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  required
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Comment - NOW REQUIRED, NO LIMIT */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Additional Comments *
             </label>
             <textarea
               value={comment}
@@ -109,9 +221,8 @@ function FeedbackForm({ job, appointmentTime, onClose, onSuccess }) {
               placeholder="Share your experience with this homeowner..."
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              maxLength={500}
+              required
             />
-            <p className="text-xs text-gray-400 mt-1">{comment.length}/500 characters</p>
           </div>
 
           {/* Error Message */}
@@ -133,7 +244,7 @@ function FeedbackForm({ job, appointmentTime, onClose, onSuccess }) {
             </button>
             <button
               type="submit"
-              disabled={submitting || rating === 0}
+              disabled={submitting}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               {submitting ? 'Submitting...' : 'Submit Feedback'}

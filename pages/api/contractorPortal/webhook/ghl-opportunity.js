@@ -269,7 +269,8 @@ async function storeAvailableJob(contactData, originalWebhookData) { ///this fun
               time3: contactData.availableTime3
             },
             availableTimes: availableTimes,
-            conflicts: conflicts, // ADD THIS LINE
+            conflicts: conflicts,
+            maxBookings: contactData.maxBookings,  // ADD THIS LINE
             updatedAt: new Date(),
             ghlData: originalWebhookData
           },
@@ -315,7 +316,8 @@ async function storeAvailableJob(contactData, originalWebhookData) { ///this fun
               time3: contactData.availableTime3
             },
             availableTimes: availableTimes,
-            conflicts: conflicts, // ADD THIS LINE
+            conflicts: conflicts,
+            maxBookings: contactData.maxBookings,  // ADD THIS LINE
             updatedAt: new Date(),
             ghlData: originalWebhookData
           },
@@ -364,6 +366,7 @@ async function storeAvailableJob(contactData, originalWebhookData) { ///this fun
       availableTimes: availableTimes,
       conflicts: conflicts, // ADD THIS LINE
       homeownerTags: contactData.tags,
+      maxBookings: contactData.maxBookings,  // ADD THIS LINE
       ghlData: originalWebhookData
     });
 
@@ -523,7 +526,7 @@ export default async function handler(req, res) { ///this is the main webhook en
     const contactData = {
       contactId: webhookData.contact_id,
       contactName: webhookData.full_name,
-      contactEmail: webhookData.email || 'No email provided',  // ← ADD THE FALLBACK
+      contactEmail: webhookData.email || 'No email provided',
       contactPhone: webhookData.phone || 'No phone provided',
       projectBudget: webhookData['Project Budget'],
       projectDescription: webhookData['Project Description '],
@@ -532,7 +535,8 @@ export default async function handler(req, res) { ///this is the main webhook en
       location: webhookData.location,
       availableTime1: availableTime1,
       availableTime2: availableTime2,
-      availableTime3: availableTime3
+      availableTime3: availableTime3,
+      maxBookings: parseInt(webhookData['Max Bookings']) || 3  // ADD THIS LINE - reads from GHL custom field
     };
 
     // Debug tags

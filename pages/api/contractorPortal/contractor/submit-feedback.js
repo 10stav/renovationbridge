@@ -83,7 +83,9 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Feedback already submitted for this appointment' });
         }
 
-        // Add feedback
+        // Add feedback with new fields
+        const { planningProposal, proposalWhyNot, projectAsDescribed, projectWhyNot } = req.body;
+
         await AvailableJob.findByIdAndUpdate(
             jobId,
             {
@@ -94,6 +96,10 @@ export default async function handler(req, res) {
                         appointmentTime: appointmentTime,
                         rating: rating,
                         comment: comment || '',
+                        planningProposal: planningProposal,
+                        proposalWhyNot: proposalWhyNot || '',
+                        projectAsDescribed: projectAsDescribed,
+                        projectWhyNot: projectWhyNot || '',
                         submittedAt: new Date()
                     }
                 }

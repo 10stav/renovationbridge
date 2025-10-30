@@ -107,13 +107,14 @@ export default async function handler(req, res) {
       ///they initialize bookedTimeStrings so we can know which times are already booked (in order to not show them)
       ///the last one of the 3 makes sure that the time entry is a string, and if not, only extracts the string part so we can use it in the coming lines to as mentioned, control which jobs and times are shown to the contractors
 
-      // NEW: Check if 3 slots are already booked
-      const bookedAppointmentsCount = (job.appointments || []).length; ///this variable should now store the number of appointments booked, which we will use to hide the job if it is 3 or more, since even if a job has many times, it should be auto hidden once 3 are booked since that is the max we want to book per homeowner
-      console.log(`Job ${job.customerName}: ${bookedAppointmentsCount} appointments booked`);
+      // NEW: Check if maxBookings limit is reached
+      const bookedAppointmentsCount = (job.bookedTimes || []).length;
+      const maxBookings = job.maxBookings || 3; // Use custom field or default to 3
+      console.log(`Job ${job.customerName}: ${bookedAppointmentsCount}/${maxBookings} bookings`);
 
-      // If 3 or more appointments are booked, don't show this job
-      if (bookedAppointmentsCount >= 3) { ///if 3 are booked, hide job/remove it from available jobs page for contractor
-        console.log(`Job ${job.customerName} hidden - already has ${bookedAppointmentsCount} appointments (limit: 3)`);
+      // If bookings reached the limit, don't show this job
+      if (bookedAppointmentsCount >= maxBookings) {
+        console.log(`Job ${job.customerName} hidden - reached limit (${bookedAppointmentsCount}/${maxBookings})`);
         return null;
       }
       ///otherwise, if 2 or less hajve been booked...
@@ -146,8 +147,8 @@ export default async function handler(req, res) {
         status: job.status,
         remainingSlots: availableTimes.length,
         bookedAppointments: bookedAppointmentsCount,
-        maxAppointments: 3,
-        slotsRemaining: 3 - bookedAppointmentsCount
+        maxAppointments: maxBookings,  // CHANGE THIS LINE - use dynamic value
+        slotsRemaining: maxBookings - bookedAppointmentsCount  // CHANGE THIS LINE
       };
     })
       .filter(job => job !== null) // Remove jobs that hit the 3-appointment limit

@@ -495,7 +495,7 @@ function AdminJobsView({ jobs, loading, onBack, showFeedbackOnly = false }) {
 
                 {/* Appointment Statistics */}
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                     <div>
                       <div className="text-lg font-bold text-blue-600">{appointmentCounts.total}</div>
                       <div className="text-xs text-gray-500">Total Slots</div>
@@ -508,7 +508,22 @@ function AdminJobsView({ jobs, loading, onBack, showFeedbackOnly = false }) {
                       <div className="text-lg font-bold text-red-600">{appointmentCounts.booked}</div>
                       <div className="text-xs text-gray-500">Booked</div>
                     </div>
+                    {/* NEW: Max Bookings Display */}
+                    <div>
+                      <div className="text-lg font-bold text-purple-600">
+                        {job.bookedTimes?.length || 0}/{job.maxBookings || 3}
+                      </div>
+                      <div className="text-xs text-gray-500">Bookings Limit</div>
+                    </div>
                   </div>
+                  {/* NEW: Show when job will be hidden */}
+                  {job.bookedTimes?.length >= (job.maxBookings || 3) && (
+                    <div className="mt-2 text-center">
+                      <span className="text-xs font-medium text-orange-600">
+                        ⚠️ Job hidden from contractors (booking limit reached)
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Job ID for Reference */}
