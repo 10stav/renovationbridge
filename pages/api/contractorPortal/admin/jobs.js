@@ -69,6 +69,8 @@ export default async function handler(req, res) {
           claimedBy: job.claimedBy,
           conflicts: job.conflicts || [], // Include conflict data
           feedback: job.feedback || [], // ADD THIS LINE
+          maxBookings: job.maxBookings || 3,  // ADD THIS LINE
+          customerId: job.customerId,  // ADD THIS TOO (for reference)
           createdAt: job.createdAt
         };
       })
