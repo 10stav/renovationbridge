@@ -531,27 +531,10 @@ function AdminJobsView({ jobs, loading, onBack, showFeedbackOnly = false }) {
                   Job ID: {job._id} | Customer ID: {job.customerId}
                 </div>
 
-                {/* DEBUG INFO */}
-                <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
-                  <p className="text-xs font-bold text-yellow-800 mb-2">🐛 DEBUG INFO:</p>
-                  <div className="text-xs text-yellow-700 space-y-1">
-                    <p><strong>maxBookings from DB:</strong> {JSON.stringify(job.maxBookings)}</p>
-                    <p><strong>Type:</strong> {typeof job.maxBookings}</p>
-                    <p><strong>bookedTimes.length:</strong> {job.bookedTimes?.length || 0}</p>
-
-                    {/* ADD THIS NEW LINE ↓ */}
-                    <p><strong>Full job keys:</strong> {Object.keys(job).join(', ')}</p>
-
-                    <p><strong>Raw job object:</strong></p>
-                    <pre className="text-xs bg-white p-2 rounded overflow-auto max-h-40">
-                      {JSON.stringify({
-                        maxBookings: job.maxBookings,
-                        bookedTimes: job.bookedTimes,
-                        customerId: job.customerId
-                      }, null, 2)}
-                    </pre>
-                  </div>
-                </div>
+                
+                    
+                  
+                
 
                 {/* Add this new section
                 <div className="mt-4 pt-4 border-t border-gray-200">
